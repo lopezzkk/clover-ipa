@@ -1,0 +1,12 @@
+name: Gerar IPA do Clover RPG
+on: [workflow_dispatch, push]
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CloverRPG-ipa
+          path: CloverRPG.ipa
