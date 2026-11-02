@@ -442,6 +442,21 @@ body.cineon #hud,body.cineon #joy,body.cineon #jzone,body.cineon #lbl,body.cineo
 body.dbon #qind,body.dbon #boss{display:none!important}
 #posui{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 54px);transform:translateX(-50%);z-index:12;display:none;background:#3a0010e8;border:2px solid #ff2040;border-radius:20px;padding:5px 14px;font:700 14px 'Rajdhani',sans-serif;color:#fff;box-shadow:0 0 18px #ff2040;pointer-events:none}#posui.on{display:block;animation:nbr 1.4s ease-in-out infinite}
 body.posson #h-skills,body.posson #h-act,body.posson #joy,body.posson #a-nacht{opacity:.35;pointer-events:none}
+#kword.luz span{color:#fffdf0;text-shadow:0 0 6px #fff,0 0 18px #ffe27a,0 0 34px #ffb020,3px 0 0 #fff6c0,-3px 0 0 #ffc83a}
+#kword.terra span{color:#f2e2c8;text-shadow:0 0 6px #ffe8c0,0 0 16px #b8864a,0 0 30px #6a4a20,3px 0 0 #c89a5a,-3px 0 0 #4a3018}
+#kword.agua span{color:#eafcff;text-shadow:0 0 6px #fff,0 0 18px #3aa8ff,0 0 34px #0a6ad0,3px 0 0 #9af0ff,-3px 0 0 #0a4a9a}
+.skr{display:flex;gap:8px;align-items:center;padding:6px 7px;margin:4px 0;border-radius:10px;background:#ffffff0d;border:1px solid #ffffff14}
+.skr.lk{opacity:.62}
+.skr .ski{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#0006}
+.skr .ski svg{width:24px;height:24px}
+.skr b{font-size:13px;display:block;line-height:1.2}
+.skc{display:flex;flex-wrap:wrap;gap:3px 6px;margin-top:3px}
+.skc em{font-style:normal;font-size:11px;padding:1px 6px;border-radius:7px;background:#0005;color:#d8dde6;white-space:nowrap}
+.skc em.ok{color:#7dffb0}.skc em.no{color:#ff9aa8}
+.dlv{margin:6px 0 8px;padding:7px 10px;border-radius:9px;border:1px solid #ff4d6a66;background:#ff4d6a1a;font-size:12.5px}
+.dlv.ok{border-color:#3dff9a66;background:#3dff9a14}
+.dcc .klk{opacity:.7;cursor:not-allowed}
+@media (max-width:700px){.skc em{font-size:10px}.skr b{font-size:12px}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="top"></div><div id="slx"></div><div id="cine"><i class="cbar cbt"></i><i class="cbar cbb"></i><div id="cscene"></div><div id="csub"></div><div id="cspec"></div><div id="ctitle"></div><button id="cskip" onclick="csSkip()">PULAR ▶▶</button></div><div id="tagui"></div><div id="cchoice"></div><div id="dcx"></div><div id="dbbar"></div><div id="posui"></div><div id="kbui"></div><button id="a-nacht" onpointerdown="event.preventDefault();nbTap()" aria-label="União Demoníaca de Nacht" title="União Demoníaca de Nacht" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3l3 5M20 3l-3 5" stroke="#b070ff" stroke-width="2" stroke-linecap="round"/><path d="M12 5c5 0 8 4 8 9s-4 8-8 8-8-3-8-8 3-9 8-9z" fill="#0a0612" stroke="#b070ff" stroke-width="1.5"/><path d="M7 12l3 1.5M17 12l-3 1.5" stroke="#ff2a3a" stroke-width="2" stroke-linecap="round"/><path d="M9 17q3 2 6 0" stroke="#d8c0ff" stroke-width="1.3" fill="none"/></svg><b id="nb-t"></b></button><div id="nacx"></div><div id="rvl"></div><div id="cdx"></div>
@@ -899,18 +914,7 @@ function unionFX(){const g=new T.Group(),W=[];for(const s of[-1,1]){const h=mk(n
  const sh=new T.Group();for(let k=0;k<6;k++){const a=k/6*6.28,o=new T.Mesh(new T.OctahedronGeometry(.13),new T.MeshBasicMaterial({color:0xff2a3a}));o.position.set(Math.sin(a)*1.3,1.3+(k%2)*.4,Math.cos(a)*1.3);sh.add(o)}g.add(sh);const au=new T.Mesh(new T.SphereGeometry(1.15,14,10),new T.MeshBasicMaterial({color:0x5a0010,transparent:true,opacity:.22}));au.position.y=1.2;g.add(au);g.userData={w:W,sh};g.visible=false;return g}
 function animUnion(g,t){const u=g.userData;if(!u||!u.w||!u.sh)return;u.w[0].rotation.y=.35+Math.sin(t*3)*.25;u.w[1].rotation.y=-.35-Math.sin(t*3)*.25;u.sh.rotation.y=t*1.6;u.sh.children.forEach((o,k)=>{o.rotation.y=t*4})}
 function mkSword(){const sw=makeDemonSword();sw.position.y=-.34;sw.rotation.x=1.35;return sw}
-function anim(p,t,mv,air){const L=p.legs,A=p.arms,r=p.root;
- if(air){L[0][0].rotation.x=-1;L[0][1].rotation.x=1.3;L[1][0].rotation.x=.3;L[1][1].rotation.x=.7;A[0][0].rotation.x=-1.3;A[1][0].rotation.x=-.5;A[0][1].rotation.x=-.7;A[1][1].rotation.x=-.9;r.position.y=0;r.rotation.x=.08;return}
- if(mv<.03){const b=Math.sin(t*2.1);for(let i=0;i<2;i++){L[i][0].rotation.x=0;L[i][1].rotation.x=0;A[i][0].rotation.x=.04*b+(i?.03:-.02);A[i][1].rotation.x=-.18-.05*b}r.position.y=.012*b;r.rotation.x=0;return}
- const run=mv>1.05,k=Math.min(1,mv),ph=t*(run?12.5:8.5),s=Math.sin(ph),c=Math.cos(ph),amp=(run?.95:.6)*k;
- // pernas: coxa balança, joelho dobra na fase de balanço (perna indo para frente) e um pouco no apoio
- L[0][0].rotation.x=-s*amp;L[1][0].rotation.x=s*amp;
- L[0][1].rotation.x=(Math.max(0,c)*(run?1.5:.85)+.08)*k;L[1][1].rotation.x=(Math.max(0,-c)*(run?1.5:.85)+.08)*k;
- // braços opostos às pernas, cotovelos dobrados ao correr
- A[0][0].rotation.x=s*(run?.95:.5)*k;A[1][0].rotation.x=-s*(run?.95:.5)*k;
- A[0][1].rotation.x=-(run?1.35:.35)-Math.max(0,-s)*.3*k;A[1][1].rotation.x=-(run?1.35:.35)-Math.max(0,s)*.3*k;
- // sobe e desce duas vezes por passo, inclina o tronco ao correr
- r.position.y=(1-Math.abs(s))*(run?.085:.035)*k;r.rotation.x=(run?.2:.05)*k}
+/* anim(): substituída na V74 — ver ANIMAÇÕES (V74) */
 function npc(o){const p=person(o);NPCS.push(p);return p.g}
 const VAR={
  alda:{name:'Aldeã',line:'Os bandidos estão à solta. Fale comigo para aceitar a patrulha!',top:0xe8b94a,pants:0x6b4a2a,hs:3,hair:0x5a3a20,coat:1},
@@ -1307,7 +1311,7 @@ function openMenu(t){if(!P.g||CS.on||ENC.on&&ENC.mode!='battle')return;if(t)mt=t
  else if(mt=='inv'){h+='<h2>Inventário</h2>';h+='<p class="sm">Roupas: '+Object.keys(P.own).map(k=>SK[k][0]).join(', ')+'</p>'}
  else if(mt=='q'){h+='<h2>Missões</h2><p class="sm"><b>Atual:</b> '+qText()+'</p>'+(Q.id?'<button class="k sm" onclick="qAbandon()">Abandonar missão</button>':'');for(const id in QS){const q=QS[id];const vl=VILS.reduce((b,v)=>{const n=NPCS.find(x=>x.name==q.giver);if(!n)return b;const d=Math.hypot(n.g.position.x-v.x,n.g.position.z-v.z);return d<(b?b[1]:60)?[v.n,d]:b},null);h+='<div class="ql"><b>'+(q.kind=='boss'?'👑 ':'')+q.n+'</b> <small>('+q.giver+(vl?' · '+vl[0]:' · Zona Comum')+' · Nv '+q.lv+')</small><br><small>'+(Q.id==id?'Em andamento':qCdLeft(id)?'Volta em '+fmtT(qCdLeft(id)):P.qd[id]?'Concluída '+P.qd[id]+'×'+(q.rep?' · repetível'+(q.cd?' a cada 5 min':''):''):P.lv<q.lv?'Requer Nível '+q.lv:'Disponível')+' — '+rwT(q)+'</small></div>'}}
  else if(mt=='cfg'){const tb=(on,f,t)=>'<button class="k'+(on?' on':'')+'" onclick="'+f+'">'+t+'</button>';h+='<h2>Ajustes</h2><p class="sm">Gráficos</p><div class="tabs">'+[['baixo','Baixo'],['medio','Médio'],['alto','Alto']].map(x=>tb(CFG.gfx==x[0],"CFG.gfx='"+x[0]+"';applyCfg();openMenu('cfg')",x[1])).join('')+'</div><div class="tabs">'+tb(CFG.parts,"CFG.parts=CFG.parts?0:1;applyCfg();openMenu('cfg')",'Partículas: '+(CFG.parts?'ligadas':'desligadas'))+tb(CFG.fx,"CFG.fx=CFG.fx?0:1;applyCfg();openMenu('cfg')",'Efeitos: '+(CFG.fx?'ligados':'desligados'))+tb(0,'mFull()','Tela cheia')+tb(0,'accOpen()','👤 Conta (salvar na nuvem)')+tb(0,'cdxOpen()','📜 Códex das Magias')+'</div><p class="sm">Cutscenes das Ultimates e transformações</p><div class="tabs">'+[['full','Completas (~30–55s)'],['curta','Rápidas (2,4×)'],['off','Sem cutscene']].map(x=>tb((CFG.cut||'full')==x[0],"CFG.cut='"+x[0]+"';applyCfg();openMenu('cfg')",x[1])).join('')+'</div><div class="tabs">'+tb(SL.on,'slSet(!SL.on);openMenu(\'cfg\')','🔒 Shiftlock: '+(SL.on?'ligado':'desligado'))+tb(0,'kbOpen()','⌨️ Atalhos (PC)')+'</div><p class="sm">Zoom: use dois dedos na tela ou a roda do mouse. PC: Shift liga/desliga o Shiftlock, Ctrl corre.</p>'}
- else{h+='<h2>'+(P.g.l?'Grimório de '+P.g.n:'Sem grimório')+'</h2>'+(locked()?'<p class="sm">Você nasceu sem magia: estes poderes estão bloqueados.</p>':'');P.g.s.forEach((s,i)=>{h+='<div class="ql"><b>'+(P.lv<skl(i)?'🔒 ':'')+s[0]+'</b> <small>'+(P.lv<skl(i)?'Desbloqueia no Nível '+skl(i):'Nv '+lvl(i)+(lvl(i)<10?' · uso '+(P.xp[i]%8)+'/8':' · máximo'))+' · custo '+s[1]+'</small></div>'});if(P.g.ss){h+='<p class="sm" style="color:'+(P.g.id=='anti'?'#ff4050':'#3dff9a')+';margin-top:8px">'+(P.g.id=='anti'?'😈 União Demoníaca (Liebe) — magias que substituem os botões durante a União:':P.g.id=='sombra'?'🌑 Devil Union: Nacht ('+(NF[P.nacht?P.nf:NA.uf]||NF.canis).n+') — magias que substituem os botões durante a União:':'🧚 Espírito do Vento (Sylph) — magias que substituem os botões durante a transformação:')+'</p>';P.g.ss.forEach((s,i)=>{h+='<div class="ql"><b>'+(P.lv<skl(i)?'🔒 ':'')+s[0]+'</b> <small>custo '+s[1]+' mana + '+s[6]+(P.g.id=='anti'?' energia demoníaca':P.g.id=='sombra'?' energia de contrato':' energia espiritual')+'</small></div>'})}h+='<p class="sm">Passiva — '+P.g.p.t+'</p><button class="k sm" onclick="closeOv();grimOpen(\'game\')">📕 Roleta de Grimórios ('+(P.ggiros||0)+' giros · ⭐ '+(P.gsgiros||0)+' super)</button> <button class="k sm" onclick="cdxOpen()">📜 Códex das Magias</button> <button class="k sm" onclick="closeOv();dcxOpen()">😈 Contratos Demoníacos</button>'}
+ else{h+='<h2>'+(P.g.l?'Grimório de '+P.g.n:'Sem grimório')+'</h2>'+(locked()?'<p class="sm">Você nasceu sem magia: estes poderes estão bloqueados.</p>':'');P.g.s.forEach((s,i)=>{h+=skRow(s,i,0)});h+=rngMix(P.g.s);if(P.g.ss){h+='<p class="sm" style="color:'+(P.g.id=='anti'?'#ff4050':'#3dff9a')+';margin-top:8px">'+(P.g.id=='anti'?'😈 União Demoníaca (Liebe) — magias que substituem os botões durante a União:':P.g.id=='sombra'?'🌑 Devil Union: Nacht ('+(NF[P.nacht?P.nf:NA.uf]||NF.canis).n+') — magias que substituem os botões durante a União:':'🧚 Espírito do Vento (Sylph) — magias que substituem os botões durante a transformação:')+'</p>';P.g.ss.forEach((s,i)=>{if(s)h+=skRow(s,i,1)})}h+='<p class="sm">Passiva — '+P.g.p.t+'</p><button class="k sm" onclick="closeOv();grimOpen(\'game\')">📕 Roleta de Grimórios ('+(P.ggiros||0)+' giros · ⭐ '+(P.gsgiros||0)+' super)</button> <button class="k sm" onclick="cdxOpen()">📜 Códex das Magias</button> <button class="k sm" onclick="closeOv();dcxOpen()">😈 Contratos Demoníacos</button>'}
  h+='<div style="margin-top:10px"><span class="sm" style="opacity:.8;margin-right:10px">💾 Salvamento automático ativado</span><button class="k" onclick="closeOv()">Fechar</button></div></div>';const o=$('ov');o.innerHTML=h;o.style.display='flex'}
 const enemies=[],shots=[],fx=[],eshots=[],tmr=[],drops=[];let touch=false,run=false,tmsg=0;
 
@@ -1331,7 +1335,7 @@ function hitE(e,d,ef){if(e.L){e.fl=.13;for(const m of[e.L.mT,e.L.mP,e.L.mS,e.L.m
 function aimAssist(range){let best=null,bs=1e9;const cone=touch?1.3:.45;for(const e of enemies){if(e.hp<=0)continue;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz);if(d>range)continue;let a=Math.atan2(dx,dz)-P.f;a=Math.abs(Math.atan2(Math.sin(a),Math.cos(a)));if(a>cone&&d>3)continue;const sc=d+a*6-(qTarget(e)||e.boss?5:0)-(e===P.tg?3:0);if(sc<bs){bs=sc;best=e}}if(best){P.f=Math.atan2(best.x-P.x,best.z-P.z);P.tg=best}return best}
 const SKL=[1,5,10,15,25,40]; // referência; cada grimório usa sklOf(id) // nível necessário para cada habilidade do grimório (1ª, 2ª, 3ª, 4ª)
 const ALT=()=>!!(P.g&&(P.sy||(P.union&&P.g.id=='anti')||(P.nacht&&P.g.id=='sombra')));const ENG=()=>P.sy?(P.se||0):P.nacht?(P.ne||0):(P.de||0);
-function cast(i,ph){if(CS.on||ENC.on&&ENC.mode!='battle')return;if(POS.on){toast('😈 '+DPS[POS.k].n+' está controlando seu corpo!');return}if(!ph&&xIntercept(i))return;if(!run||!P.g||(!ph&&!P.on)||(ph?P.cd2[i]:P.cd[i])>0)return;const G=ph?GR.nenhum:P.g,s=(!ph&&ALT()&&G.ss?G.ss:G.s)[i],t=s[3],ef=s[4],nm=s[0];if(P.lv<(ph?sklOf('nenhum'):sklOf(G.id))[i]){toast('🔒 '+nm+' desbloqueia no Nível '+(ph?sklOf('nenhum'):sklOf(G.id))[i]+' (você está no '+P.lv+').');return}
+function cast(i,ph){if(P.dead>0)return;if(CS.on||ENC.on&&ENC.mode!='battle')return;if(POS.on){toast('😈 '+DPS[POS.k].n+' está controlando seu corpo!');return}if(!ph&&xIntercept(i))return;if(!run||!P.g||(!ph&&!P.on)||(ph?P.cd2[i]:P.cd[i])>0)return;const G=ph?GR.nenhum:P.g,s=(!ph&&ALT()&&G.ss?G.ss:G.s)[i],t=s[3],ef=s[4],nm=s[0];if(P.lv<(ph?sklOf('nenhum'):sklOf(G.id))[i]){toast('🔒 '+nm+' desbloqueia no Nível '+(ph?sklOf('nenhum'):sklOf(G.id))[i]+' (você está no '+P.lv+').');return}
  if(!ph&&locked()){toast('Você nasceu sem magia: não consegue usar os poderes de '+P.g.n);return}
  if(!ph&&P.g.id=='anti'&&!P.sword){toast('Saque a espada para usar a Anti-Magia');return}
  if(!ph&&t=='fsoul'&&!fSoulTarget())return;
@@ -1352,6 +1356,7 @@ function cast(i,ph){if(CS.on||ENC.on&&ENC.mode!='battle')return;if(POS.on){toast
  else if(t=='dash'){const dc={'Investida do Vento':0xbaffe0,'Investida Demoníaca':0xff2040}[nm]||0xffffff;for(const e of enemies)if(line(e,10,2.5)){e.sp=i;hitE(e,d,ef)}for(const k in MP.others){const o=MP.others[k];if(line(o,10,2.5))pvpHit(o.x,o.z,.5,d)}for(let k=0;k<=12;k++)fxp({x:P.x+dx*k*.75,y:1.2,z:P.z+dz*k*.75,c:dc,n:2,sp:.8,sz:.4,life:.5,up:1});if(nm=='Investida Demoníaca')blast(4,0x150010,P.x+dx*9,1,P.z+dz*9,2.5);P.x+=dx*9;P.z+=dz*9;P.sw=.3}
  else if(t=='beam'){for(const e of enemies)if(line(e,26,1.6)){e.sp=i;hitE(e,d,ef)}for(const k in MP.others){const o=MP.others[k];if(line(o,26,1.6))pvpHit(o.x,o.z,.5,d)}const g=new T.Group();for(const m of[new T.Mesh(new T.CylinderGeometry(1,1,26,14,1,true),GLM(0xffe680,.35)),new T.Mesh(new T.CylinderGeometry(.55,.55,26,12,1,true),GLM(0xfff2a0,.6)),new T.Mesh(new T.CylinderGeometry(.2,.2,26,8),BM(0xffffff))]){m.rotation.x=Math.PI/2;g.add(m)}g.position.set(P.x+dx*13,1.3,P.z+dz*13);g.rotation.y=P.f;S.add(g);fxp({x:P.x+dx*26,y:1.3,z:P.z+dz*26,c:0xfff2a0,n:24,sp:6,sz:.3,life:.6,up:3,g:6});tmr.push({t:.3,f:()=>S.remove(g)})}
  else if(t=='slash'){P.sw=.3;cut(5);ring(4,col);const a0=P.x+dx*2.2,b0=P.z+dz*2.2;if(nm=='Corte Anti-Magia'){const c2=cres(0x151515,1.6,.12,1);c2.position.set(a0,1.3,b0);c2.rotation.y=P.f;S.add(c2);fx.push({m:c2,r:1.6,t:0,sp:4})}fxp({x:a0,y:1.2,z:b0,c:nm=='Corte Anti-Magia'?0x333344:0xffffff,n:16,dx,dz,sp:6,spread:.8,sz:.25,life:.4});if(nm=='Pancada Pesada'){P.shake=.5;fxp({x:a0,y:.3,z:b0,c:0xbbbbbb,n:20,sp:5,sz:.35,life:.6,g:8,up:4})}near(5,e=>{if(front(e,1.3))hitE(e,d,ef)})}
+ else if(LWS[t])lwCast(t,d);
  else if(XT.includes(t))xCast(t,d,dx,dz);
  else if(t=='fball')fBall(d,dx,dz,ef);
  else if(t=='fchain')fChainSkill(d);
@@ -1496,7 +1501,7 @@ function regLv(x,z){for(const v of VILS)if(Math.hypot(x-v.x,z-v.z)<v.r+75)return
 function spawn(q){const a=Math.random()*6.28,r=q?q.at.r*(.35+Math.random()*.65):24+Math.random()*10,L=person(BAND[Math.floor(Math.random()*BAND.length)]),g=L.g,_dr=(()=>{try{if(CFG.gfx!='baixo'){const c=m=>m&&m.color?m.color.getHex():0;dressUp(L,{body:Math.floor(Math.random()*3),hair:Math.floor(Math.random()*6),hc:c(L.mH),tc:c(L.mT),pc:c(L.mP),ec:c(L.mE),sk:c(L.mS)})}}catch(e){}return 0})(),x=(q?q.at.x:P.x)+Math.cos(a)*r,z=(q?q.at.z:P.z)+Math.sin(a)*r;if(nearVil(x,z,q?3:6))return;g.position.set(x,0,z);S.add(g);const en=q&&q.en,gr=en?(en.gr?(Array.isArray(en.gr)?en.gr[Math.floor(Math.random()*en.gr.length)]:['fogo','agua','terra','vento','luz'][Math.floor(Math.random()*5)]):null):(Math.random()<.5?['fogo','agua','terra','vento','luz'][Math.floor(Math.random()*5)]:null);if(gr){const bk=mk(new T.BoxGeometry(.3,.4,.06),GR[gr].c,1);bk.position.set(.55,1.4,0);g.add(bk)}const rg=q?[q.lv,q.lv+2]:regLv(x,z),lv=Math.min(LVMAX,Math.max(1,rg[0]+Math.floor(Math.random()*(rg[1]-rg[0]+1)))),hp=30+14*lv;if(q){const mk2=new T.Mesh(new T.ConeGeometry(.28,.55,4),new T.MeshBasicMaterial({color:0xffd23f,fog:false}));mk2.rotation.x=Math.PI;mk2.position.y=2.9;g.add(mk2)}enemies.push({m:g,L,x,z,hp,mhp:hp,lv,dm:1+.12*(lv-1),cd:0,sp:0,gr,mc:2,name:en?en.n:gr?'Mago Renegado':'Bandido',qid:q?q.id:null})}
 function qSpawnTick(){if(!Q.id||!Q.on)return;const q=QS[Q.id];if(q.kind!='kill'||!q.at)return;q.id=Q.id;if(Math.hypot(P.x-q.at.x,P.z-q.at.z)>q.at.r+55)return;const alive=enemies.filter(e=>e.qid===Q.id).length;if(alive<Math.min(5,Q.need-Q.n))spawn(q)}
 function spawnDummy(h){const L=person({top:0xd9b86a,pants:0x8a6a3a,hs:4,hat:0x6e4a2a,skin:0xe0c890,hair:0x8a6a3a,belt:1}),g=L.g;g.position.set(h.x,0,h.z);S.add(g);enemies.push({m:g,L,x:h.x,z:h.z,hp:80,mhp:80,lv:1,dm:0,cd:0,sp:0,gr:null,mc:99,name:'Boneco de Treino',dummy:1,home:h,wa:-1.5708})}
-function hurt(d){if(P.iv>0)return;P.lh=performance.now();let v=d*(1-(pas().def||0))*(1-cb('def'))*(P.sh>0?.2:1)*(P.union?.7:1)*(P.xdef||1)*(1-Math.min(.4,P.st.vit*.015));v=xAbsorb(v);P.hp-=v;dmgNum(P.x,2.3,P.z,v,0,'pl');if(v>P.mhp*.12){P.shake=Math.max(P.shake||0,.35);flashRed()}if(P.hp<=0){if(ENC.on&&dbLose())return;try{xDeath()}catch(e){}const lost=Math.floor(P.coins*.1);P.coins-=lost;P.hp=P.mhp;P.mp=P.mmp;P.x=0;P.z=0;P.sprot=8;if(SC.on)scEnd('far');toast('Você caiu! Acordou na Vila Hage e perdeu '+lost+' moedas.');banner('VOCÊ CAIU','Acordou na Vila Hage · -'+lost+' moedas','#ff4d4d');flashRed()}}
+function hurt(d){if(P.iv>0)return;P.lh=performance.now();let v=d*(1-(pas().def||0))*(1-cb('def'))*(P.sh>0?.2:1)*(P.union?.7:1)*(P.xdef||1)*(1-Math.min(.4,P.st.vit*.015));v=xAbsorb(v);P.hp-=v;P.hitf=.28;dmgNum(P.x,2.3,P.z,v,0,'pl');if(v>P.mhp*.12){P.shake=Math.max(P.shake||0,.35);flashRed()}if(P.hp<=0){if(ENC.on&&dbLose())return;if(P.dead>0)return;try{xDeath()}catch(e){}P.dead=1.3;P.deadT0=performance.now()/1000;P.hp=0;P.iv=99;P.lock=1.4;P.ps='';jx=jz=0;flashRed();tmr.push({t:1.3,f:()=>{P.dead=0;P.iv=0;P.lock=0;const lost=Math.floor(P.coins*.1);P.coins-=lost;P.hp=P.mhp;P.mp=P.mmp;P.x=0;P.z=0;P.sprot=8;if(SC.on)scEnd('far');toast('Você caiu! Acordou na Vila Hage e perdeu '+lost+' moedas.');banner('VOCÊ CAIU','Acordou na Vila Hage · -'+lost+' moedas','#ff4d4d');flashRed()}})}}
 // ---------- Entrada ----------
 const keys={};let jx=0,jz=0;
 addEventListener('keydown',e=>{keys[e.code]=1;if(run&&!CS.on)kbAct(e.code);if(e.code=='Space')jump();if(e.code=='KeyE')interact();if(e.code=='KeyB')openShop();if(e.code=='KeyG')grim();if(e.code=='KeyF')punch();if(e.code=='KeyQ')togSword();if(e.code=='KeyU')togUnion();if(e.code=='KeyY')syToggle();if(e.code=='KeyC')dodge();if(!MENU.on&&(e.code=='KeyI'||e.code=='Tab')){e.preventDefault();if(run)openMenu();else if(P.g)closeOv()}});
@@ -1584,8 +1589,8 @@ const SKI={
 function skIcon(nm,col){const c=hx(col),l=new T.Color(col).lerp(new T.Color(0xffffff),.55).getHexString(),b=SKI[nm];if(!b)return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="'+c+'"/></svg>';return '<svg viewBox="0 0 24 24" stroke-linejoin="round">'+b.replace(/"C"/g,'"'+c+'"').replace(/"L"/g,'"#'+l+'"')+'</svg>'}
 const PI={'Pancada Pesada':'💢','Combo Rápido':'👊','Chute Giratório':'🌀','Voadora':'🦶','Golem de Pedra':'🗿','Furacão':'🌪️','Lâmina Demoníaca':'🗡️','Pedra':'🪨','Bola de Fogo':'🔥','Lança-chamas':'♨️','Jato d’Água':'💧','Cura da Maré':'💚','Raio de Luz':'✨','Cura Divina':'✚','Muralha de Pedra':'🧱','Tremor':'💥','Lâmina de Vento':'🍃','Investida do Vento':'💨','Tornados Gêmeos':'🌀','Feixe Sagrado':'⚡','Flash Cegante':'💫','Explosão Solar':'☀️','Meteoro':'☄️','Maré':'🌊','Tsunami':'🌊','Corte Anti-Magia':'⚔️','Anula Magia':'⛔','Investida Demoníaca':'💨'};
 function renderSkills(){if(!P.g)return;const ph=locked(),list=ph?GR.nenhum.s:(ALT()&&P.g.ss?P.g.ss:P.g.s),box=$('h-skills');box.style.display=(!ph&&!P.on)?'none':'flex';box.classList.toggle('six',list.length>4);const key=(ph?'ph':P.g.id)+(P.on?1:0)+(ALT()?'S'+(P.nacht?P.nf:''):'');
- if(box._k!==key){box._k=key;box.innerHTML='';list.forEach((s,i)=>{const b=document.createElement('button');b.className='sk';b.id='sk'+i;b.title=s[0];b.innerHTML='<span class="ico">'+skIcon(s[0],ph?0xe8e8e8:(P.g.id=='anti'?0xff2040:P.g.id=='nenhum'?0xe8e8e8:P.g.id=='kotodama'?0xc060ff:P.nacht?0xff4060:ALT()&&P.g.ss?0x9effc8:XIC(P.g.id)))+'</span><span class="num">'+(i+1)+'</span>'+(s[1]?'<span class="cst">'+mcost(s)+'</span>':'')+'<span class="lk">🔒</span><span class="nm">'+s[0]+'</span>';b.addEventListener('pointerdown',e=>{e.preventDefault();if(!ph&&!P.on){toast('Equipe o grimório para usar as magias.');return}cast(i,ph?1:0)});box.appendChild(b)});setTimeout(nbLayout,30)}
- const col=hx(ph?0xd8d8d8:P.nacht?0xff4060:XIC(P.g.id));list.forEach((s,i)=>{const b=$('sk'+i);if(!b)return;const off=!ph&&!P.on,lk=P.lv<skl(i);b.classList.toggle('off',off);if(b._lk!==lk){b._lk=lk;b.classList.toggle('lock',lk);const L=b.querySelector&&b.querySelector('.lk');if(L)L.innerHTML=lk?'🔒<small>Nv '+skl(i)+'</small>':'🔒'}b.classList.toggle('poor',!off&&P.mp<mcost(s));if(b.style.setProperty)b.style.setProperty('--g',col)})}
+ if(box._k!==key){box._k=key;box.innerHTML='';list.forEach((s,i)=>{const b=document.createElement('button');b.className='sk';b.id='sk'+i;b.title=skTitle(s,i);b.innerHTML='<span class="ico">'+skIcon(s[0],ph?0xe8e8e8:(P.g.id=='anti'?0xff2040:P.g.id=='nenhum'?0xe8e8e8:P.g.id=='kotodama'?0xc060ff:P.nacht?0xff4060:ALT()&&P.g.ss?0x9effc8:XIC(P.g.id)))+'</span><span class="num">'+(i+1)+'</span>'+(s[1]?'<span class="cst">'+mcost(s)+'</span>':'')+'<span class="lk">🔒</span><span class="nm">'+s[0]+'</span>';b.addEventListener('pointerdown',e=>{e.preventDefault();if(!ph&&!P.on){toast('Equipe o grimório para usar as magias.');return}cast(i,ph?1:0)});box.appendChild(b)});setTimeout(nbLayout,30)}
+ const col=hx(ph?0xd8d8d8:P.nacht?0xff4060:XIC(P.g.id));list.forEach((s,i)=>{const b=$('sk'+i);if(!b)return;const off=!ph&&!P.on,lk=P.lv<skl(i);b.classList.toggle('off',off);if(b._lk!==lk){b._lk=lk;b.title=skTitle(s,i);b.classList.toggle('lock',lk);const L=b.querySelector&&b.querySelector('.lk');if(L)L.innerHTML=lk?'🔒<small>Nv '+skl(i)+'</small>':'🔒'}b.classList.toggle('poor',!off&&P.mp<mcost(s));if(b.style.setProperty)b.style.setProperty('--g',col)})}
 function buildBtns(){const box=$('h-skills');if(box)box._k=null;renderSkills()}
 function portraitSVG(){const cl=P.union?0x161014:(P.look.tc!=null?P.look.tc:(SK[P.eq]||SK.civil)[2]),h=hx(P.hair||0x2a2018),e=hx(P.union?0xff2a3a:(P.eye||0x2a6fd0));return '<svg viewBox="0 0 64 64"><defs><radialGradient id="pbg" cx=".5" cy=".4"><stop offset="0" stop-color="#2f6a3c"/><stop offset="1" stop-color="#07140b"/></radialGradient></defs><rect width="64" height="64" fill="url(#pbg)"/><path d="M10 64Q13 46 32 44Q51 46 54 64Z" fill="'+hx(cl)+'"/>'+(P.eq=='touros'?'<path d="M10 64Q13 47 32 45Q51 47 54 64L48 64Q44 52 32 51Q20 52 16 64Z" fill="#141414" stroke="#d4af37" stroke-width="1"/>':'')+'<rect x="28" y="37" width="8" height="9" fill="#f1c9a0"/><ellipse cx="32" cy="29" rx="12" ry="13.5" fill="#f1c9a0"/><polygon points="18,30 15,16 22,21 21,9 28,17 32,5 36,17 43,9 42,21 49,16 46,30 44,23 38,20 32,22 26,20 20,23" fill="'+h+'"/><ellipse cx="27" cy="30.5" rx="2.6" ry="3.4" fill="#fff"/><ellipse cx="37" cy="30.5" rx="2.6" ry="3.4" fill="#fff"/><circle cx="27.3" cy="31.2" r="1.9" fill="'+e+'"/><circle cx="37.3" cy="31.2" r="1.9" fill="'+e+'"/><path d="M23.5 25.5l6 1.2M40.5 25.5l-6 1.2" stroke="'+h+'" stroke-width="1.6"/><path d="M29 38.2Q32 39.6 35 38.2" stroke="#7a3a2a" stroke-width="1.1" fill="none"/>'+(P.union?'<path d="M20 14q-6-6-2-12q1 7 6 8M44 14q6-6 2-12q-1 7-6 8" fill="#e8dcc0"/>':'')+'</svg>'}
 function qmToggle(){const q=$('qm');q.classList.toggle('on');$('qm-btn').classList.toggle('on',q.classList.contains('on'))}
@@ -1735,9 +1740,9 @@ function zagUpdate(dt){const on=P.g&&P.g.id=='kotodama'&&P.on&&run;if(!ZAG.g){if
  u.R.forEach((q,i)=>{const a=tm*1.2+i*2.09;q.position.set(Math.cos(a)*1.1,1.4+Math.sin(tm*2+i)*.35,Math.sin(a)*1.1);q.lookAt(cam.position);q.material.opacity=.6+Math.sin(tm*4+i)*.3});
  u.W.forEach((w,i)=>w.rotation.y=(i?-1:1)*(.3+Math.sin(tm*3)*.2));
  if(Math.random()<dt*(zf?10:4)*KQ())fxp({x:P.x+(Math.random()-.5)*1.4,y:.3+Math.random()*.6,z:P.z+(Math.random()-.5)*1.4,c:Math.random()<.3?0xff2a5a:0x7a20c0,n:1,sp:.15,sz:.16,life:1,up:1.4});
- if(zf){P.mp-=2.7*dt;if(P.mp<=0){P.mp=0;togZagred(1);toast('A Forma de Zagred se desfez: sem mana.')}}}
+ if(zf){P.mp-=2.35*dt;if(P.mp<=0){P.mp=0;togZagred(1);toast('A Forma de Zagred se desfez: sem mana.')}}}
 function togZagred(end){if(!P.g||P.g.id!='kotodama')return;if(!P.zg&&end)return;if(!P.zg&&!end&&!relGate('zagred'))return;if(!P.zg&&!end&&!CS.on&&run&&csPlay('zagred',()=>zagToggle(),relActOpts('zagred')))return;zagToggle(end)}
-function zagToggle(end){if(!P.g||P.g.id!='kotodama')return;if(!P.zg&&end)return;P.zg=!P.zg&&!end;try{if(P.zg){PP.mS.color.setHex(0x5a4a6e);kEyes(1);ring(4,0xb040ff);burst('kotodama',P.x,1.2,P.z,40,6);kWord('ZAGRED');kShock(P.x,P.z,6,0xb040ff,.5)}else{PP.mS.color.setHex(P.look.sk);kEyes(0)}}catch(e){}toast(P.zg?'Forma de Zagred: +25% de dano mágico, gasta mana enquanto ativa':'Forma de Zagred desativada')}
+function zagToggle(end){if(!P.g||P.g.id!='kotodama')return;if(!P.zg&&end)return;P.zg=!P.zg&&!end;try{if(P.zg){PP.mS.color.setHex(0x5a4a6e);kEyes(1);try{if(P.zgF)P.zgF.detach();P.zgF=naForm('zagred',PP);pm.add(P.zgF.g)}catch(e){}ring(4,0xb040ff);burst('kotodama',P.x,1.2,P.z,40,6);kWord('ZAGRED');kShock(P.x,P.z,6,0xb040ff,.5)}else{try{if(P.zgF){P.zgF.detach();P.zgF=null}}catch(e){}PP.mS.color.setHex(P.look.sk);kEyes(0)}}catch(e){}toast(P.zg?'Forma de Zagred: +25% de dano mágico, gasta mana enquanto ativa':'Forma de Zagred desativada')}
 // ---------- multiplayer: os outros jogadores veem as conjurações de Kotodama ----------
 function kotoRemote(o,c){const f=+c.f||0,dx=Math.sin(f),dz=Math.cos(f);if(c.nm=='Kotodama: Reality Spear'){const cg=kCircle(1.9,'w');cg.position.set(o.x-dx*.9,2.1,o.z-dz*.9);cg.rotation.y=f;S.add(cg);const sp=new T.Mesh(new T.ConeGeometry(.35,2.7,6),GLM(0xa030ff,.8));sp.rotation.x=Math.PI/2;const sg=new T.Group();sg.add(sp);sg.rotation.y=f;sg.position.set(o.x+dx,1.7,o.z+dz);S.add(sg);kfx({u:(q,dt)=>{kCircleTick(cg,dt,q.t/.25);if(q.t>.45){sg.position.x+=dx*34*dt;sg.position.z+=dz*34*dt}return q.t<1.4},end:()=>{kDispose(cg);kDispose(sg);kShock(sg.position.x,sg.position.z,6,0xb040ff,.5)}})}
  else if(c.nm=='Kotodama: Demonic Abyss'){const cx=o.x+dx*9,cz=o.z+dz*9,cg=kCircle(7,'g');cg.position.set(cx,.08,cz);S.add(cg);kfx({u:(q,dt)=>{kCircleTick(cg,dt,q.t/.5);if(q.t>2.1&&!q.b){q.b=1;kShock(cx,cz,12,0xff2a5a,.7)}return q.t<3},end:()=>kDispose(cg)})}
@@ -1909,7 +1914,7 @@ function syEnd(why){if(!P.sy)return;P.sy=false;P.cdS=P.cd.slice();P.cdmS=(P.cdm|
  if(fxg){kfx({u:(q,dt)=>{fxg.W.forEach(o=>{const c=o.w.children[0];if(c)c.material.opacity*=.9});fxg.au.material.opacity*=.9;return q.t<.6},end:()=>{if(fxg.g.parent)fxg.g.parent.remove(fxg.g)}})}
  toast(why=='energy'?'A energia espiritual acabou: Sylph voltou ao grimório.':'Espírito do Vento desativado.')}
 function syUpdate(dt){if(!P.g)return;if(P.g.id!='vento'&&P.sy)syEnd('manual');if(!P.sy){if((P.sycd||0)>0)P.sycd-=dt;P.se=Math.min(100,(P.se==null?100:P.se)+dt*(P.sycd>0?2:6));return}
- P.se-=dt*3.8;if(P.se<=0){P.se=0;syEnd('energy');return}const tm=performance.now()/1000,F=SY.fx;
+ P.se-=dt*3.3;if(P.se<=0){P.se=0;syEnd('energy');return}const tm=performance.now()/1000,F=SY.fx;
  if(SY.root){const r=SY.root,a=tm*1.4;const tx=P.x+Math.cos(a)*.9-Math.sin(P.f)*.4,tz=P.z+Math.sin(a)*.9-Math.cos(P.f)*.4,ty=P.y+2.3+Math.sin(tm*2.2)*.2;r.position.x+=(tx-r.position.x)*Math.min(1,dt*6);r.position.y+=(ty-r.position.y)*Math.min(1,dt*6);r.position.z+=(tz-r.position.z)*Math.min(1,dt*6);r.lookAt(cam.position.x,r.position.y,cam.position.z);sylAnim(r,tm,10)}
  if(F){F.W.forEach(o=>{o.w.rotation.y=o.s*(.45+Math.sin(tm*(P.fly>0?9:3)+o.k*.5)*(P.fly>0?.45:.18))});F.au.material.opacity=.14+Math.sin(tm*3)*.04;F.au2.rotation.y=tm;F.au2.visible=TQ()>1;F.sym.forEach((q,i)=>{const a=tm*1.3+i*2;q.position.set(Math.cos(a)*1.2,1.4+Math.sin(tm*2+i)*.4,Math.sin(a)*1.2);q.lookAt(cam.position)});const low=P.se<20;F.au.material.color.setHex(low&&Math.sin(tm*12)>0?0xffffff:WG);if(Math.random()<dt*8*KQ())fxp({x:P.x+(Math.random()-.5)*1.4,y:.3+Math.random(),z:P.z+(Math.random()-.5)*1.4,c:Math.random()<.7?WG:0xffffff,n:1,sp:.3,sz:.12,life:.9,up:2})}
  if(P.fly>0){P.fly-=dt;if(P.fly<=0)sLand()}}
@@ -2070,7 +2075,7 @@ function duEnd(why){if(!P.union)return;P.union=false;P.cdUS=P.cd.slice();P.cdmUS
  if(F){if(F.F)F.F.detach();else if(F.g.parent)F.g.parent.remove(F.g);F.add.forEach(m=>{if(m.parent)m.parent.remove(m)})}
  if(P.g&&P.g.id=='anti'){const lie=lieAppear(.9,P.x,P.y+1.2,P.z);liePuff(P.x,1.4,P.z,1);kfx({u:(q,dt)=>{lieAnim(lie,q.t,'idle');lie.position.y+=dt*.8;lie.position.x-=Math.cos(P.f)*dt;lie.scale.setScalar(Math.max(.01,.9-q.t*.4));return q.t<.8},end:()=>kDispose(lie)})}
  lieSay(why=='energy'?'Tch... acabou a energia. Me deixa descansar.':'Já cansou? Hehe.',2.8);if(why!='silent')toast(why=='energy'?'A energia demoníaca acabou: a União Demoníaca terminou.':'União Demoníaca desfeita.')}
-function duUpdate(dt){if(!P.g)return;if(P.union){P.de-=dt*3.4;if(P.de<=0){P.de=0;duEnd('energy');return}const F=DU.fx,tm=performance.now()/1000;if(F){if(F.F)F.F.anim(tm);F.W.forEach(o=>o.w.rotation.y=o.s*(.35+Math.sin(tm*(P.afly>0?9:2.5)+o.k)*(P.afly>0?.4:.15)));F.au.material.opacity=.1+Math.sin(tm*4)*.04;F.dist.rotation.y=tm*.8;F.dist.visible=KQ()>1;const low=P.de<20;F.au.material.color.setHex(low&&Math.sin(tm*12)>0?AWH:AR);if(Math.random()<dt*10*KQ()){const a=Math.random()*6.28;fxp({x:P.x+Math.cos(a)*.7,y:P.y+.2+Math.random()*1.8,z:P.z+Math.sin(a)*.7,c:Math.random()<.5?0x120006:AR,n:1,sp:.3,sz:.12,life:.8,up:1.5})}}
+function duUpdate(dt){if(!P.g)return;if(P.union){P.de-=dt*3.0;if(P.de<=0){P.de=0;duEnd('energy');return}const F=DU.fx,tm=performance.now()/1000;if(F){if(F.F)F.F.anim(tm);F.W.forEach(o=>o.w.rotation.y=o.s*(.35+Math.sin(tm*(P.afly>0?9:2.5)+o.k)*(P.afly>0?.4:.15)));F.au.material.opacity=.1+Math.sin(tm*4)*.04;F.dist.rotation.y=tm*.8;F.dist.visible=KQ()>1;const low=P.de<20;F.au.material.color.setHex(low&&Math.sin(tm*12)>0?AWH:AR);if(Math.random()<dt*10*KQ()){const a=Math.random()*6.28;fxp({x:P.x+Math.cos(a)*.7,y:P.y+.2+Math.random()*1.8,z:P.z+Math.sin(a)*.7,c:Math.random()<.5?0x120006:AR,n:1,sp:.3,sz:.12,life:.8,up:1.5})}}
   if(P.afly>0){P.afly-=dt;if(P.afly<=0){P.afly=0;kShock(P.x,P.z,4,AR,.4,.3)}}}else{if((P.ducd||0)>0)P.ducd-=dt;P.de=Math.min(100,(P.de==null?100:P.de)+dt*(P.ducd>0?2:5))}}
 // ---------- habilidades NORMAIS ----------
 function aImpact(d,dx,dz){aWord('BLACK IMPACT!');aEyes(1);const f0=P.f,back=aCircle(1.5,'w');back.position.set(P.x-dx*.7,1.6,P.z-dz*.7);back.rotation.y=f0;S.add(back);const core=aCore(.22);S.add(core);let fired=false,pos=new T.Vector3(),dist=0,hit=false;const trail=[];let tc=0;
@@ -2760,7 +2765,7 @@ const NF={canis:{dv:'gimodelo',n:'Unite Mode: Canis',spd:1.15,def:.85,eye:0xffd2
  equus:{dv:'slotos',n:'Unite Mode: Equus',spd:.9,def:.6,eye:0x8ab0ff,sig:['Equus: Shadow Bulwark',14,30,'nusig',null,14,15]},
  felis:{dv:'plumede',n:'Unite Mode: Felis',spd:1.45,def:1,eye:0xc070ff,sig:['Felis: Agility',12,0,'nusig',null,12,12]},
  gallus:{dv:'walgner',n:'Unite Mode: Gallus',spd:1.1,def:.9,eye:0xff2a3a,sig:['Gallus: Crow',18,26,'nusig',null,13,15]},
- quatro:{dv:null,n:'Unite Mode: Gallus × Felis × Canis × Equus',spd:1.25,def:.75,eye:0xffffff,sig:['Unite ×4: Devil Resonance',24,30,'nusig',null,16,20],drain:3.8,lv:30}};
+ quatro:{dv:null,n:'Unite Mode: Gallus × Felis × Canis × Equus',spd:1.25,def:.75,eye:0xffffff,sig:['Unite ×4: Devil Resonance',24,30,'nusig',null,16,20],drain:3.3,lv:30}};
 const NU=[['Nacht Union: Shadow Rend',10,40,'nurend',null,1.2,6],['Nacht Union: Dark Prison Hunting Ground',24,18,'nuprison',null,14,15],null,['Nacht Union: Night Devil Requiem',45,130,'nureq',null,40,30]];
 const NA={dev:null,cd:{gimodelo:0,slotos:0,plumede:0,walgner:0},uf:'canis',ui:false,fx:null,pl:0,res:[]};
 const naTexSig=()=>kCanvas('nasig',(x,W)=>{const c=W/2;x.strokeStyle='#fff';x.fillStyle='#fff';x.lineWidth=7;x.beginPath();x.arc(c,c,c-8,0,6.28);x.stroke();x.lineWidth=3;x.beginPath();x.arc(c,c,c-30,0,6.28);x.stroke();
@@ -2911,7 +2916,7 @@ function naUnionEnd(why){if(!P.nacht)return;P.nacht=false;P.cdNU=P.cd.slice();P.
  // o demônio sai e volta ao contrato
  if(why!='silent'){const k=NF[P.nf]&&NF[P.nf].dv||'gimodelo';const g=naDevil(k);g.position.set(P.x,0,P.z);S.add(g);naSmoke(P.x,1,P.z,Math.round(14*KQ()),1.6);const sig=naCircle(1.5,'g');sig.position.set(P.x-Math.sin(P.f)*2,.08,P.z-Math.cos(P.f)*2);S.add(sig);kfx({u:f=>{kCircleTick(sig,.016,f.t<.6?f.t/.2:1-(f.t-.6)*3);g.position.x+=(sig.position.x-g.position.x)*.08;g.position.z+=(sig.position.z-g.position.z)*.08;if(f.t>.5)g.position.y-=.06;naDevilAnim(g,f.t*5,1);return f.t<.9},end:()=>{kDispose(g);kDispose(sig)}})}
  buildBtns();if(why=='energy')toast('A energia do contrato acabou: a União Demoníaca terminou.');else if(why!='silent')toast('União Demoníaca desfeita.')}
-function naUnionTick(dt){if(!(P.g&&P.g.id=='sombra')&&!P.nacht){return}const st=P.nacht?P.cdNS:P.cdNU;if(st)for(let i=0;i<6;i++)st[i]-=dt;if(P.nacht){P.ne-=dt*((NF[P.nf]&&NF[P.nf].drain)||2.8);if(P.ne<=0){P.ne=0;naUnionEnd('energy');return}const F=NA.fx,tm=performance.now()/1000;if(F){F.anim(tm);F.au.material.opacity=.18+Math.sin(tm*4)*.05;F.au2.rotation.y=tm;F.au2.visible=KQ()>=1;if(Math.random()<dt*10*KQ())fxp({x:P.x+(Math.random()-.5)*1.2,y:P.y+.2+Math.random()*1.8,z:P.z+(Math.random()-.5)*1.2,c:Math.random()<.6?0x14081f:NL,n:1,sp:.3,sz:.16,life:.8,up:1.5});
+function naUnionTick(dt){if(!(P.g&&P.g.id=='sombra')&&!P.nacht){return}const st=P.nacht?P.cdNS:P.cdNU;if(st)for(let i=0;i<6;i++)st[i]-=dt;if(P.nacht){P.ne-=dt*((NF[P.nf]&&NF[P.nf].drain)||2.45);if(P.ne<=0){P.ne=0;naUnionEnd('energy');return}const F=NA.fx,tm=performance.now()/1000;if(F){F.anim(tm);F.au.material.opacity=.18+Math.sin(tm*4)*.05;F.au2.rotation.y=tm;F.au2.visible=KQ()>=1;if(Math.random()<dt*10*KQ())fxp({x:P.x+(Math.random()-.5)*1.2,y:P.y+.2+Math.random()*1.8,z:P.z+(Math.random()-.5)*1.2,c:Math.random()<.6?0x14081f:NL,n:1,sp:.3,sz:.16,life:.8,up:1.5});
    if(F.ex&&F.ex.dogs)F.ex.dogs.forEach((o,i)=>{o.a+=dt*1.8;const x=P.x+Math.cos(o.a)*1.8,z=P.z+Math.sin(o.a)*1.8;o.g.position.set(x,0,z);o.g.rotation.y=o.a+Math.PI;naDevilAnim(o.g,tm,1);o.cd-=dt;if(o.cd<=0){const e=xNear(x,z,2.5)[0];if(e){o.cd=1.1;hitE(e,8+P.lv*1.2,null)}}})}
   if(P.nub>0){P.nub-=dt;if(P.nub<=0)naBulwarkEnd()}if(P.nag>0)P.nag-=dt}
  else{P.ne=Math.min(100,(P.ne==null?0:P.ne)+dt*4)}}
@@ -2989,7 +2994,7 @@ function xOtherTick(o,dt){try{sumRemote(o,o.pr&&o.pr.lk&&o.pr.lk.sm,dt);if(o.nfx
  if(o.bgm){o.bgm.position.set(o.x+Math.sin(f)*1.1,1.3,o.z+Math.cos(f)*1.1);o.bgm.rotation.y=f;kCircleTick(o.bgm,dt,1);o.bgm.visible=o.g.visible}}catch(e){}}
 // barra extra no HUD (energia do contrato, escudo de sangue, tempo do Glamour World)
 function xHud(){const w=$('h-xw');if(!w||!P.g)return;const id=P.g.id;let on=false,lab='',v=0,txt='',cls='';
- if(id=='sombra'){on=true;lab='NACHT';v=P.ne||0;txt=P.nacht?(NF[P.nf]?NF[P.nf].n.replace('Unite Mode: ',''):'')+' · '+Math.ceil(v/((NF[P.nf]&&NF[P.nf].drain)||2.8))+'s':Math.floor(v)+' / 100'+(NA.dev?' · '+NAD[NA.dev.key].n+' '+Math.ceil(NA.dev.t)+'s':'');cls=P.nacht?'xon':v>=100?'xfull':''}
+ if(id=='sombra'){on=true;lab='NACHT';v=P.ne||0;txt=P.nacht?(NF[P.nf]?NF[P.nf].n.replace('Unite Mode: ',''):'')+' · '+Math.ceil(v/((NF[P.nf]&&NF[P.nf].drain)||2.45))+'s':Math.floor(v)+' / 100'+(NA.dev?' · '+NAD[NA.dev.key].n+' '+Math.ceil(NA.dev.t)+'s':'');cls=P.nacht?'xon':v>=100?'xfull':''}
  else if(id=='sangue'&&SGB.on){on=true;lab='ESCUDO';v=SGB.hp/SGB.max*100;txt=Math.ceil(SGB.hp)+' / '+SGB.max+(SGB.win>0?' · CONTRA-ATAQUE (3)!':'');cls=SGB.win>0?'xfull':''}
  else if(GW.on){on=true;lab='SONHO';v=GW.t/GW.dur*100;txt='Glamour World · '+Math.ceil(GW.t)+'s';cls='xon'}
  else if(id=='espacial'&&(ESD.on||ESG.on)){on=true;lab='ESPAÇO';v=(ESD.on?ESD.t/10:ESG.t/9)*100;txt=(ESD.on?'Dominion '+Math.ceil(ESD.t)+'s':'')+(ESD.on&&ESG.on?' · ':'')+(ESG.on?'Portais '+Math.ceil(ESG.t)+'s':'');cls='xon'}
@@ -3342,7 +3347,7 @@ function csEnter(D,u,tm,dd){const dm=CS.dm;dm.forEach(o=>{const n=o.n,bb=n>1?(o.
 // Separado das 6 habilidades: carga, duração, bloqueado/disponível e toque abre a seleção da União.
 function nbShow(){return !!(run&&P.g&&P.g.id=='sombra'&&P.on)}
 function nbLayout(){const b=$('a-nacht'),sk=$('h-skills');if(!b||!b.style||!sk||!sk.getBoundingClientRect)return;const on=nbShow();b.style.display=on?'':'none';if(!on)return;const r=sk.getBoundingClientRect();if(!r||!r.width)return;b.style.left=Math.round(r.right+10)+'px';b.style.top=Math.round(r.top+(r.height-b.offsetHeight)/2)+'px'}
-function nbHud(){const b=$('a-nacht');if(!b||!b.classList)return;const on=nbShow();if(b.style.display!==(on?'':'none'))nbLayout();if(!on)return;const v=P.ne||0,lk=P.lv<skl(3),act=!!P.nacht,ready=!act&&v>=100&&!((P.cd[3]||0)>0);if(b.style.setProperty)b.style.setProperty('--p',v/100);b.classList.toggle('lock',lk);b.classList.toggle('act',act);b.classList.toggle('ready',ready&&!lk);const t=$('nb-t');if(t)t.textContent=lk?'Nv '+skl(3):act?Math.ceil(v/((NF[P.nf]&&NF[P.nf].drain)||2.8))+'s':v>=100?((P.cd[3]||0)>0?Math.ceil(P.cd[3])+'s':'PRONTA'):Math.floor(v)+'%'}
+function nbHud(){const b=$('a-nacht');if(!b||!b.classList)return;const on=nbShow();if(b.style.display!==(on?'':'none'))nbLayout();if(!on)return;const v=P.ne||0,lk=P.lv<skl(3),act=!!P.nacht,ready=!act&&v>=100&&!((P.cd[3]||0)>0);if(b.style.setProperty)b.style.setProperty('--p',v/100);b.classList.toggle('lock',lk);b.classList.toggle('act',act);b.classList.toggle('ready',ready&&!lk);const t=$('nb-t');if(t)t.textContent=lk?'Nv '+skl(3):act?Math.ceil(v/((NF[P.nf]&&NF[P.nf].drain)||2.45))+'s':v>=100?((P.cd[3]||0)>0?Math.ceil(P.cd[3])+'s':'PRONTA'):Math.floor(v)+'%'}
 function nbTap(){const b=$('a-nacht');if(b&&b.classList){b.classList.remove('tap');void b.offsetWidth;b.classList.add('tap')}if(!nbShow()||CS.on)return;if(P.lv<skl(3)){toast('A União Demoníaca de Nacht desbloqueia no Nível '+skl(3)+'.');return}xSnd('nasigil');nbUI()}
 function nbUI(){if(NA.ui)return;NA.ui=true;NA.wasRun=run;run=false;const el=$('nacx');if(!el||!el.classList)return;el.classList.add('on');const v=P.ne||0,cd=P.cd[3]||0;
  const card=f=>{const F=NF[f],dv=F.dv,ok=f!='quatro'||P.lv>=F.lv,D=dv?NAD[dv]:null,can=ok&&!P.nacht&&v>=100&&!(cd>0);return '<div class="ncard'+(NA.uf==f?' sel':'')+'" style="--c:#'+(D?D.col:0xffffff).toString(16).padStart(6,'0')+'"><svg viewBox="0 0 64 64" class="npt">'+NAPT[dv||'quatro']+'</svg><div class="ncb"><h4>'+F.n.replace('Unite Mode: ','')+'</h4><small class="nun">'+F.n+(D?' · '+D.n:' · os quatro')+'</small><b class="nst '+(nacOk(f)?'ok':'cd')+'">'+(D?relLbl(dv):(nacOk(f)?'4 contratos':'Requer os 4 contratos'))+'</b> '+(P.nacht&&P.nf==f?'<b class="nst on">ATIVA</b>':!ok?'<b class="nst cd">Requer Nível '+F.lv+'</b>':can?'<b class="nst ok">Disponível</b>':'<b class="nst cd">'+(cd>0?'Recarga '+Math.ceil(cd)+'s':'Carregando '+Math.floor(v)+'%')+'</b>')+'<p>'+(D?D.d:'Combinação canônica dos quatro demônios; efeitos e visual combinados são adaptação do Clover RPG.')+'</p><p class="nbe">6 habilidades próprias: '+[0,1,2,3,4,5].map(i=>{const s=nfSkills(f)[i];return s?s[0].replace(/^[^:]+: /,''):''}).join(' · ')+'</p><div class="nbt"><button class="k" onclick="nbPick(\''+f+'\')" '+(can||!nacOk(f)?'':'disabled')+'>'+(nacOk(f)?'🌑 Unir com '+(D?D.n:'os quatro'):'🌀 Conquistar '+(D?D.n:'os quatro'))+'</button></div></div></div>'};
@@ -3449,7 +3454,7 @@ function demonChat(){if(!P.g||!P.rel)return;const k=Object.keys(DPS).find(k=>DPS
 // ---------- dimensão isolada (o mapa não é alterado; só escondido e restaurado) ----------
 const ENC={on:false};
 function encHide(){const keep=new Set([pm,book,KL,sun,sun.target,ENC.dim.g,ENC.dm].concat(ENC.keep||[]));for(const o of S.children){if(!o.visible||keep.has(o)||o.isLight||o.geometry===PG)continue;o.visible=false;ENC.hid.push(o)}if(SKY.visible){SKY.visible=false;ENC.hid.push(SKY)}if(S.fog){ENC.fog0=S.fog.color.clone();ENC.fn=S.fog.near;ENC.ff=S.fog.far;S.fog.color.setHex(ENC.dim.g.userData.fog||0x0a0410);S.fog.near=20;S.fog.far=110}for(const e of enemies)if(!e.dboss&&!e.gwx){e.gwx=1;e.encx=1;e.dcy=null}}
-function encOpen(k){const D=DPS[k];if(!D||ENC.on||CS.on||POS.on||!run)return false;if(!P.g||P.g.id!=D.g){toast(D.n+' vive no Grimório de '+GR[D.g].n+'.');return false}if(GW.on)gwExit('silent');try{xEndAll('swap')}catch(e){}
+function encOpen(k){const D=DPS[k];if(!D||ENC.on||CS.on||POS.on||!run)return false;if(!P.g||P.g.id!=D.g){toast(D.n+' vive no Grimório de '+GR[D.g].n+'.');return false}if(!dLvOk(k)){dLvMsg();return false}if(GW.on)gwExit('silent');try{xEndAll('swap')}catch(e){}
  const r=relOf(k);Object.assign(ENC,{on:true,k,D,r,t:0,mode:'intro',home:[P.x,P.z],f:P.f,px:P.x,pz:P.z,hid:[],keep:[],refusals:0,cp:cam.position.clone(),cl:new T.Vector3(P.x,1.6,P.z),tp:cam.position.clone(),tl:new T.Vector3(P.x,1.6,P.z),wait:0,q:[],said:0});
  ENC.dim=csDim(k=='zagred'?'zagred':k);ENC.dim.g.position.set(P.x,0,P.z);ENC.dim.g.rotation.y=P.f;S.add(ENC.dim.g);ENC.dm=csDemon(k);S.add(ENC.dm);ENC.da=0;encHide();
  P.dcin=1;P.iv=9999;P.lock=9999;jx=jz=0;document.body.classList.add('cineon');const ui=$('cine');if(ui&&ui.classList){ui.classList.add('on');$('csub').innerHTML='';$('ctitle').className='';$('cscene').textContent=r.met?'DIMENSÃO DE '+D.n.toUpperCase():'PRIMEIRO ENCONTRO — '+D.n.toUpperCase()}
@@ -3544,9 +3549,9 @@ function posAttack(e){const k=POS.k,dm=(14+P.lv*2.6),x=e.x,z=e.z;startPose('push
 function posEnd(){if(!POS.on)return;POS.on=false;P.poss=0;if(POS.F){POS.F.detach();POS.F=null}if(POS.oc!=null)PP.mT.color.setHex(POS.oc);CAMF.dd=0;document.body.classList.remove('posson');posUI();xFlash('#ffffff',.5);naSmoke(P.x,1,P.z,Math.round(16*KQ()),1.6);kShock(P.x,P.z,5,0xffffff,.4,.5);toast('Você retomou o controle do corpo. A batalha e o contrato continuam disponíveis.');banner('CONTROLE RECUPERADO',DPS[POS.k].n+' voltou para a dimensão','#3dff6a')}
 // ---------- interface de contratos ----------
 const DPT={liebe:'<circle cx="32" cy="34" r="16" fill="#111015"/><path d="M18 22c-2-8 2-12 6-12-2 4-1 8 2 10M46 22c2-8-2-12-6-12 2 4 1 8-2 10" fill="#e8dcc8"/><path d="M24 33l6 2M40 33l-6 2" stroke="#ff2030" stroke-width="3" stroke-linecap="round"/><path d="M26 42h12" stroke="#fff6f0" stroke-width="2"/>',zagred:'<path d="M20 50c0-14 5-26 12-26s12 12 12 26z" fill="#1a0a26"/><circle cx="32" cy="22" r="9" fill="#d8cce0"/><path d="M24 16l-5-9M40 16l5-9" stroke="#14000a" stroke-width="3"/><circle cx="29" cy="22" r="1.6" fill="#ff2050"/><circle cx="35" cy="22" r="1.6" fill="#ff2050"/><ellipse cx="32" cy="9" rx="8" ry="2" fill="none" stroke="#c060ff" stroke-width="1.5"/>'};
-function dcxOpen(focus){const el=$('dcx');if(!el||!el.classList)return;const ks=Object.keys(DPS);el.innerHTML='<div class="dcb"><h3>📜 Contratos Demoníacos</h3><p class="sm">A União Demoníaca precisa ser conquistada: faça um <b>pacto</b> conversando ou <b>domine</b> o demônio numa batalha. Se perder a batalha, ele toma seu corpo por 60s (sem perder nada). Tudo fica salvo na sua conta.</p><div class="dcg">'+ks.map(k=>{const D=DPS[k],r=relOf(k),ok=relOk(k),my=P.g&&P.g.id==D.g,col='#'+D.col.toString(16).padStart(6,'0');
+function dcxOpen(focus){const el=$('dcx');if(!el||!el.classList)return;const ks=Object.keys(DPS);el.innerHTML='<div class="dcb"><h3>📜 Contratos Demoníacos</h3><p class="sm">A União Demoníaca precisa ser conquistada: faça um <b>pacto</b> conversando ou <b>domine</b> o demônio numa batalha. Se perder a batalha, ele toma seu corpo por 60s (sem perder nada). Tudo fica salvo na sua conta.</p>'+(P.lv>=DLV?'<p class="dlv ok">✔ Nível '+P.lv+': você já pode estabelecer contato com os demônios.</p>':'<p class="dlv">🔒 Requisito: <b>Nível 30</b> para o primeiro contato com qualquer demônio (Liebe, Nacht e Zagred). Seu nível: <b>'+P.lv+'</b> · Necessário: <b>30</b>.</p>')+'<div class="dcg">'+ks.map(k=>{const D=DPS[k],r=relOf(k),ok=relOk(k),my=P.g&&P.g.id==D.g,col='#'+D.col.toString(16).padStart(6,'0');
   return '<div class="dcc'+(ok?' ok':'')+(focus==k?' foc':'')+'" style="--c:'+col+'"><svg viewBox="0 0 64 64">'+(DPT[k]||NAPT[k])+'</svg><div><h4>'+D.n+'</h4><small>'+D.tag+'</small><b class="dst">'+relLbl(k)+'</b><div class="dbar"><span>Confiança</span><i style="width:'+r.trust+'%"></i></div><div class="dbar r"><span>Respeito</span><i style="width:'+r.resp+'%"></i></div><p class="dh">Encontros '+r.met+' · Propostas '+r.props+' · Pactos '+r.acc+' · Vitórias '+r.wins+' · Derrotas '+r.losses+'</p>'+
-  (my?(ok?'<p class="dok">✔ União liberada'+(r.st=='dominado'?' (dominado — continua orgulhoso)':' (pacto de confiança)')+'</p>':'<button class="k" onclick="dcxClose();encOpen(\''+k+'\')">🌀 Entrar na dimensão'+(r.met?'':' (primeiro encontro)')+'</button>'):'<p class="dh">Vive no Grimório de '+GR[D.g].n+'.</p>')+'</div></div>'}).join('')+'</div><button class="k" onclick="dcxClose()">FECHAR</button></div>';el.classList.add('on')}
+  (my?(ok?'<p class="dok">✔ União liberada'+(r.st=='dominado'?' (dominado — continua orgulhoso)':' (pacto de confiança)')+'</p>':(P.lv<DLV?'<button class="k klk" onclick="dLvMsg()">🔒 Nível 30 necessário (você: '+P.lv+')</button>':'<button class="k" onclick="dcxClose();encOpen(\''+k+'\')">🌀 Entrar na dimensão'+(r.met?'':' (primeiro encontro)')+'</button>')):'<p class="dh">Vive no Grimório de '+GR[D.g].n+'.</p>')+'</div></div>'}).join('')+'</div><button class="k" onclick="dcxClose()">FECHAR</button></div>';el.classList.add('on')}
 function dcxClose(){const el=$('dcx');if(el&&el.classList)el.classList.remove('on')}
 // porta de entrada: tentativa de União sem contrato abre o encontro
 function relGate(k){if(relOk(k))return true;const r=relOf(k);if(r.st=='exigencia'&&r.req&&r.req.have<r.req.n){toast('💬 '+DPS[k].n+': "'+DPS[k].L.req+'" ('+r.req.have+'/'+r.req.n+')');dcxOpen(k);return false}encOpen(k);return false}
@@ -3582,6 +3587,756 @@ function xFormOk(lk){const nf=lk.nf;if(!nf)return 0;if(nf=='liebe')return lk.g==
 // Nacht: cada forma exige o contrato do seu demônio; a dos quatro exige os quatro
 function nacOk(f){if(f=='quatro')return['gimodelo','slotos','plumede','walgner'].every(relOk);const F=NF[f];return !!(F&&F.dv&&relOk(F.dv))}
 function nacGate(f){if(nacOk(f))return true;if(f=='quatro'){const m=['gimodelo','slotos','plumede','walgner'].filter(k=>!relOk(k)).map(k=>DPS[k].n);toast('A forma dos quatro exige os 4 contratos. Faltam: '+m.join(', ')+'.');dcxOpen();return false}return relGate(NF[f].dv)}
+
+// ================= GRIMÓRIOS DA LUZ, TERRA E ÁGUA — seis habilidades cada (V74) =================
+// Cada habilidade recebe um "ator" A = {x,z,f,dx,dz,rem}. Para o próprio jogador rem=0 (dá dano);
+// para outro jogador (multiplayer) rem=1: a mesma cena é reproduzida só como visual, sem dano duplicado.
+const LW={ouro:0xffc83a,luz:0xfff2a0,terra:0x8a6a44,cris:0x9ae0ff,agua:0x2a8cff,ciano:0x7af0ff};
+const LWG={};function lwG(k,f){let g=LWG[k];if(!g){g=f();g._keep=true;LWG[k]=g}return g}
+const lwSph=()=>lwG('sph',()=>new T.SphereGeometry(1,14,10)),lwBox=()=>lwG('box',()=>new T.BoxGeometry(1,1,1)),lwIco=()=>lwG('ico',()=>new T.IcosahedronGeometry(1,0)),
+ lwCylY=()=>lwG('cylY',()=>{const q=new T.CylinderGeometry(1,1,1,12,1,true);return q}),
+ lwCylZ=()=>lwG('cylZ',()=>{const q=new T.CylinderGeometry(1,1,1,14,1,true);q.rotateX(Math.PI/2);q.translate(0,0,.5);return q}),
+ lwSpike=()=>lwG('spike',()=>{const q=new T.ConeGeometry(1,1,5);q.translate(0,.5,0);return q}),
+ lwTor=()=>lwG('tor',()=>new T.TorusGeometry(1,.06,6,28)),
+ lwFunnel=()=>lwG('funnel',()=>{const q=new T.ConeGeometry(4,3.2,28,3,true);q.rotateX(Math.PI);q.translate(0,1.6,0);return q});
+function lwB(c,o){return new T.MeshBasicMaterial({color:c,transparent:true,opacity:o==null?1:o,depthWrite:false})}
+function lwRock(c){const m=new T.MeshToonMaterial({color:c,gradientMap:gmap});m.flatShading=true;return m}
+function lwWater(op,c){return new T.MeshPhongMaterial({color:c||0x2a8cff,emissive:0x06305e,specular:0xeafcff,shininess:120,transparent:true,opacity:op==null?.66:op,side:T.DoubleSide,depthWrite:false})}
+function lwFade(g,k){g.traverse(o=>{const m=o.material;if(!m||m===olm)return;if(m.userData.o0==null)m.userData.o0=m.opacity==null?1:m.opacity;m.transparent=true;m.opacity=m.userData.o0*Math.max(0,k)})}
+function lwA(){return{x:P.x,z:P.z,f:P.f,dx:Math.sin(P.f),dz:Math.cos(P.f),rem:0}}
+function lwHit(A,e,d,ef){if(A.rem||!e||e.fake||e.hp<=0)return;hitE(e,d,ef)}
+function lwNear(A,x,z,r){return A.rem?[]:xNear(x,z,r)}
+function lwPvp(A,x,z,r,d){if(!A.rem)xPvp(x,z,r,d)}
+function lwStun(A,e,s){if(A.rem||!e||e.fake||e.dummy)return;e.st=Math.max(e.st||0,(e.boss?s*.45:s)*(1+cb('dur')));e.cast=0}
+function lwLift(A,e,h,t){if(A.rem||!e||e.fake||e.dummy||e.boss)return;e.ly=Math.max(e.ly||0,h);tmr.push({t:t||.4,f:()=>{e.ly=0}})}
+function lwMark(x,z){if(MP.cast)MP.cast.p=[+x.toFixed(1),+z.toFixed(1)]}
+function lwPt(A,r){if(A.rem){if(A.p&&A.p.length>=2)return[+A.p[0],+A.p[1],null];return[A.x+A.dx*r*.6,A.z+A.dz*r*.6,null]}const e=chronoTarget(r);const x=e?e.x:A.x+A.dx*r*.6,z=e?e.z:A.z+A.dz*r*.6;lwMark(x,z);return[x,z,e]}
+function lwLine(A,len,wd,ox,oz){const out=[];if(A.rem)return out;const x0=ox==null?A.x:ox,z0=oz==null?A.z:oz;for(const e of enemies){if(e.hp<=0||e.gwx)continue;const rx=e.x-x0,rz=e.z-z0,al=rx*A.dx+rz*A.dz,pp=Math.abs(rx*A.dz-rz*A.dx);if(al>-.6&&al<len&&pp<wd+(e.boss?.8:0))out.push(e)}return out}
+function lwPvpLine(A,len,wd,d){if(A.rem||!(MP.r&&MP.ff))return;for(const k in MP.others){const o=MP.others[k];const rx=o.x-A.x,rz=o.z-A.z,al=rx*A.dx+rz*A.dz,pp=Math.abs(rx*A.dz-rz*A.dx);if(al>0&&al<len&&pp<wd)pvpHit(o.x,o.z,.6,d)}}
+function lwShake(A,v){const k=A.rem?(Math.hypot(A.x-P.x,A.z-P.z)<25?.4:0):1;if(k)P.shake=Math.max(P.shake||0,v*k)}
+function lwWord(A,w,cls){if(A.rem)return;const el=$('kword');if(!el||!el.classList)return;el.classList.remove('gold','wind','syl','luz','terra','agua');el.classList.add(cls);kWordShow(w);clearTimeout(lwWord.t);lwWord.t=setTimeout(()=>el.classList.remove(cls),2700)}
+function lwSolid(x,z,r){const o={x,z,r,lw:1};SOL.push(o);SOLG.n=-1;return o}
+function lwUnsolid(o){if(!o)return;const i=SOL.indexOf(o);if(i>=0){SOL.splice(i,1);SOLG.n=-1}}
+function lwDust(x,z,n,c,up){fxp({x,y:.3,z,c:c||0xb89a70,n:Math.round(n*Math.max(.4,KQ())),sp:4,sz:.38,life:.7,g:6,up:up||3})}
+// círculo mágico 3D (anéis + hexagrama + runas), reutilizado por Luz e Água
+function lwCircle(r,c,c2){const g=new T.Group();g.add(new T.Mesh(new T.RingGeometry(r*.88,r,48),GLM(c,.85)),new T.Mesh(new T.RingGeometry(r*.56,r*.61,40),GLM(c2||0xffffff,.75)));
+ for(let k=0;k<2;k++)g.add(new T.Mesh(new T.RingGeometry(r*.7,r*.74,3,1,k*Math.PI/3),GLM(c,.7)));
+ for(let k=0;k<12;k++){const t=new T.Mesh(lwG('rune',()=>new T.PlaneGeometry(.1,.26)),GLM(c2||0xffffff,.8));const a=k/12*6.2832;t.position.set(Math.cos(a)*r*.75,Math.sin(a)*r*.75,0);t.scale.setScalar(Math.max(.6,r*.5));t.rotation.z=a;g.add(t)}return g}
+
+// ---------------- LUZ ----------------
+function lRay(A,d){lwWord(A,'DIVINE RAY!','luz');xSnd('sochime');const L=30,x0=A.x+A.dx,z0=A.z+A.dz;
+ const cc=lwCircle(1.1,LW.ouro);cc.position.set(A.x+A.dx*1.1,1.4,A.z+A.dz*1.1);cc.rotation.y=A.f;S.add(cc);
+ const g=new T.Group(),mk3=(r,mt)=>{const m=new T.Mesh(lwCylZ(),mt);m.scale.set(r,r,.01);g.add(m);return m};
+ const core=mk3(.14,lwB(0xffffff,1)),glow=mk3(.42,GLM(0xffe680,.55)),out=mk3(.9,GLM(0xfff2a0,.2)),R0=[.14,.42,.9];
+ const rings=[];for(let k=0;k<6;k++){const r=new T.Mesh(lwTor(),GLM(0xffffff,.8));r.scale.setScalar(.7);g.add(r);rings.push(r)}
+ g.position.set(x0,1.4,z0);g.rotation.y=A.f;S.add(g);let hit=false;
+ kfx({u:(q,dt)=>{const t=q.t,ext=Math.min(1,t/.08)*L,fade=t<.28?1:Math.max(0,1-(t-.28)/.3);
+  [core,glow,out].forEach((m,i)=>{m.scale.z=Math.max(.01,ext);const r=R0[i]*(1+Math.sin(t*60+i)*.06)*fade;m.scale.x=m.scale.y=Math.max(.01,r)});
+  rings.forEach((r,k)=>{const z=(t*40+k*5)%L;r.position.z=Math.min(z,ext);r.scale.setScalar((1-z/L)*.8+.3);r.material.opacity=.8*fade});
+  cc.rotation.z+=dt*4;lwFade(cc,fade);
+  if(!hit&&t>.06){hit=true;for(const e of lwLine(A,L,1.5,x0,z0)){lwHit(A,e,d);fxp({x:e.x,y:1.4,z:e.z,c:0xfff2a0,n:10,sp:5,sz:.18,life:.4,up:2})}lwPvpLine(A,L,1.5,d);fxp({x:x0+A.dx*L,y:1.4,z:z0+A.dz*L,c:0xffffff,n:16,sp:6,sz:.2,life:.5,up:3})}
+  if(Math.random()<.6)fxp({x:x0+A.dx*Math.random()*ext,y:1.4,z:z0+A.dz*Math.random()*ext,c:0xfff6c0,n:1,sp:1,sz:.12,life:.4,up:1});return t<.6},end:()=>{kDispose(g);kDispose(cc)}})}
+function lwBlade(){const g=new T.Group();g.add(new T.Mesh(lwG('blade',()=>{const q=new T.OctahedronGeometry(1,0);q.scale(.12,.05,.75);return q}),lwB(0xfffbe0,1)),new T.Mesh(lwG('bladeG',()=>{const q=new T.OctahedronGeometry(1,0);q.scale(.26,.1,1.05);return q}),GLM(0xffd24a,.55)));return g}
+function lBlades(A,d){lwWord(A,'SOLAR BLADES!','luz');xSnd('soshard');const n=5,tg=lwNear(A,A.x,A.z,20).sort((a,b)=>Math.hypot(a.x-A.x,a.z-A.z)-Math.hypot(b.x-A.x,b.z-A.z)).slice(0,n);if(tg[0])lwMark(tg[0].x,tg[0].z);
+ const B=[];for(let i=0;i<n;i++){const m=lwBlade(),a=A.f+(i-2)*.5;m.position.set(A.x,1.4,A.z);S.add(m);B.push({m,a,hx:A.x+Math.sin(a)*1.5,hy:2.3+Math.abs(i-2)*.18,hz:A.z+Math.cos(a)*1.5,e:tg.length?tg[i%tg.length]:null,vx:0,vz:0,done:0,px:A.x,py:1.4,pz:A.z})}
+ kfx({u:(q,dt)=>{const t=q.t;let live=0;B.forEach((o,i)=>{if(o.done)return;live++;const m=o.m;
+   if(t<.45){const k=Math.min(1,t/.3);o.px=A.x+(o.hx-A.x)*k;o.py=1.4+(o.hy-1.4)*k;o.pz=A.z+(o.hz-A.z)*k;m.position.set(o.px,o.py,o.pz);m.rotation.set(0,o.a,Math.sin(t*12+i)*.2);o.vx=Math.sin(o.a)*6;o.vz=Math.cos(o.a)*6;return}
+   let tx,tz;if(o.e&&o.e.hp>0&&!o.e.gwx){tx=o.e.x;tz=o.e.z}else{tx=o.px+Math.sin(o.a)*10;tz=o.pz+Math.cos(o.a)*10}
+   const dx=tx-o.px,dz=tz-o.pz,l=Math.hypot(dx,dz)||1,st=Math.min(1,dt*7);o.vx+=(dx/l*26-o.vx)*st;o.vz+=(dz/l*26-o.vz)*st;o.px+=o.vx*dt;o.pz+=o.vz*dt;o.py+=(1.3-o.py)*Math.min(1,dt*5);m.position.set(o.px,o.py,o.pz);m.rotation.set(0,Math.atan2(o.vx,o.vz),0);
+   if(Math.random()<.7)fxp({x:o.px,y:o.py,z:o.pz,c:Math.random()<.5?0xffe680:0xffffff,n:1,sp:.3,sz:.12,life:.3});
+   if(!A.rem){const h=xNear(o.px,o.pz,1.3)[0];if(h){lwHit(A,h,d);o.done=1}}if(t>1.25+i*.08&&(A.rem||!o.e||o.e.hp<=0))o.done=1;
+   if(o.done){fxp({x:o.px,y:o.py,z:o.pz,c:0xfff2a0,n:12,sp:5,sz:.16,life:.35,up:2});kShock(o.px,o.pz,1.4,LW.ouro,.25,1.2);m.visible=false}});
+  return t<2.6&&live>0},end:()=>B.forEach(o=>kDispose(o.m))})}
+function lFlash(A,d){lwWord(A,'FLASH STEP!','luz');xSnd('eswarp');const L=12,x0=A.x,z0=A.z;
+ if(!A.rem){P.dv=[A.dx*L/.16,A.dz*L/.16];P.dt2=.16;P.iv=Math.max(P.iv||0,.5);for(let k=0;k<4;k++)tmr.push({t:k*.04,f:()=>ghostOf(0xfff2a0)});CAMF.fov=66}
+ const g=new T.Group(),beam=new T.Mesh(lwCylZ(),GLM(0xfff2a0,.7)),b2=new T.Mesh(lwCylZ(),lwB(0xffffff,.9));beam.scale.set(.32,.32,L);b2.scale.set(.08,.08,L);g.add(beam,b2);g.position.set(x0,1.15,z0);g.rotation.y=A.f;S.add(g);
+ for(let k=0;k<=10;k++)fxp({x:x0+A.dx*k*1.2,y:.6+Math.random()*1.4,z:z0+A.dz*k*1.2,c:k%2?0xffffff:0xffe680,n:2,sp:1.5,sz:.16,life:.5,up:1.5});kShock(x0,z0,2,LW.ouro,.3,1);
+ let hit=0;kfx({u:(q,dt)=>{const t=q.t;if(!hit&&t>.12){hit=1;for(const e of lwLine(A,L+1,1.8,x0,z0)){lwHit(A,e,d,{st:.6});fxp({x:e.x,y:1.3,z:e.z,c:0xffffff,n:10,sp:5,sz:.16,life:.35})}lwPvpLine(A,L,1.8,d);kShock(x0+A.dx*L,z0+A.dz*L,2.4,LW.ouro,.3,1)}
+  const k=Math.max(0,1-t/.5);beam.scale.x=beam.scale.y=.32*k+.01;b2.scale.x=b2.scale.y=.08*k+.005;lwFade(g,k);return t<.5},end:()=>kDispose(g)})}
+function lPrison(A,d){lwWord(A,'RADIANT PRISON!','luz');xSnd('sochime');const [cx,cz]=lwPt(A,16);let tg=lwNear(A,cx,cz,5).slice(0,3);if(!tg.length)tg=[{x:cx,z:cz,fake:1}];const dur=2.8;
+ const C=tg.map(e=>{const g=new T.Group();for(let k=0;k<6;k++){const a=k/6*6.2832,p=new T.Mesh(lwCylY(),GLM(0xfff2a0,.75)),c=new T.Mesh(lwCylY(),lwB(0xffffff,.95));p.scale.set(.09,3.2,.09);c.scale.set(.035,3.2,.035);p.position.set(Math.cos(a)*1.25,1.6,Math.sin(a)*1.25);c.position.copy(p.position);g.add(p,c)}
+  const top=lwCircle(1.4,LW.ouro),bot=lwCircle(1.4,LW.ouro);top.rotation.x=bot.rotation.x=-Math.PI/2;top.position.y=3.25;bot.position.y=.06;const cube=new T.Mesh(lwBox(),GLM(0xfff6c8,.12));cube.scale.set(2.2,3.1,2.2);cube.position.y=1.6;g.add(top,bot,cube);
+  g.position.set(e.x,0,e.z);g.scale.set(1,.01,1);S.add(g);lwHit(A,e,d*.6);lwStun(A,e,dur);return{e,g,top,bot}});
+ kfx({u:(q,dt)=>{const t=q.t,k=Math.min(1,t/.25);C.forEach(o=>{if(t<=dur)o.g.scale.set(1,Math.max(.01,k),1);if(!o.e.fake&&o.e.hp>0)o.g.position.set(o.e.x,0,o.e.z);o.top.rotation.z+=dt*2;o.bot.rotation.z-=dt*2;if(Math.random()<.25)fxp({x:o.g.position.x+(Math.random()-.5)*2,y:Math.random()*3,z:o.g.position.z+(Math.random()-.5)*2,c:0xfff6c0,n:1,sp:.3,sz:.1,life:.5,up:1})});
+  if(t>dur&&!q.b){q.b=1;xSnd('soshard');C.forEach(o=>{if(!o.e.fake&&o.e.hp>0)lwHit(A,o.e,d*.8);kShock(o.g.position.x,o.g.position.z,2.6,LW.ouro,.35,1.2);fxp({x:o.g.position.x,y:1.6,z:o.g.position.z,c:0xffffff,n:20,sp:6,sz:.16,life:.45,up:2})})}
+  if(t>dur){const f=Math.max(0,1-(t-dur)/.3);C.forEach(o=>o.g.scale.set(1+(1-f)*.5,f+.01,1+(1-f)*.5))}return t<dur+.3},end:()=>C.forEach(o=>kDispose(o.g))})}
+function lJudg(A,d){lwWord(A,"HEAVEN'S JUDGMENT!",'luz');xSnd('sochime');const [cx,cz]=lwPt(A,24),N=6,H=13,C=[];
+ for(let i=0;i<N;i++){const a=i/(N-1)*6.2832,r=i==N-1?0:3.8,c=lwCircle(i==N-1?2.4:1.5,LW.ouro);c.rotation.x=Math.PI/2;const px=cx+Math.cos(a)*r,pz=cz+Math.sin(a)*r;c.position.set(px,H+(i%2)*.7,pz);c.scale.setScalar(.01);S.add(c);C.push({c,big:i==N-1,at:.6+i*.28,x:px,z:pz})}
+ const gw=lwCircle(5.5,LW.ouro);gw.rotation.x=-Math.PI/2;gw.position.set(cx,.08,cz);S.add(gw);const beams=[];
+ kfx({u:(q,dt)=>{const t=q.t;C.forEach(o=>{o.c.scale.setScalar(Math.min(1,t/.45)+.01);o.c.rotation.z+=dt*(o.big?1.5:3);
+   if(!o.f&&t>=o.at){o.f=1;let x=o.x,z=o.z;const R=o.big?4.5:3;if(!A.rem){const e=xNear(x,z,5)[0];if(e){x=e.x;z=e.z}}
+    const bm=new T.Group(),b1=new T.Mesh(lwCylY(),GLM(0xffe680,.6)),b2=new T.Mesh(lwCylY(),lwB(0xffffff,.95));b1.scale.set(o.big?1.4:.75,H,o.big?1.4:.75);b2.scale.set(o.big?.5:.25,H,o.big?.5:.25);bm.add(b1,b2);bm.position.set(x,H/2,z);S.add(bm);beams.push({g:bm,t:0});
+    for(const e of lwNear(A,x,z,R))lwHit(A,e,o.big?d*1.4:d);lwPvp(A,x,z,R,d);kShock(x,z,R,LW.ouro,.35,.3);fxp({x,y:.4,z,c:0xffffff,n:18,sp:6,sz:.2,life:.5,up:4});lwShake(A,o.big?.5:.22);xSnd(o.big?'esboom':'soshard')}});
+  beams.forEach(b=>{b.t+=dt;const k=Math.max(0,1-b.t/.35);b.g.scale.set(k+.01,1,k+.01);lwFade(b.g,k)});lwFade(gw,t<2.2?1:Math.max(0,1-(t-2.2)/.4));gw.rotation.z+=dt*.8;
+  if(t>2.2)C.forEach(o=>lwFade(o.c,Math.max(0,1-(t-2.2)/.4)));return t<2.65},end:()=>{C.forEach(o=>kDispose(o.c));beams.forEach(b=>kDispose(b.g));kDispose(gw)}})}
+function lSun(A,d){lwWord(A,'ABSOLUTE SUN!','luz');xSnd('sgroyal');if(!A.rem){P.lock=1.5;P.iv=Math.max(P.iv||0,1.7)}const x=A.x,z=A.z,R=14;
+ const sun=new T.Group(),core=new T.Mesh(lwSph(),lwB(0xffffff,1)),g1=new T.Mesh(lwSph(),GLM(0xffe27a,.6)),g2=new T.Mesh(lwSph(),GLM(0xffa020,.25));g1.scale.setScalar(1.35);g2.scale.setScalar(1.9);sun.add(core,g1,g2);
+ const cor=[];for(let k=0;k<3;k++){const r=new T.Mesh(lwTor(),GLM(0xfff2a0,.7));r.scale.setScalar(1.6+k*.25);r.rotation.set(k*1.1,k*.7,0);sun.add(r);cor.push(r)}
+ sun.position.set(x,6.5,z);sun.scale.setScalar(.05);S.add(sun);const gc=lwCircle(R*.6,LW.ouro);gc.rotation.x=-Math.PI/2;gc.position.set(x,.08,z);gc.scale.setScalar(.01);S.add(gc);
+ kfx({u:(q,dt)=>{const t=q.t;cor.forEach((r,i)=>{r.rotation.x+=dt*(2+i);r.rotation.y+=dt*(3-i)});gc.rotation.z+=dt*1.2;
+  if(t<1.3){const k=t/1.3;sun.scale.setScalar(.05+k*1.6);gc.scale.setScalar(.01+k);if(Math.random()<.7){const a=Math.random()*6.28,r=6+Math.random()*4;fxp({x:x+Math.cos(a)*r,y:.5+Math.random()*3,z:z+Math.sin(a)*r,c:Math.random()<.5?0xfff2a0:0xffffff,n:1,dx:-Math.cos(a),dz:-Math.sin(a),sp:6,spread:.1,sz:.15,life:.6,up:4})}return true}
+  if(!q.b){q.b=1;lwShake(A,1);xSnd('esboom');for(const e of lwNear(A,x,z,R)){lwHit(A,e,d);const l=Math.hypot(e.x-x,e.z-z)||1;kb(e,(e.x-x)/l,(e.z-z)/l,10,.4)}lwPvp(A,x,z,R,d);kShock(x,z,R,LW.ouro,.6,.4);kShock(x,z,R*.6,0xffffff,.45,.6);kShock(x,z,R*.35,LW.ouro,.35,1.5);fxp({x,y:1.5,z,c:0xffffff,n:60,sp:14,sz:.35,life:.9,up:6});fxp({x,y:1,z,c:0xffc83a,n:40,sp:10,sz:.3,life:.8,up:3})}
+  const u=(t-1.3)/.6;sun.position.y=6.5-u*4;sun.scale.setScalar(1.65+u*4);lwFade(sun,(1-u)*(1-u)*.8);lwFade(gc,1-u);return u<1},end:()=>{kDispose(sun);kDispose(gc)}})}
+
+// ---------------- TERRA ----------------
+function tSpear(A,d){lwWord(A,'EARTH SPEAR!','terra');xSnd('naslam');const N=9,step=1.75,hs=new Set(),R=[],mt=lwRock(0x8a6a44),mt2=lwRock(0x5e4630);
+ for(let i=0;i<N;i++){const px=A.x+A.dx*(1.6+i*step)+(Math.random()-.5)*.5,pz=A.z+A.dz*(1.6+i*step)+(Math.random()-.5)*.5,g=new T.Group(),h=1.5+i*.13+Math.random()*.5,m=new T.Mesh(lwSpike(),i%2?mt:mt2);m.scale.set(.42,h,.42);m.rotation.set(A.dz*.25,0,-A.dx*.25);g.add(m);
+  for(const s of[-1,1]){const s2=new T.Mesh(lwSpike(),mt2);s2.scale.set(.22,h*.55,.22);s2.position.set(s*.35,0,0);s2.rotation.z=-s*.45;g.add(s2)}const b=new T.Mesh(lwIco(),mt2);b.scale.set(.65,.22,.65);g.add(b);g.position.set(px,0,pz);g.rotation.y=A.f;g.scale.set(1,.01,1);S.add(g);R.push({g,x:px,z:pz,dl:i*.05})}
+ const cr=new T.Mesh(lwBox(),lwB(0x2a1a10,.8));cr.scale.set(.25,.02,N*step);cr.position.set(A.x+A.dx*(1.6+N*step/2),.04,A.z+A.dz*(1.6+N*step/2));cr.rotation.y=A.f;S.add(cr);lwPvpLine(A,N*step+2,1.6,d);
+ kfx({u:(q,dt)=>{const t=q.t;let alive=false;R.forEach(o=>{const u=t-o.dl;if(u<0){alive=true;return}const up=Math.min(1,u/.1),dn=u>.75?Math.max(0,1-(u-.75)/.3):1;o.g.scale.set(1,Math.max(.01,up*dn),1);if(u<1.05)alive=true;
+   if(!o.f){o.f=1;lwDust(o.x,o.z,10);lwShake(A,.12);for(const e of lwNear(A,o.x,o.z,1.7)){if(hs.has(e))continue;hs.add(e);lwHit(A,e,d,{st:.35});lwLift(A,e,1.4,.35)}}});lwFade(cr,Math.max(0,1-t/1.2));return alive},end:()=>{R.forEach(o=>kDispose(o.g));kDispose(cr)}})}
+function tFort(A,d){lwWord(A,'STONE FORTRESS!','terra');xSnd('naslam');const x=A.x,z=A.z,N=10,R=3.3,dur=5.2,g=new T.Group(),W=[],sol=[],mt=lwRock(0x8a7a66),mt2=lwRock(0x6a5a48);g.position.set(x,0,z);S.add(g);
+ for(let i=1;i<N;i++){const a=i/N*6.2832+A.f+Math.PI,w=new T.Group(),blk=new T.Mesh(lwBox(),i%2?mt:mt2);blk.scale.set(2.05,3.1,.85);blk.position.y=1.55;w.add(blk);const cap=new T.Mesh(lwIco(),mt2);cap.scale.set(.8,.5,.55);cap.position.set((Math.random()-.5)*.6,3.2,0);w.add(cap);
+  for(const s of[-1,1]){const r=new T.Mesh(lwIco(),mt2);r.scale.setScalar(.35+Math.random()*.2);r.position.set(s*.7,.2,.5);w.add(r)}const px=Math.sin(a)*R,pz=Math.cos(a)*R;w.position.set(px,0,pz);w.rotation.y=a;w.scale.set(1,.01,1);g.add(w);W.push(w);if(!A.rem)sol.push(lwSolid(x+px,z+pz,1))}
+ if(!A.rem){P.sh=Math.max(P.sh||0,dur);toast('Stone Fortress: −80% de dano e projéteis bloqueados por 5s')}lwShake(A,.35);
+ kfx({u:(q,dt)=>{const t=q.t,up=Math.min(1,t/.35),dn=t>dur?Math.max(0,1-(t-dur)/.45):1;W.forEach(w=>{w.scale.y=Math.max(.01,up*dn);w.position.y=t>dur?-(1-dn)*.6:0});if(t<.35&&Math.random()<.8){const a=Math.random()*6.28;lwDust(x+Math.sin(a)*R,z+Math.cos(a)*R,3)}
+  if(!A.rem&&t<dur){for(const e of enemies){if(e.hp<=0||e.dummy)continue;const ex=e.x-x,ez=e.z-z,l=Math.hypot(ex,ez);if(l<R+.9){const k=(R+.9)/(l||1);e.x=x+ex*k;e.z=z+ez*k}}
+   for(let k=eshots.length-1;k>=0;k--){const s=eshots[k],sx=s.m.position.x-x,sz=s.m.position.z-z;if(Math.hypot(sx,sz)<R+.6){fxp({x:s.m.position.x,y:1.3,z:s.m.position.z,c:0xb89a70,n:8,sp:3,sz:.2,life:.4,g:6});S.remove(s.m);eshots.splice(k,1)}}
+   if(t>.3&&!q.k){q.k=1;for(const e of xNear(x,z,R+2.4)){lwHit(A,e,d,{st:.5});const l=Math.hypot(e.x-x,e.z-z)||1;kb(e,(e.x-x)/l,(e.z-z)/l,9,.3)}}}
+  if(t>dur&&!q.c){q.c=1;sol.forEach(lwUnsolid);W.forEach(w=>lwDust(x+w.position.x,z+w.position.z,6))}return t<dur+.45},end:()=>{sol.forEach(lwUnsolid);kDispose(g)}})}
+function tFist(A,d){lwWord(A,'TITAN FIST!','terra');xSnd('naslam');const x0=A.x+A.dx*2.2,z0=A.z+A.dz*2.2,L=9,mt=lwRock(0x8a6a44),mt2=lwRock(0x6e5238),fist=new T.Group();
+ const add=(geo,m,sx,sy,sz,x,y,z)=>{const o=new T.Mesh(geo,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);fist.add(o);return o};
+ add(lwBox(),mt,1.9,1.6,1.4,0,0,0);for(let f=0;f<4;f++)add(lwBox(),mt2,.44,.62,.5,-.69+f*.46,.35,.86);add(lwBox(),mt2,.38,.45,.8,.98,-.2,.45);const arm=add(lwCylY(),mt,.85,2.8,.85,0,0,-2.1);arm.rotation.x=Math.PI/2;
+ const cap1=new T.Mesh(lwG('discY',()=>new T.CircleGeometry(1,12)),mt);cap1.rotation.x=-Math.PI/2;for(let k=0;k<5;k++)add(lwIco(),mt2,.45,.45,.45,Math.cos(k*1.3)*.85,Math.sin(k*1.3)*.85,-.9);
+ fist.position.set(x0,-2,z0);fist.rotation.y=A.f;S.add(fist);lwDust(x0,z0,14);
+ kfx({u:(q,dt)=>{const t=q.t;if(t<.35){const k=t/.35;fist.position.y=-2+3.6*k;fist.rotation.z=Math.sin(t*30)*.05;if(Math.random()<.6)lwDust(x0+(Math.random()-.5)*2,z0+(Math.random()-.5)*2,2);return true}
+  const u=Math.min(1,(t-.35)/.22),e2=1-Math.pow(1-u,3);fist.position.set(x0+A.dx*L*e2,1.6,z0+A.dz*L*e2);
+  if(u>=.6&&!q.h){q.h=1;xSnd('esboom');lwShake(A,.6);for(const e of lwLine(A,L+1.5,2.6,x0,z0)){lwHit(A,e,d,{st:.8});kb(e,A.dx,A.dz,16,.45)}lwPvpLine(A,L+3,2.6,d);const ix=x0+A.dx*L*.8,iz=z0+A.dz*L*.8;kShock(ix,iz,3.2,0xb89a70,.35,1.2);lwDust(ix,iz,22,0xb89a70,5)}
+  if(t>.9){const k=Math.max(0,1-(t-.9)/.45);fist.scale.setScalar(.2+.8*k);fist.position.y=1.6-(1-k)*2.5;if(Math.random()<.5)lwDust(fist.position.x,fist.position.z,3)}return t<1.35},end:()=>kDispose(fist)})}
+function tCrystal(A,d){lwWord(A,'CRYSTAL PRISON!','terra');xSnd('soshard');const [cx,cz]=lwPt(A,16);let tg=lwNear(A,cx,cz,4.5).slice(0,3);if(!tg.length)tg=[{x:cx,z:cz,fake:1}];const dur=3;
+ const cm=new T.MeshPhongMaterial({color:0x9ae0ff,emissive:0x1a4a6a,specular:0xffffff,shininess:120,transparent:true,opacity:.75});cm.flatShading=true;
+ const C=tg.map(e=>{const g=new T.Group(),cr=[];for(let k=0;k<8;k++){const a=k/8*6.2832,c=new T.Mesh(lwG('cry',()=>{const q=new T.OctahedronGeometry(1,0);q.scale(.32,1.6,.32);q.translate(0,1.25,0);return q}),cm);c.position.set(Math.cos(a)*1.05,0,Math.sin(a)*1.05);c.rotation.set(-Math.sin(a)*.42,0,Math.cos(a)*.42);c.scale.setScalar(.01);g.add(c);cr.push({c,s:.75+Math.random()*.5,dl:k*.03,a})}
+  const inner=new T.Mesh(lwSph(),new T.MeshPhongMaterial({color:0xbff0ff,transparent:true,opacity:.22,shininess:140,specular:0xffffff,depthWrite:false}));inner.scale.set(1.15,1.5,1.15);inner.position.y=1.2;g.add(inner);g.position.set(e.x,0,e.z);S.add(g);lwHit(A,e,d*.35);lwStun(A,e,dur);return{e,g,cr}});
+ kfx({u:(q,dt)=>{const t=q.t;C.forEach(o=>{if(!o.e.fake&&o.e.hp>0&&t<dur)o.g.position.set(o.e.x,0,o.e.z);o.cr.forEach(c=>{if(t<dur){const k=Math.min(1,Math.max(0,(t-c.dl)/.22));c.c.scale.setScalar(Math.max(.01,c.s*k))}else{const u=(t-dur)/.35;c.c.position.set(Math.cos(c.a)*(1.05+u*3),u*1.5,Math.sin(c.a)*(1.05+u*3));c.c.scale.setScalar(Math.max(.01,c.s*(1-u)))}});if(Math.random()<.2)fxp({x:o.g.position.x+(Math.random()-.5)*2,y:Math.random()*2.5,z:o.g.position.z+(Math.random()-.5)*2,c:0xdff8ff,n:1,sp:.2,sz:.08,life:.5,up:.5})});
+  if(t>dur&&!q.b){q.b=1;xSnd('soshard');C.forEach(o=>{if(!o.e.fake&&o.e.hp>0)lwHit(A,o.e,d);kShock(o.g.position.x,o.g.position.z,2.8,LW.cris,.35,1);fxp({x:o.g.position.x,y:1.3,z:o.g.position.z,c:0x9ae0ff,n:26,sp:7,sz:.2,life:.5,g:8,up:3})})}return t<dur+.35},end:()=>{C.forEach(o=>kDispose(o.g))}})}
+function tQuake(A,d){lwWord(A,'EARTHQUAKE DOMINION!','terra');xSnd('naslam');const x=A.x,z=A.z,R=12,dur=3.3,mt=lwRock(0x7a5e40),cracks=new T.Group();cracks.position.set(x,.04,z);S.add(cracks);
+ for(let k=0;k<10;k++){const a=k/10*6.2832+Math.random()*.3;for(const [c,w] of[[lwB(0x1a0e06,.85),.18],[GLM(0xff8a30,.45),.08]]){const cl=new T.Mesh(lwBox(),c);cl.scale.set(w,.02,.01);cl.position.y=w<.1?.01:0;cl.userData={a,f:.6+Math.random()*.4};cl.rotation.y=a;cracks.add(cl)}}
+ const pil=[];let tick=0,n=0;
+ kfx({u:(q,dt)=>{const t=q.t,k=Math.min(1,t/.6);cracks.children.forEach(c=>{const Lc=R*k*c.userData.f;c.scale.z=Math.max(.01,Lc);c.position.x=Math.sin(c.userData.a)*Lc/2;c.position.z=Math.cos(c.userData.a)*Lc/2});
+  if(t<dur){lwShake(A,.18);tick-=dt;if(tick<=0){tick=.5;n++;kShock(x,z,R*(.55+.12*(n%3)),0x8a6a44,.4,.3);const tg=lwNear(A,x,z,R);tg.forEach(e=>lwHit(A,e,d,{sl:1}));lwPvp(A,x,z,R,d*.6);
+    const sp=tg.slice(0,3).map(e=>[e.x,e.z,e]);while(sp.length<3){const a=Math.random()*6.28,r=3+Math.random()*(R-3);sp.push([x+Math.sin(a)*r,z+Math.cos(a)*r,null])}
+    sp.forEach(([px,pz,e])=>{const p=new T.Mesh(lwG('pil',()=>{const q=new T.CylinderGeometry(.5,.8,1,6);q.translate(0,.5,0);return q}),mt);p.position.set(px,0,pz);p.rotation.y=Math.random()*3;p.scale.set(1,.01,1);S.add(p);pil.push({p,t:0,h:1.8+Math.random()*1.4,so:A.rem?null:lwSolid(px,pz,.6)});lwLift(A,e,1.6,.45);lwDust(px,pz,6)})}}
+  for(let i=pil.length-1;i>=0;i--){const o=pil[i];o.t+=dt;const up=Math.min(1,o.t/.12),dn=o.t>.9?Math.max(0,1-(o.t-.9)/.35):1;o.p.scale.y=Math.max(.01,o.h*up*dn);if(o.t>1.25){lwUnsolid(o.so);S.remove(o.p);pil.splice(i,1)}}
+  if(t>dur)lwFade(cracks,1-(t-dur)/.6);return t<dur+.6||pil.length>0},end:()=>{pil.forEach(o=>{lwUnsolid(o.so);S.remove(o.p)});kDispose(cracks);mt.dispose()}})}
+function tMountain(A,d){lwWord(A,'MOUNTAIN BREAKER!','terra');xSnd('naslam');const [cx,cz]=lwPt(A,26),R=9,mt=lwRock(0x6e5a44),mt2=lwRock(0x8a7458),mtn=new T.Group();
+ const body=new T.Mesh(lwG('mtn',()=>{const q=new T.ConeGeometry(5.2,11,8,4);const p=q.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);if(y<5.4&&y>-5.4){p.setX(i,p.getX(i)*(1+Math.sin(i*12.9)*.13));p.setZ(i,p.getZ(i)*(1+Math.cos(i*7.3)*.13))}}q.computeVertexNormals();return q}),mt);mtn.add(body);const cap=new T.Mesh(lwG('mtnCap',()=>{const q=new T.ConeGeometry(1.6,3.2,8);q.translate(0,4,0);return q}),lwRock(0xd8d0c0));mtn.add(cap);
+ for(let k=0;k<7;k++){const b=new T.Mesh(lwIco(),mt2);const a=k/7*6.28;b.position.set(Math.cos(a)*5,-4.8,Math.sin(a)*5);b.scale.setScalar(1.2+Math.random()*.8);mtn.add(b)}
+ mtn.position.set(cx,40,cz);S.add(mtn);const sh=new T.Mesh(lwG('disc',()=>new T.CircleGeometry(1,32)),lwB(0x000000,.35));sh.rotation.x=-Math.PI/2;sh.position.set(cx,.06,cz);S.add(sh);const wr=new T.Mesh(new T.RingGeometry(R-.4,R,48),GLM(0xff8a30,.5));wr.rotation.x=-Math.PI/2;wr.position.set(cx,.08,cz);S.add(wr);let so=null;
+ kfx({u:(q,dt)=>{const t=q.t;if(t<1){const k=t*t;mtn.position.y=40-(40-5.5)*k;mtn.rotation.y+=dt*.8;sh.scale.setScalar(.5+k*R*.8);wr.material.opacity=.3+.3*Math.sin(t*20);return true}
+  if(!q.b){q.b=1;mtn.position.y=5.5;xSnd('esboom');lwShake(A,1.1);for(const e of lwNear(A,cx,cz,R)){lwHit(A,e,d,{st:.6});const l=Math.hypot(e.x-cx,e.z-cz)||1;kb(e,(e.x-cx)/l,(e.z-cz)/l,12,.4)}lwPvp(A,cx,cz,R,d);kShock(cx,cz,R,0xb89a70,.5,.3);kShock(cx,cz,R*1.4,0x8a6a44,.7,.3);blast(R,0x8a6a44,cx,1,cz,2);lwDust(cx,cz,60,0xb89a70,7);if(!A.rem)so=lwSolid(cx,cz,4)}
+  lwFade(wr,1-(t-1)/.4);if(t>3.2){const k=(t-3.2)/.8;mtn.position.y=5.5-k*11;if(Math.random()<.6)lwDust(cx+(Math.random()-.5)*8,cz+(Math.random()-.5)*8,3);lwFade(sh,1-k)}return t<4},end:()=>{lwUnsolid(so);kDispose(mtn);kDispose(sh);kDispose(wr)}})}
+
+// ---------------- ÁGUA ----------------
+function aLance(A,d){lwWord(A,'AQUA LANCE!','agua');xSnd('sgshot');const L=32,sp=58,g=new T.Group();
+ g.add(new T.Mesh(lwG('lanceC',()=>{const q=new T.CylinderGeometry(.09,.16,2.6,10);q.rotateX(Math.PI/2);return q}),lwWater(.85,0x9ae8ff)),new T.Mesh(lwG('lanceT',()=>{const q=new T.ConeGeometry(.2,.8,10);q.rotateX(Math.PI/2);q.translate(0,0,1.7);return q}),lwB(0xe8fbff,.95)));
+ const hx=new T.Mesh(lwG('helix',()=>{const pts=[];for(let i=0;i<=40;i++){const a=i/40*6.2832*3;pts.push(new T.Vector3(Math.cos(a)*.28,Math.sin(a)*.28,-1.4+i/40*2.8))}return new T.TubeGeometry(new T.CatmullRomCurve3(pts),60,.035,5,false)}),GLM(0x7af0ff,.75));g.add(hx);
+ g.position.set(A.x+A.dx,1.35,A.z+A.dz);g.rotation.y=A.f;S.add(g);const hs=new Set();let dist=0,lx=A.x+A.dx,lz=A.z+A.dz;lwPvpLine(A,L,1.2,d);
+ kfx({u:(q,dt)=>{const st=sp*dt;dist+=st;lx+=A.dx*st;lz+=A.dz*st;g.position.set(lx,1.35,lz);hx.rotation.z+=dt*25;if(Math.random()<.8)fxp({x:lx,y:1.35,z:lz,c:Math.random()<.5?0x7af0ff:0xffffff,n:1,sp:1,sz:.12,life:.35,g:4});
+  if(!A.rem)for(const e of xNear(lx,lz,1.4)){if(hs.has(e))continue;hs.add(e);lwHit(A,e,d,{sl:1});kb(e,A.dx,A.dz,5,.2);fxp({x:e.x,y:1.3,z:e.z,c:0x9ae8ff,n:12,sp:5,sz:.16,life:.4,g:8,up:2})}return dist<L},
+  end:()=>{fxp({x:lx,y:1.3,z:lz,c:0x9ae8ff,n:16,sp:5,sz:.18,life:.45,g:8,up:3});kDispose(g)}})}
+function aDragon(A,d){lwWord(A,'WATER DRAGON!','agua');xSnd('sgslosh');const N=Math.round(16+8*Math.min(1,KQ())),wm=lwWater(.72),wm2=GLM(0x7af0ff,.25),segs=[];
+ for(let i=0;i<N;i++){const r=.62*(1-i/N*.65),m=new T.Mesh(lwSph(),wm);m.scale.setScalar(r);const sh=new T.Mesh(lwSph(),wm2);sh.scale.setScalar(1.25);m.add(sh);if(i%3==1){const fin=new T.Mesh(lwG('fin',()=>new T.ConeGeometry(.35,.9,4)),GLM(0x9af6ff,.6));fin.position.y=.95;fin.rotation.x=-.5;m.add(fin)}m.position.set(A.x,1.6,A.z);S.add(m);segs.push(m)}
+ const hd=new T.Group(),sk=new T.Mesh(lwSph(),wm);sk.scale.set(.72,.55,1.05);hd.add(sk);const jaw=new T.Mesh(lwG('jaw',()=>{const q=new T.ConeGeometry(.5,1.2,8);q.rotateX(Math.PI/2);q.translate(0,0,.75);return q}),wm);jaw.position.y=-.18;hd.add(jaw);
+ for(const s of[-1,1]){const h=new T.Mesh(lwG('dhorn',()=>new T.ConeGeometry(.1,.9,6)),GLM(0xdffbff,.85));h.position.set(s*.35,.45,-.4);h.rotation.set(-1.1,0,s*.25);hd.add(h);const e=new T.Mesh(lwSph(),lwB(0xffffff,1));e.scale.setScalar(.09);e.position.set(s*.33,.18,.62);hd.add(e);const eg=new T.Mesh(lwSph(),GLM(0x7af0ff,.8));eg.scale.setScalar(.16);eg.position.copy(e.position);hd.add(eg);const w=new T.Mesh(lwCylY(),GLM(0xbff6ff,.6));w.scale.set(.02,1.1,.02);w.position.set(s*.4,-.1,.7);w.rotation.set(1.2,0,s*.6);hd.add(w)}
+ hd.position.set(A.x,1.6,A.z);S.add(hd);const hist=[{x:A.x,y:1.6,z:A.z,s:0}];let hx=A.x,hz=A.z,hy=1.6,hd2=A.f,cum=0;const hs=new Set();let tg=null;
+ kfx({u:(q,dt)=>{const t=q.t;if(!A.rem&&(!tg||tg.hp<=0||hs.has(tg))){tg=xNear(hx,hz,24).filter(e=>!hs.has(e)).sort((a,b)=>Math.hypot(a.x-hx,a.z-hz)-Math.hypot(b.x-hx,b.z-hz))[0]||null}
+  let want=hd2;if(tg){want=Math.atan2(tg.x-hx,tg.z-hz)}else if(A.rem||t<.2)want=A.f;let da=Math.atan2(Math.sin(want-hd2),Math.cos(want-hd2));hd2+=Math.max(-3.2*dt,Math.min(3.2*dt,da));const wv=hd2+Math.sin(t*7)*.45,sp=17;
+  hx+=Math.sin(wv)*sp*dt;hz+=Math.cos(wv)*sp*dt;hy=1.7+Math.sin(t*5)*.6;cum+=sp*dt;hist.push({x:hx,y:hy,z:hz,s:cum});while(hist.length>2&&hist[0].s<cum-N*.4-2)hist.shift();
+  hd.position.set(hx,hy,hz);hd.rotation.set(Math.sin(t*5)*-.2,wv,0);jaw.rotation.x=.15+Math.abs(Math.sin(t*9))*.25;
+  segs.forEach((m,i)=>{const ts=cum-(i+1)*.36;let j=hist.length-1;while(j>0&&hist[j].s>ts)j--;const p=hist[j];m.position.set(p.x,p.y,p.z)});
+  if(Math.random()<.9)fxp({x:hx,y:hy,z:hz,c:Math.random()<.6?0x7af0ff:0xffffff,n:1,sp:1.2,sz:.14,life:.4,g:5});
+  if(!A.rem)for(const e of xNear(hx,hz,1.9)){if(hs.has(e))continue;hs.add(e);lwHit(A,e,d);kb(e,Math.sin(wv),Math.cos(wv),8,.3);lwPvp(A,hx,hz,1.9,d);fxp({x:e.x,y:1.4,z:e.z,c:0x9ae8ff,n:16,sp:6,sz:.18,life:.45,g:8,up:3})}
+  if(t>2.4){const k=Math.max(0,1-(t-2.4)/.3);segs.forEach(m=>m.scale.multiplyScalar(.85));hd.scale.setScalar(k+.01)}return t<2.7},
+  end:()=>{fxp({x:hx,y:hy,z:hz,c:0x9ae8ff,n:30,sp:7,sz:.2,life:.5,g:8,up:4});kShock(hx,hz,2.5,LW.ciano,.35,.3);segs.forEach(m=>kDispose(m));kDispose(hd)}})}
+function aPrison(A,d){lwWord(A,'TIDAL PRISON!','agua');xSnd('sgslosh');const [cx,cz]=lwPt(A,14);let tg=lwNear(A,cx,cz,4).slice(0,2);if(!tg.length)tg=[{x:cx,z:cz,fake:1}];const dur=3.2;
+ const C=tg.map(e=>{const g=new T.Group(),sp=new T.Mesh(lwG('sphHi',()=>new T.SphereGeometry(1,20,14)),lwWater(.5)),in2=new T.Mesh(lwSph(),GLM(0x7af0ff,.18)),rg=new T.Mesh(lwTor(),GLM(0xbff6ff,.7));sp.scale.setScalar(1.6);in2.scale.setScalar(1.3);rg.scale.setScalar(2.2);rg.rotation.x=Math.PI/2;g.add(sp,in2,rg);g.position.set(e.x,1.6,e.z);g.scale.setScalar(.01);S.add(g);lwStun(A,e,dur);return{e,g,rg}});let tick=0;
+ kfx({u:(q,dt)=>{const t=q.t,k=Math.min(1,t/.3);C.forEach((o,i)=>{const w=t*6+i;o.g.scale.set(k*(1+Math.sin(w)*.06)+.01,k*(1+Math.cos(w*1.3)*.07)+.01,k*(1+Math.sin(w*.8+1)*.06)+.01);if(!o.e.fake&&o.e.hp>0){o.g.position.set(o.e.x,1.6+Math.min(1,t)*.9,o.e.z);if(!A.rem&&!o.e.dummy&&!o.e.boss)o.e.ly=t<dur?Math.min(1.4,t*2):0}o.rg.rotation.z+=dt*3;if(Math.random()<.4)fxp({x:o.g.position.x+(Math.random()-.5)*1.6,y:o.g.position.y-1,z:o.g.position.z+(Math.random()-.5)*1.6,c:0xdffbff,n:1,sp:.2,sz:.09,life:.6,up:2})});
+  tick-=dt;if(tick<=0&&t>.3&&t<dur){tick=.5;C.forEach(o=>{if(!o.e.fake&&o.e.hp>0)lwHit(A,o.e,d)})}
+  if(t>dur&&!q.b){q.b=1;xSnd('sgslosh');C.forEach(o=>{fxp({x:o.g.position.x,y:o.g.position.y,z:o.g.position.z,c:0x9ae8ff,n:30,sp:7,sz:.2,life:.5,g:10,up:3});kShock(o.g.position.x,o.g.position.z,2.5,LW.ciano,.35,.3);if(!o.e.fake&&!A.rem)o.e.ly=0})}return t<dur+.05},end:()=>C.forEach(o=>{kDispose(o.g);if(!o.e.fake&&!A.rem)o.e.ly=0})})}
+function aVortex(A,d){lwWord(A,'HYDRO VORTEX!','agua');xSnd('eshum');const [cx,cz]=lwPt(A,14),R=9,dur=3.6,g=new T.Group();g.position.set(cx,0,cz);S.add(g);
+ const fun=new T.Mesh(lwFunnel(),lwWater(.42));g.add(fun);const L=[];for(let k=0;k<4;k++){const r=new T.Mesh(lwTor(),GLM(k%2?0xbff6ff:0x3aa8ff,.55));r.rotation.x=Math.PI/2;r.scale.setScalar(1+k*1.1);r.position.y=.25+k*.75;g.add(r);L.push(r)}
+ const flr=new T.Mesh(new T.RingGeometry(.6,R,40,1),GLM(0x2a8cff,.18));flr.rotation.x=-Math.PI/2;flr.position.y=.06;g.add(flr);g.scale.setScalar(.01);let tick=0;
+ kfx({u:(q,dt)=>{const t=q.t,k=Math.min(1,t/.35)*(t>dur?Math.max(0,1-(t-dur)/.4):1);g.scale.setScalar(k+.01);fun.rotation.y+=dt*5;L.forEach((r,i)=>{r.rotation.z+=dt*(4-i*.6);r.position.y=.25+i*.75+Math.sin(t*4+i)*.1});flr.rotation.z-=dt*2;
+  if(Math.random()<.8){const a=Math.random()*6.28,r=1+Math.random()*R*.8;fxp({x:cx+Math.cos(a)*r,y:.3,z:cz+Math.sin(a)*r,c:Math.random()<.6?0x7af0ff:0xffffff,n:1,dx:-Math.sin(a),dz:Math.cos(a),sp:5,spread:.2,sz:.12,life:.5,up:1})}
+  if(!A.rem&&t<dur)for(const e of xNear(cx,cz,R)){if(e.dummy)continue;const ex=e.x-cx,ez=e.z-cz,l=Math.hypot(ex,ez)||1,pull=(e.boss?1.5:5)*dt;if(l>1.2){e.x-=ex/l*pull;e.z-=ez/l*pull}e.x+=-ez/l*dt*2;e.z+=ex/l*dt*2}
+  tick-=dt;if(tick<=0&&t>.3&&t<dur){tick=.5;for(const e of lwNear(A,cx,cz,R*.6))lwHit(A,e,d,{sl:1});lwPvp(A,cx,cz,R*.5,d*.5)}
+  if(t>dur&&!q.b){q.b=1;xSnd('sgslosh');const col=new T.Mesh(lwCylY(),lwWater(.6,0x7af0ff));col.scale.set(1.6,7,1.6);col.position.y=3.5;g.add(col);q.col=col;for(const e of lwNear(A,cx,cz,3.5)){lwHit(A,e,d*2);lwLift(A,e,2.2,.6)}fxp({x:cx,y:1,z:cz,c:0x9ae8ff,n:40,sp:4,sz:.22,life:.8,g:10,up:10});lwShake(A,.4)}
+  if(q.col)q.col.scale.y=7*Math.max(.05,k);return t<dur+.4},end:()=>kDispose(g)})}
+function lwWave(W,sx,sy){const geo=new T.PlaneGeometry(W,1,sx,sy),p=geo.attributes.position,base=[];for(let i=0;i<p.count;i++)base.push([p.getX(i),p.getY(i)+.5]);return{geo,base}}
+function lwWaveShape(o,H,ph,curl){const p=o.geo.attributes.position,Rc=Math.max(.3,H*.34);for(let i=0;i<p.count;i++){const [u,v]=o.base[i],w=1+.12*Math.sin(u*.9+ph);let y,z;if(v<.62){const k=v/.62;z=-4+4*k;y=H*w*Math.pow(k,1.35)}else{const th=(v-.62)/.38*Math.PI*1.15*curl;z=Rc*Math.sin(th);y=H*w-Rc*(1-Math.cos(th))}y+=.18*Math.sin(u*1.7+ph*1.4)*v;z+=.25*Math.sin(u*.7+ph);p.setXYZ(i,u,Math.max(0,y),z)}p.needsUpdate=true;o.geo.computeVertexNormals()}
+function aOcean(A,d){lwWord(A,'OCEAN DOMINION!','agua');xSnd('sgslosh');const W=16,Ln=26,dur=1.7,sx=Math.round(12+16*Math.min(1,KQ())),wv=lwWave(W,sx,12),mesh=new T.Mesh(wv.geo,lwWater(.78,0x1f7ae0)),wv2=lwWave(W,sx,12),m2=new T.Mesh(wv2.geo,lwWater(.35,0x8af0ff)),g=new T.Group();m2.position.set(0,.05,-.25);m2.scale.set(1,.92,1);g.add(mesh,m2);
+ const crest=new T.Mesh(lwBox(),GLM(0xffffff,.55));crest.scale.set(W,.18,.4);g.add(crest);g.position.set(A.x+A.dx*1.5,0,A.z+A.dz*1.5);g.rotation.y=A.f;S.add(g);const hs=new Set();lwPvpLine(A,Ln,W/2,d);lwShake(A,.3);
+ kfx({u:(q,dt)=>{const t=q.t,u=Math.min(1,t/dur),s=1.5+Ln*u,H=Math.min(1,t/.3)*5*(t>dur-.25?Math.max(.1,(dur-t)/.25):1);g.position.set(A.x+A.dx*s,0,A.z+A.dz*s);lwWaveShape(wv,H,t*6,Math.min(1,t/.5));lwWaveShape(wv2,H,t*6+1,Math.min(1,t/.5));crest.position.set(0,H*.95,H*.3);crest.scale.y=.18+H*.02;
+  q.gx=A.x+A.dx*s;q.gz=A.z+A.dz*s;for(let k=0;k<3;k++){const off=(Math.random()-.5)*W;fxp({x:q.gx+Math.cos(A.f)*off,y:H,z:q.gz-Math.sin(A.f)*off,c:0xffffff,n:1,sp:2,sz:.2,life:.4,g:6,up:2})}
+  if(!A.rem)for(const e of enemies){if(e.hp<=0||e.gwx||hs.has(e))continue;const rx=e.x-A.x,rz=e.z-A.z,al=rx*A.dx+rz*A.dz,pp=Math.abs(rx*A.dz-rz*A.dx);if(pp<W/2&&al>s-2&&al<s+1.2){hs.add(e);lwHit(A,e,d,{sl:1});kb(e,A.dx,A.dz,12,.5);lwLift(A,e,1,.4)}}
+  return t<dur},end:()=>{const x=g.position.x,z=g.position.z;for(let k=-3;k<=3;k++)fxp({x:x+Math.cos(A.f)*k*2.2,y:.6,z:z-Math.sin(A.f)*k*2.2,c:0x9ae8ff,n:8,sp:5,sz:.22,life:.6,g:10,up:4});kDispose(g)}})}
+function aTsunami(A,d){lwWord(A,'ABYSSAL TSUNAMI!','agua');xSnd('sgroyal');const x=A.x,z=A.z,R=16;if(!A.rem){P.lock=2.6;P.iv=Math.max(P.iv||0,2.8)}
+ const g=new T.Group();g.position.set(x,0,z);S.add(g);const wg=new T.CylinderGeometry(1,1,1,Math.round(24+16*Math.min(1,KQ())),5,true);wg.translate(0,.5,0);const wp=wg.attributes.position,b0=[];for(let i=0;i<wp.count;i++)b0.push([Math.atan2(wp.getZ(i),wp.getX(i)),wp.getY(i)]);
+ const wall=new T.Mesh(wg,lwWater(.62)),foam=new T.Mesh(lwTor(),GLM(0xffffff,.6));foam.rotation.x=Math.PI/2;g.add(wall,foam);const pools=[];for(let k=0;k<3;k++){const a=k/3*6.28,pg=new T.Group(),f=new T.Mesh(lwFunnel(),lwWater(.4));f.scale.setScalar(.5);pg.add(f);pg.position.set(Math.cos(a)*8,0,Math.sin(a)*8);pg.scale.setScalar(.01);g.add(pg);pools.push(pg)}
+ let rad=5,H=0,tick=0;const hs=new Set();
+ kfx({u:(q,dt)=>{const t=q.t;if(t<1.2){rad=5;H=3*t/1.2}else if(t<2.4){rad=5+(t-1.2)*.8;H=3+6*(t-1.2)/1.2;lwShake(A,.25)}else{const u=Math.min(1,(t-2.4)/.8);rad=6+u*(R-6);H=9*(1-u)}
+  for(let i=0;i<wp.count;i++){const [a,v]=b0[i],w=1+.08*Math.sin(a*6+t*8)*v;wp.setXYZ(i,Math.cos(a+t*1.5*v)*rad*w,v*H*(1+.1*Math.sin(a*4-t*6)),Math.sin(a+t*1.5*v)*rad*w)}wp.needsUpdate=true;if((q.f=(q.f||0)+1)%2==0)wg.computeVertexNormals();
+  foam.scale.setScalar(rad);foam.position.y=H;foam.rotation.z+=dt*2;pools.forEach((p,i)=>{p.scale.setScalar(t<2.4?Math.min(1,t/.5)+.01:Math.max(.01,1-(t-2.4)/.4));p.rotation.y+=dt*6});
+  if(Math.random()<.9)fxp({x:x+(Math.random()-.5)*rad*2,y:H*Math.random(),z:z+(Math.random()-.5)*rad*2,c:Math.random()<.5?0xffffff:0x7af0ff,n:1,sp:2,sz:.18,life:.5,g:4,up:2});
+  if(!A.rem&&t<2.4)for(const e of xNear(x,z,R)){if(e.dummy)continue;const ex=e.x-x,ez=e.z-z,l=Math.hypot(ex,ez)||1,tr=Math.max(4,rad);e.x-=ex/l*(l-tr)*Math.min(1,dt*2);e.z-=ez/l*(l-tr)*Math.min(1,dt*2)}
+  tick-=dt;if(tick<=0&&t<2.4){tick=.4;for(const e of lwNear(A,x,z,R))lwHit(A,e,d*.12,{sl:1})}
+  if(t>=2.4&&!q.b){q.b=1;xSnd('esboom');lwShake(A,1);if(!A.rem||Math.hypot(A.x-P.x,A.z-P.z)<22)flash();kShock(x,z,R,LW.ciano,.8,.3);kShock(x,z,R*.7,0xffffff,.6,.5)}
+  if(t>=2.4&&!A.rem)for(const e of xNear(x,z,rad+1.5)){if(hs.has(e))continue;hs.add(e);lwHit(A,e,d);const l=Math.hypot(e.x-x,e.z-z)||1;kb(e,(e.x-x)/l,(e.z-z)/l,14,.5);lwLift(A,e,1.4,.5)}
+  if(t>=2.4&&!q.p){q.p=1;lwPvp(A,x,z,R,d)}
+  if(t>3)lwFade(g,1-(t-3)/.3);return t<3.3},end:()=>{kDispose(g);wg.dispose()}})}
+
+// ---------------- SEM MAGIA (combate corpo a corpo): dois golpes novos ----------------
+function nUpper(A,d){if(!A.rem){P.vy=Math.max(P.vy||0,7)}const x0=A.x+A.dx*1.4,z0=A.z+A.dz*1.4;kShock(x0,z0,1.6,0xffffff,.25,.6);fxp({x:x0,y:1.2,z:z0,c:0xffffff,n:14,sp:5,sz:.2,life:.35,up:5});for(const e of lwNear(A,x0,z0,2.4)){lwHit(A,e,d);lwLift(A,e,2.2,.6)}lwPvp(A,x0,z0,2.4,d)}
+function nWave(A,d){lwShake(A,.35);const L=20,g=new T.Group(),hs=new Set();g.position.set(A.x,0,A.z);g.rotation.y=A.f;S.add(g);const rr=new T.Mesh(lwTor(),GLM(0xffffff,.7));rr.rotation.x=Math.PI/2;g.add(rr);lwDust(A.x+A.dx,A.z+A.dz,12,0xbbbbbb,4);lwPvpLine(A,L,1.4,d);
+ kfx({u:(q,dt)=>{const t=q.t,s=Math.min(1,t/.7)*L;rr.position.z=s;rr.scale.set(1.2+t*2,1.2+t*2,1);lwFade(g,1-t/.75);const px=A.x+A.dx*s,pz=A.z+A.dz*s;if(Math.random()<.8)lwDust(px,pz,2,0xbbbbbb);if(!A.rem)for(const e of xNear(px,pz,1.8)){if(hs.has(e))continue;hs.add(e);lwHit(A,e,d,{st:.4});kb(e,A.dx,A.dz,8,.3)}return t<.75},end:()=>kDispose(g)})}
+
+// ---------------- UNIÃO DE LIEBE: duas formas de combate novas (substituem as versões "iguais com mais dano") ----------------
+function uWing(A,d){lwWord(A,'DEMON WING TEMPEST!','gold');xSnd('nawhoosh');const x=A.x,z=A.z,R=6.5,g=new T.Group();g.position.set(x,0,z);S.add(g);
+ const W=[];for(const s of[-1,1]){const w=new T.Group(),pl=new T.Mesh(lwG('uwing',()=>{const q=new T.PlaneGeometry(3.4,2.2,4,1);q.translate(1.7,0,0);return q}),new T.MeshBasicMaterial({color:0x1a0006,transparent:true,opacity:.9,side:T.DoubleSide,depthWrite:false})),rim=new T.Mesh(lwG('uwingR',()=>{const q=new T.PlaneGeometry(3.5,.18);q.translate(1.75,1.05,0);return q}),GLM(0xff2040,.9));w.add(pl,rim);w.scale.x=s;w.position.y=1.7;g.add(w);W.push(w)}
+ const sl=[];for(let k=0;k<3;k++){const c=new T.Mesh(lwG('uarc',()=>new T.TorusGeometry(1,.07,5,28,Math.PI*1.2)),GLM(k%2?0xff2040:0x300008,.85));c.rotation.x=Math.PI/2;c.position.y=.8+k*.6;c.scale.setScalar(R*.85);g.add(c);sl.push(c)}let tick=0,gx=x,gz=z;
+ if(!A.rem)P.vy=Math.max(P.vy||0,6);
+ kfx({u:(q,dt)=>{const t=q.t,k=Math.min(1,t/.15)*(t>.75?Math.max(0,1-(t-.75)/.25):1);g.rotation.y+=dt*16;if(!A.rem){gx=P.x;gz=P.z}g.position.set(gx,0,gz);W.forEach(w=>{w.rotation.z=Math.sin(t*20)*.25;w.scale.y=k+.01});sl.forEach((c,i)=>{c.rotation.z+=dt*(10+i*3);c.material.opacity=.85*k});
+  if(!A.rem&&t<.75){for(let j=eshots.length-1;j>=0;j--){const s=eshots[j];if(Math.hypot(s.m.position.x-gx,s.m.position.z-gz)<9){fxp({x:s.m.position.x,y:1.3,z:s.m.position.z,c:0xff2040,n:8,sp:4,sz:.18,life:.35});S.remove(s.m);eshots.splice(j,1)}}
+   tick-=dt;if(tick<=0){tick=.18;for(const e of xNear(gx,gz,R)){lwHit(A,e,d*.3);if(t<.4&&!e.dummy){const ex=e.x-gx,ez=e.z-gz,l=Math.hypot(ex,ez)||1;e.x-=ex/l*.5;e.z-=ez/l*.5}}}}
+  if(t>=.75&&!q.b){q.b=1;lwShake(A,.5);kShock(gx,gz,R+1,0xff2040,.4,1);for(const e of lwNear(A,gx,gz,R+1)){lwHit(A,e,d);const l=Math.hypot(e.x-gx,e.z-gz)||1;kb(e,(e.x-gx)/l,(e.z-gz)/l,14,.4)}lwPvp(A,gx,gz,R,d)}
+  return t<1},end:()=>kDispose(g)})}
+function uMeteor(A,d){lwWord(A,"LIEBE'S BLACK METEOR!",'gold');xSnd('nasigil');const [tx,tz]=lwPt(A,30),R=8;if(!A.rem)P.lock=.7;
+ const arm=new T.Group(),am=new T.MeshBasicMaterial({color:0x0a0408}),vein=GLM(0xff2040,.85);const up=new T.Mesh(lwCylY(),am);up.scale.set(.45,2.6,.45);up.position.y=1.3;arm.add(up);const hand=new T.Mesh(lwSph(),am);hand.scale.set(.75,.6,.6);hand.position.y=2.8;arm.add(hand);
+ for(let k=0;k<4;k++){const c=new T.Mesh(lwG('claw',()=>new T.ConeGeometry(.09,.6,5)),new T.MeshBasicMaterial({color:0xe8dcc8}));c.position.set(-.45+k*.3,3.25,.2);arm.add(c)}const v=new T.Mesh(lwCylY(),vein);v.scale.set(.47,2.6,.05);v.position.y=1.3;arm.add(v);
+ arm.position.set(A.x-A.dx*.6,1.2,A.z-A.dz*.6);arm.rotation.set(0,A.f,0);S.add(arm);
+ const met=new T.Group(),core=new T.Mesh(lwIco(),new T.MeshBasicMaterial({color:0x050205})),cr=new T.Mesh(lwTor(),GLM(0xff2040,.9)),cr2=new T.Mesh(lwTor(),GLM(0xff6070,.6));core.scale.setScalar(1.3);cr.scale.setScalar(1.6);cr2.scale.setScalar(1.9);cr2.rotation.x=1.2;met.add(core,cr,cr2);met.position.set(A.x,4.5,A.z);met.scale.setScalar(.01);S.add(met);
+ let dome=null;const sx=A.x,sz=A.z;let tick=0;
+ kfx({u:(q,dt)=>{const t=q.t;if(t<.5){const k=t/.5;arm.scale.setScalar(k+.01);met.scale.setScalar(k);met.position.set(sx-A.dx*.4,4.6,sz-A.dz*.4);arm.rotation.x=-.3*k;core.rotation.x+=dt*4;return true}
+  if(t<1.2){const u=(t-.5)/.7;arm.rotation.x=-.3+2.2*Math.min(1,u*3);arm.scale.setScalar(Math.max(.01,1-u));met.position.set(sx+(tx-sx)*u,4.6+Math.sin(u*Math.PI)*6-u*3.6,sz+(tz-sz)*u);core.rotation.x+=dt*10;cr.rotation.y+=dt*8;if(Math.random()<.9)fxp({x:met.position.x,y:met.position.y,z:met.position.z,c:Math.random()<.5?0xff2040:0x1a0006,n:1,sp:1,sz:.3,life:.4});return true}
+  if(!q.b){q.b=1;arm.visible=false;met.visible=false;xSnd('esboom');lwShake(A,.9);for(const e of lwNear(A,tx,tz,R)){lwHit(A,e,d,{st:1});e.mc=Math.max(e.mc||0,3)}lwPvp(A,tx,tz,R,d);kShock(tx,tz,R,0xff2040,.5,.3);blast(R,0x150006,tx,1,tz,2.4);fxp({x:tx,y:1,z:tz,c:0xff2040,n:40,sp:10,sz:.3,life:.7,up:6});
+   dome=new T.Mesh(lwG('dome',()=>new T.SphereGeometry(1,24,12,0,6.2832,0,Math.PI/2)),new T.MeshBasicMaterial({color:0x0a0004,transparent:true,opacity:.35,side:T.DoubleSide,depthWrite:false}));dome.scale.setScalar(R);dome.position.set(tx,0,tz);S.add(dome);const rim=new T.Mesh(lwTor(),GLM(0xff2040,.8));rim.rotation.x=Math.PI/2;rim.scale.setScalar(R);rim.position.y=.05;dome.add(rim);rim.scale.set(1,1,1)}
+  const u=t-1.2;if(dome){if(!A.rem){for(let j=eshots.length-1;j>=0;j--){const s=eshots[j];if(Math.hypot(s.m.position.x-tx,s.m.position.z-tz)<R){S.remove(s.m);eshots.splice(j,1)}}tick-=dt;if(tick<=0){tick=.5;for(const e of xNear(tx,tz,R)){lwHit(A,e,d*.1,{sl:1});e.mc=Math.max(e.mc||0,.6)}}}lwFade(dome,u<2.6?1:Math.max(0,1-(u-2.6)/.4))}return u<3},end:()=>{kDispose(arm);kDispose(met);if(dome)kDispose(dome)}})}
+
+// Fogo: "Magna: Infernal Chain" fazia praticamente o mesmo que "Fire: Infernal Chain" (correntes em até 3 alvos a média distância).
+// Substituída por um golpe de CURTO alcance no estilo Magna Swing: dois giros do bastão em chamas que queimam, lançam e explodem.
+function fSwing(A,d){lwWord(A,'FLAME SWING BREAKER!','gold');xSnd('sgboom');const g=new T.Group(),R=5.5;let gx=A.x,gz=A.z;g.position.set(gx,0,gz);S.add(g);
+ const bat=new T.Group(),st=new T.Mesh(lwCylY(),new T.MeshToonMaterial({color:0x6a3a1a,gradientMap:gmap}));st.scale.set(.09,2.6,.09);st.rotation.z=Math.PI/2;st.position.x=1.6;bat.add(st);const fl=new T.Mesh(lwSph(),GLM(0xff7a1a,.75));fl.scale.set(1,.35,.35);fl.position.x=3;bat.add(fl);bat.position.y=1.2;g.add(bat);
+ const arcs=[];for(let k=0;k<2;k++){const a=new T.Mesh(lwG('uarc',()=>new T.TorusGeometry(1,.07,5,28,Math.PI*1.2)),GLM(k?0xffd040:0xff5522,.85));a.rotation.x=Math.PI/2;a.position.y=.9+k*.5;a.scale.setScalar(R*.85);a.visible=false;g.add(a);arcs.push(a)}const hit=[new Set(),new Set()];
+ kfx({u:(q,dt)=>{const t=q.t;if(!A.rem){gx=P.x;gz=P.z}g.position.set(gx,0,gz);const sw=t<.35?0:t<.7?1:2;bat.rotation.y=A.f+(t<.35?-Math.PI*1.2*(t/.35):t<.7?-Math.PI*1.2+Math.PI*2.4*((t-.35)/.35):Math.PI*1.2+Math.PI*2*((t-.7)/.35));
+  arcs[0].visible=t<.7;arcs[1].visible=t>=.7&&t<1.05;arcs.forEach(a=>a.rotation.z=bat.rotation.y);if(Math.random()<.9)fxp({x:gx+Math.sin(bat.rotation.y)*3,y:1.2,z:gz+Math.cos(bat.rotation.y)*3,c:Math.random()<.5?0xff7a1a:0xffd040,n:1,sp:1,sz:.18,life:.35,up:2});
+  if(!A.rem&&sw>0){const S2=hit[sw-1];for(const e of xNear(gx,gz,R)){if(S2.has(e))continue;let a=Math.atan2(e.x-gx,e.z-gz)-A.f;a=Math.atan2(Math.sin(a),Math.cos(a));if(sw==1&&Math.abs(a)>1.6)continue;S2.add(e);lwHit(A,e,sw==1?d:d*1.2,{b:1});const l=Math.hypot(e.x-gx,e.z-gz)||1;kb(e,(e.x-gx)/l,(e.z-gz)/l,sw==1?9:13,.35);if(sw==2)lwLift(A,e,1.6,.4)}}
+  if(t>=1.05&&!q.b){q.b=1;lwShake(A,.45);kShock(gx,gz,R+.5,0xff5522,.35,1);blast(R,0xff6a1a,gx,1,gz,2.2);lwPvp(A,gx,gz,R,d)}return t<1.2},end:()=>kDispose(g)})}
+// ---------------- dispatcher + tabelas ----------------
+const LWS={lray:lRay,lblade:lBlades,lflash:lFlash,lprison:lPrison,ljudg:lJudg,lsun:lSun,tspear:tSpear,tfort:tFort,tfist:tFist,tcrys:tCrystal,tquake:tQuake,tmount:tMountain,alance:aLance,adrag:aDragon,aprison:aPrison,avort:aVortex,aocean:aOcean,atsu:aTsunami,nup:nUpper,nwave:nWave,uwing:uWing,umet:uMeteor,fswing:fSwing};
+GR.luz.s=[['Light: Divine Ray',8,30,'lray',null,1],["Light: Solar Blades",16,16,'lblade',null,7],['Light: Flash Step',12,26,'lflash',null,5],['Light: Radiant Prison',22,22,'lprison',null,14],["Light: Heaven's Judgment",32,32,'ljudg',null,22],['Light: Absolute Sun',48,150,'lsun',null,45]];
+GR.terra.s=[['Earth: Earth Spear',8,26,'tspear',null,1.1],['Earth: Stone Fortress',18,20,'tfort',null,16],['Earth: Titan Fist',18,60,'tfist',null,7],['Earth: Crystal Prison',22,40,'tcrys',null,14],['Earth: Earthquake Dominion',32,22,'tquake',null,22],['Earth: Mountain Breaker',48,150,'tmount',null,45]];
+GR.agua.s=[['Water: Water Dragon',18,50,'adrag',null,8],['Water: Aqua Lance',8,28,'alance',null,1],['Water: Tidal Prison',22,12,'aprison',null,14],['Water: Hydro Vortex',24,10,'avort',null,16],['Water: Ocean Dominion',34,70,'aocean',null,24],['Water: Abyssal Tsunami',52,160,'atsu',null,50]];
+GR.luz.p={t:'Luz Sagrada: recupera vida aos poucos. Especialidade: feixes de longo alcance, velocidade e prisões de luz',hpr:1.5};
+GR.terra.p={t:'Pele de Pedra: −20% de dano recebido. Especialidade: defesa, estruturas com colisão e golpes pesados',def:.2};
+GR.agua.p={t:'Fluxo: mana regenera mais rápido. Especialidade: controle de área, prisões e ondas',reg:4};
+GR.fogo.s[4]=['Magna: Flame Swing Breaker',22,34,'fswing',null,10];
+GR.nenhum.s.push(['Uppercut Ascendente',0,30,'nup',null,3],['Punho Sísmico',0,38,'nwave',null,6]);
+// a União de Liebe troca as duas últimas magias (antes: as mesmas da Anti-Magia com mais dano) por formas de combate próprias
+GR.anti.ss[4]=['Devil Union: Demon Wing Tempest',20,40,'uwing',null,10,12];GR.anti.ss[5]=["Devil Union: Liebe's Black Meteor",40,140,'umet',null,26,20];
+const LWN={};for(const id of['luz','terra','agua','nenhum','anti','fogo'])for(const s of(GR[id].s.concat(GR[id].ss||[])))if(LWS[s[3]])LWN[s[0]]=s[3];
+function lwCast(t,d){const s=t=='uwing'||t=='umet';if(s){try{uCost(t=='uwing'?12:20)}catch(e){}}LWS[t](lwA(),d)}
+// outro jogador lançou: reproduz a mesma cena (visual, sem dano) a partir da posição e direção dele
+function lwRemote(o,c){const t=LWN[c&&c.nm];if(!t)return false;const f=+c.f||0;try{LWS[t]({x:o.x,z:o.z,f,dx:Math.sin(f),dz:Math.cos(f),rem:1,p:c.p,o},0)}catch(e){}return true}
+
+// ================= ANIMAÇÕES (V74): parado, caminhada, corrida, pulo, queda, aterrissagem, dano, defesa e derrota =================
+// a fase do passo avança com a velocidade real (os pés não deslizam), há transição suave entre parado/andar/correr,
+// impacto ao aterrissar, recuo ao levar dano, guarda com escudo ativo e queda ao ser derrotado.
+function anim(p,t,mv,air){const L=p.legs,A=p.arms,r=p.root;if(!L||!A||!r)return;const s=p._an||(p._an={ph:0,lt:t,mv:0,air:0,land:0,wa:0});let dt=t-s.lt;s.lt=t;if(!(dt>0)||dt>.2)dt=.016;
+ const me=p===PP;s.mv+=(mv-s.mv)*Math.min(1,dt*12);if(mv<.03&&s.mv<.04)s.mv=0;const m=s.mv;
+ if(me&&P.dead>0){const q=Math.min(1,(t-(P.deadT0||t))/.9),e=q*q*(3-2*q),k2=Math.min(1,q*2);
+  L[0][0].rotation.x=-.3*k2;L[1][0].rotation.x=-.15*k2;L[0][1].rotation.x=.9*k2*(1-e*.6);L[1][1].rotation.x=.6*k2*(1-e*.6);
+  A[0][0].rotation.x=-.4*e;A[1][0].rotation.x=-.9*e;A[0][1].rotation.x=-.2;A[1][1].rotation.x=-.3;A[0][0].rotation.z=.08+.9*e;A[1][0].rotation.z=-.08-.6*e;
+  r.rotation.set(-1.45*e,0,.12*e);r.position.y=-.25*k2*(1-e)+.12*e;return}
+ if(air){s.air+=dt;s.wa=1;const vy=me?P.vy:0,fall=vy<-1?Math.min(1,(-vy-1)/8):0,rise=1-fall,fl=Math.sin(t*14)*.08*fall;
+  L[0][0].rotation.x=-1*rise-.35*fall;L[0][1].rotation.x=1.3*rise+.35*fall;L[1][0].rotation.x=.3*rise+.25*fall;L[1][1].rotation.x=.7*rise+.2*fall;
+  A[0][0].rotation.x=-1.3*rise-.4*fall;A[1][0].rotation.x=-.5*rise-.4*fall;A[0][1].rotation.x=-.7*rise-.3*fall;A[1][1].rotation.x=-.9*rise-.3*fall;
+  A[0][0].rotation.z=.08+.75*fall+fl;A[1][0].rotation.z=-.08-.75*fall-fl;r.position.y=0;r.rotation.set(.08*rise-.1*fall,0,0);return}
+ if(s.wa){s.wa=0;if(s.air>.16)s.land=Math.min(.32,.12+s.air*.25);s.air=0}
+ const run=m>1.05,k=Math.min(1,m),rate=m<.03?0:(run?8.5+Math.min(1,(m-1)/.3)*4:8.5*Math.max(.45,k));s.ph+=dt*rate;
+ const ph=s.ph,sn=Math.sin(ph),c=Math.cos(ph),amp=(run?.95:.62)*k,iw=Math.max(0,1-m/.14),ww=1-iw,b=Math.sin(t*2.1),b2=Math.sin(t*.7);
+ // pernas: coxa balança, joelho dobra na fase de balanço; parado: peso alterna levemente entre as pernas
+ L[0][0].rotation.x=-sn*amp*ww;L[1][0].rotation.x=sn*amp*ww;
+ L[0][1].rotation.x=((Math.max(0,c)*(run?1.5:.85)+.08)*k)*ww+iw*.06*Math.max(0,b2);L[1][1].rotation.x=((Math.max(0,-c)*(run?1.5:.85)+.08)*k)*ww+iw*.06*Math.max(0,-b2);
+ // braços: opostos às pernas; parado: respiração e balanço suave
+ A[0][0].rotation.x=sn*(run?.95:.5)*k*ww+iw*(.04*b-.02);A[1][0].rotation.x=-sn*(run?.95:.5)*k*ww+iw*(.04*b+.03);
+ A[0][1].rotation.x=(-(run?1.35:.35)-Math.max(0,-sn)*.3*k)*ww+iw*(-.18-.05*b);A[1][1].rotation.x=(-(run?1.35:.35)-Math.max(0,sn)*.3*k)*ww+iw*(-.18-.05*b);
+ A[0][0].rotation.z=.08+(run?.12:.04)*ww+iw*.02*b;A[1][0].rotation.z=-.08-(run?.12:.04)*ww-iw*.02*b;
+ // tronco: sobe e desce duas vezes por passo, gira o quadril com a passada, inclina ao correr; parado: respira e troca o peso
+ r.position.y=(1-Math.abs(sn))*(run?.085:.035)*k*ww+iw*.012*b;r.rotation.set((run?.2:.05)*k*ww,sn*.07*k*ww,sn*.035*k*ww+iw*.025*b2);
+ // aterrissagem: joelhos absorvem o impacto
+ if(s.land>0){s.land-=dt;const q=Math.min(1,s.land/.2);for(let i=0;i<2;i++){L[i][0].rotation.x-=.55*q;L[i][1].rotation.x+=1.05*q}r.position.y-=.15*q;r.rotation.x+=.22*q;A[0][0].rotation.z+=.35*q;A[1][0].rotation.z-=.35*q}
+ if(!me)return;
+ // guarda (escudo/fortaleza ativos): braços cruzados na frente do peito
+ if(P.sh>0&&!P.ps){const g=Math.min(1,P.sh*3);A[0][0].rotation.x=-1.25*g+A[0][0].rotation.x*(1-g);A[1][0].rotation.x=-1.25*g+A[1][0].rotation.x*(1-g);A[0][1].rotation.x=-1.5*g;A[1][1].rotation.x=-1.5*g;A[0][0].rotation.z=-.45*g+.08*(1-g);A[1][0].rotation.z=.45*g-.08*(1-g)}
+ // recuo ao levar dano
+ if(P.hitf>0){P.hitf-=dt;const q=Math.max(0,P.hitf/.28);r.rotation.x-=.3*q;r.position.y-=.04*q;A[0][0].rotation.x-=.5*q;A[1][0].rotation.x-=.5*q}
+ // conjuração: partículas do próprio elemento saindo das mãos
+ if(P.ps&&P.g&&CFG.parts)castFx(dt)}
+const CFX={fogo:[0xff6a1a,0xffd040,0,3],agua:[0x7af0ff,0xffffff,6,0],terra:[0xb89a70,0x7a5a38,8,0],luz:[0xfff2a0,0xffffff,0,1.5],vento:[0x7de0b5,0xffffff,0,.5],anti:[0x1a1a1a,0xff2040,0,.8],tempo:[0xffd75a,0xfff6c8,0,.6],kotodama:[0x8a2be2,0xffffff,0,.6],sangue:[0xc0102a,0x5a0010,6,0],sonhos:[0xb06aff,0xffc0ff,0,1],espacial:[0x3a8aff,0xffffff,0,0],sombra:[0x5a2a8a,0x1a0a2a,0,.6],nenhum:[0xdddddd,0xffffff,0,.3]};
+const _cfv=new T.Vector3();
+function castFx(dt){const c=CFX[P.g.id]||CFX.nenhum;if(Math.random()>.5*KQ())return;try{const i=Math.random()<.5?0:1,E=PP.arms[i][1];_cfv.set(0,PP.attY||-.38,0);E.localToWorld(_cfv);fxp({x:_cfv.x,y:_cfv.y,z:_cfv.z,c:Math.random()<.6?c[0]:c[1],n:1,sp:.8,sz:.1,life:.4,g:c[2],up:c[3]})}catch(e){}}
+// poses de conjuração próprias de Luz, Terra e Água (e dos golpes novos)
+const NPOSE={
+ lcast:(u,A,L,r,sg)=>{const w=sg(0,.3),b=sg(.7,1),k=1-b;A[1][0].rotation.x=-1.55*w*k;A[1][1].rotation.x=-.1*k;A[0][0].rotation.x=-1.1*w*k;A[0][0].rotation.z=.08+.5*w*k;A[1][0].rotation.z=-.08-.15*w*k;r.rotation.y+=-.25*w*k;L[0][0].rotation.x+=-.25*w*k;L[1][0].rotation.x+=.2*w*k},
+ lsky:(u,A,L,r,sg)=>{const w=sg(0,.35),b=sg(.75,1),k=1-b;for(const a of A){a[0].rotation.x=-2.75*w*k;a[1].rotation.x=-.1*k}A[0][0].rotation.z=.08-.55*w*k;A[1][0].rotation.z=-.08+.55*w*k;r.rotation.x+=-.18*w*k},
+ tstomp:(u,A,L,r,sg)=>{const up=sg(0,.3),dn=sg(.3,.42),b=sg(.75,1),k=1-b;L[1][0].rotation.x=-1.4*up*(1-dn)*k;L[1][1].rotation.x=1.5*up*(1-dn)*k;for(const a of A){a[0].rotation.x=(-.9*up-.2*dn)*k;a[1].rotation.x=-1.6*k}r.position.y+=(.06*up*(1-dn)-.16*dn)*k;r.rotation.x+=.2*dn*k},
+ tpunch:(u,A,L,r,sg)=>{const w=sg(0,.3),f=sg(.3,.45),b=sg(.72,1),k=1-b;r.rotation.y+=(.45*w-.7*f)*k;A[1][0].rotation.x=(.6*w-2.2*f)*k;A[1][1].rotation.x=(-1.8*w*(1-f)-.05*f)*k;A[0][0].rotation.x=(-.9*w+.5*f)*k;A[0][1].rotation.x=-1.5*k;L[0][0].rotation.x+=-.5*f*k;L[1][0].rotation.x+=.35*f*k;r.position.y+=-.06*f*k},
+ aflow:(u,A,L,r,sg)=>{const k=1-sg(.8,1),a=u*Math.PI*2;A[1][0].rotation.x=(-1.1-.6*Math.sin(a))*k;A[1][0].rotation.z=-.08-.6*Math.cos(a)*k;A[0][0].rotation.x=(-1.1-.6*Math.sin(a+Math.PI))*k;A[0][0].rotation.z=.08+.6*Math.cos(a+Math.PI)*k;for(const q of A)q[1].rotation.x=-.5*k;r.rotation.y+=.3*Math.sin(a)*k},
+ awave:(u,A,L,r,sg)=>{const cr=sg(0,.3),up=sg(.3,.55),b=sg(.78,1),k=1-b;for(let i=0;i<2;i++){L[i][0].rotation.x+=-.6*cr*(1-up)*k;L[i][1].rotation.x+=1.1*cr*(1-up)*k;A[i][0].rotation.x=(.4*cr-2.4*up)*k;A[i][1].rotation.x=-.2*k}r.position.y+=-.16*cr*(1-up)*k;r.rotation.x+=(.3*cr-.35*up)*k},
+ upper:(u,A,L,r,sg)=>{const cr=sg(0,.25),up=sg(.25,.45),b=sg(.75,1),k=1-b;for(let i=0;i<2;i++){L[i][0].rotation.x+=-.5*cr*(1-up)*k;L[i][1].rotation.x+=.9*cr*(1-up)*k}A[1][0].rotation.x=(.5*cr-2.9*up)*k;A[1][1].rotation.x=-1.2*cr*(1-up)*k;A[0][0].rotation.x=-.8*k;A[0][1].rotation.x=-1.6*k;r.position.y+=-.12*cr*(1-up)*k;r.rotation.x+=(.25*cr-.2*up)*k}};
+const _applyPose0=applyPose;applyPose=function(n,u,e){const f=NPOSE[n];if(f){const sm=x=>x<=0?0:x>=1?1:x*x*(3-2*x);return f(u,PP.arms,PP.legs,PP.root,(a,b)=>sm((u-a)/(b-a)))}return _applyPose0(n,u,e)};
+Object.assign(POSD,{lcast:.55,lsky:1,tstomp:.7,tpunch:.6,aflow:.8,awave:.9,upper:.5});Object.assign(DEL,{lcast:.12,lsky:.2,tstomp:.26,tpunch:.2,aflow:.2,awave:.25,upper:.12});
+Object.assign(ANI,{'Light: Divine Ray':'lcast','Light: Solar Blades':'lsky','Light: Flash Step':'dash','Light: Radiant Prison':'lcast',"Light: Heaven's Judgment":'lsky','Light: Absolute Sun':'lsky',
+ 'Earth: Earth Spear':'tstomp','Earth: Stone Fortress':'tstomp','Earth: Titan Fist':'tpunch','Earth: Crystal Prison':'push','Earth: Earthquake Dominion':'slam','Earth: Mountain Breaker':'raise',
+ 'Water: Water Dragon':'aflow','Water: Aqua Lance':'throw','Water: Tidal Prison':'aflow','Water: Hydro Vortex':'aflow','Water: Ocean Dominion':'awave','Water: Abyssal Tsunami':'awave',
+ 'Uppercut Ascendente':'upper','Magna: Flame Swing Breaker':'spin','Punho Sísmico':'slam','Devil Union: Demon Wing Tempest':'spin',"Devil Union: Liebe's Black Meteor":'raise'});
+
+// ================= TRANSFORMAÇÃO DE CORPO INTEIRO (V74) =================
+// 1) identifica o esqueleto (cabeça, tronco, braços, antebraços, coxas, canelas) de QUALQUER corpo do jogo;
+// 2) mede cada segmento (raio e comprimento reais da malha); 3) adapta as peças demoníacas a essas medidas;
+// 4) presas às articulações → acompanham a animação; 5) troca o material de TODAS as malhas do corpo
+// (pele, roupa, cabelo, olhos), então nenhuma região fica sem transformação; 6) desfaz tudo ao sair.
+const DSK={liebe:{sk:0x231a1e,cl:0x0a0408,hr:0xf0eef2,ey:0xff2030,sc:0x050003,ac:0xff2040},
+ canis:{sk:0x2a2236,cl:0x14081f,hr:0x1a1024,ey:0x7af0ff,sc:0x05030a,ac:0x9a6aff},equus:{sk:0x262a3a,cl:0x0c0e1c,hr:0x1a1e30,ey:0x8ab0ff,sc:0x03040a,ac:0x8ab0ff},
+ felis:{sk:0x2c2238,cl:0x0c0614,hr:0x24123a,ey:0xd8c0ff,sc:0x05030a,ac:0xd8c0ff},gallus:{sk:0x2a1a20,cl:0x0c0614,hr:0x3a0a12,ey:0xff4050,sc:0x0a0204,ac:0xff2a3a},
+ quatro:{sk:0x261c30,cl:0x0a0612,hr:0x1a0e26,ey:0xb070ff,sc:0x05030a,ac:0xb070ff},zagred:{sk:0xd6cfe0,cl:0x2a1040,hr:0xf2f0ff,ey:0xffd0ff,sc:0x1a0a2a,ac:0xb06aff}};
+const _dsM=new T.Matrix4(),_dsB=new T.Box3();
+function dsSkel(L){return{head:L.hs||L.hj||null,hj:L.hj||null,torso:L.tspace||L.root,root:L.root,arms:(L.arms||[]).filter(a=>a&&a[0]),legs:(L.legs||[]).filter(l=>l&&l[0])}}
+// mede a malha própria de um segmento (sem descer para a próxima articulação nem pegar peças de forma/espada)
+function dsMeasure(J,stop,def){const out={r:def[0],len:def[1],minY:-def[1],maxY:0,maxZ:def[0],ok:0};try{if(!J||!J.matrixWorld||!_dsM.copy)return out;J.updateMatrixWorld(true);_dsM.copy(J.matrixWorld).invert();let any=false;const box=new T.Box3();
+  const walk=o=>{for(const c of o.children){if(stop.has(c)||(c.userData&&(c.userData.stage||c.userData.ds||c.userData.att)))continue;if(c.isMesh&&c.geometry&&c.material!==olm&&c.visible!==false){if(!c.geometry.boundingBox)c.geometry.computeBoundingBox();const bb=c.geometry.boundingBox;if(bb&&isFinite(bb.min.x)){_dsB.copy(bb).applyMatrix4(new T.Matrix4().multiplyMatrices(_dsM,c.matrixWorld));box.union(_dsB);any=true}}walk(c)}};walk(J);
+  if(any&&isFinite(box.min.y)&&isFinite(box.max.y)){const rx=(box.max.x-box.min.x)/2,rz=(box.max.z-box.min.z)/2,r=Math.max(.03,Math.min(.4,(rx+rz)/2)),len=Math.max(.08,Math.min(1.4,box.max.y-box.min.y));if(isFinite(r)&&isFinite(len)){out.r=r;out.len=len;out.minY=box.min.y;out.maxY=box.max.y;out.maxZ=box.max.z;out.ok=1}}}catch(e){}return out}
+function dsAnalyze(L){const K=dsSkel(L),stop=new Set();K.arms.forEach(a=>{if(a[1])stop.add(a[1])});K.legs.forEach(l=>{if(l[1])stop.add(l[1])});if(K.hj)stop.add(K.hj);
+ const M={K,ua:K.arms.map(a=>dsMeasure(a[0],stop,[.085,.32])),fa:K.arms.map(a=>a[1]?dsMeasure(a[1],stop,[.075,.36]):null),th:K.legs.map(l=>dsMeasure(l[0],stop,[.1,.4])),sh:K.legs.map(l=>l[1]?dsMeasure(l[1],stop,[.085,.45]):null)};
+ M.tw=(L.tdim&&L.tdim.w)||.6;M.td=(L.tdim&&L.tdim.D)||.4;M.neckY=K.hj?K.hj.position.y-.27:1.68;M.hipY=K.legs[0]?K.legs[0][0].position.y:.95;M.hipX=K.legs[0]?Math.abs(K.legs[0][0].position.x):.12;return M}
+function dsMat(orig,col,em,cache){if(!orig)return orig;let m=cache.get(orig);if(m)return m;try{m=orig.clone();if(m.color)m.color.setHex(col);if(em!=null&&m.emissive)m.emissive.setHex(em);if(m.map)m.map=null;m.needsUpdate=true}catch(e){m=new T.MeshBasicMaterial({color:col})}cache.set(orig,m);return m}
+function dSkin(fk,L,F){const C=DSK[fk]||DSK.liebe,M=dsAnalyze(L),K=M.K,cache=new Map(),swapped=[],parts=[],reg={};const tag=(m,st)=>{m.userData.ds=1;m.userData.stage=st;m.userData.bs=[m.scale.x,m.scale.y,m.scale.z];parts.push(m);return m};
+ const mark=k=>reg[k]=1,GM=(c,o)=>{const m=GLM(c,o);return m},bone=new T.MeshBasicMaterial({color:0xe8dcc8});
+ // --- (a) troca de material em todas as malhas do corpo
+ const roleOf=(mesh,mt)=>{if(mt===L.mS)return'sk';if(mt===L.mH||mt===L.mB||mt===L.mBs)return'hr';if(mt===L.mE)return'ey';if(mt===L.mW2)return'sc';if(mt===L.mBlush)return'sk';return'cl'};
+ const inside=(o,J)=>{for(let p=o;p;p=p.parent)if(p===J)return true;return false};
+ L.root.traverse(o=>{if(!o.isMesh||!o.material||o.material===olm)return;for(let p=o;p&&p!==L.root;p=p.parent)if(p.userData&&(p.userData.att||p.userData.stage||p.userData.ds))return;const mt=o.material;if(Array.isArray(mt))return;const ro=roleOf(o,mt);
+  const nm=ro=='sk'?dsMat(mt,C.sk,new T.Color(C.ac).multiplyScalar(.1).getHex(),cache):ro=='hr'?dsMat(mt,C.hr,null,cache):ro=='ey'?dsMat(mt,C.ey,C.ey,cache):ro=='sc'?dsMat(mt,C.sc,null,cache):dsMat(mt,C.cl,null,cache);
+  swapped.push([o,mt]);o.material=nm;
+  if(K.head&&inside(o,K.head))mark('cabeça');if(L.fg&&inside(o,L.fg))mark('rosto');if(ro=='ey')mark('olhos');if(ro=='hr')mark('cabelos');
+  K.arms.forEach((a,i)=>{if(a[1]&&inside(o,a[1])){mark('antebraços');if(o.position.y<-(M.fa[i]?M.fa[i].len*.8:.3))mark('mãos')}else if(inside(o,a[0]))mark('braços')});
+  K.legs.forEach(l=>{if(l[1]&&inside(o,l[1]))mark('pernas');else if(inside(o,l[0]))mark('quadril')})});
+ if(L.eyes&&L.eyes.length)mark('olhos');if(!L.hg||!L.hg.children.length)mark('cabelos');
+ // --- (b) peças adaptadas às medidas: ombreiras, marcas nos braços/pernas, garras, joelheiras, garras dos pés, colar, selo no peito, espinhos nas costas, cinturão
+ const plate=(r)=>new T.Mesh(lwG('dsCap',()=>new T.SphereGeometry(1,12,8,0,6.2832,0,1.4)),dsMat(L.mT||L.mS,C.cl,null,cache));
+ K.arms.forEach((a,i)=>{const s=i?1:-1,u=M.ua[i],f=M.fa[i];const pa=tag(plate(),'arms');pa.scale.set(u.r*1.65,u.r*1.3,u.r*1.65);pa.position.set(0,u.r*.25,0);a[0].add(pa);
+  const rim=tag(new T.Mesh(lwTor(),GM(C.ac,.85)),'arms');rim.rotation.x=Math.PI/2;rim.scale.set(u.r*1.6,u.r*1.6,1);rim.position.y=-u.r*.05;a[0].add(rim);
+  for(const z of[1,-1]){const ln=tag(new T.Mesh(lwG('dsLine',()=>new T.PlaneGeometry(1,1)),GM(C.ac,.75)),'arms');ln.scale.set(.018,u.len*.75,1);ln.position.set(s*u.r*.25,-(u.len*.5),z*(u.r*1.04));if(z<0)ln.rotation.y=Math.PI;a[0].add(ln)}mark('ombros');mark('braços');
+  if(a[1]&&f){for(const z of[1,-1]){const ln=tag(new T.Mesh(lwG('dsLine'),GM(C.ac,.75)),'arms');ln.scale.set(.016,f.len*.6,1);ln.position.set(0,f.minY*.45,z*(f.r*1.06));if(z<0)ln.rotation.y=Math.PI;a[1].add(ln)}mark('antebraços');
+   const bd=tag(new T.Mesh(lwTor(),dsMat(L.mT||L.mS,C.cl,null,cache)),'arms');bd.rotation.x=Math.PI/2;bd.scale.set(f.r*1.25,f.r*1.25,1.6);bd.position.y=f.minY*.55;a[1].add(bd);
+   for(let k=0;k<4;k++){const cl=tag(new T.Mesh(lwG('dsClaw',()=>new T.ConeGeometry(.016,.11,4)),bone),'arms');cl.rotation.x=Math.PI;cl.position.set((k-1.5)*f.r*.42,f.minY-.035,f.r*.35);a[1].add(cl)}mark('dedos');mark('mãos')}});
+ K.legs.forEach((l,i)=>{const t=M.th[i],sh=M.sh[i];for(const z of[1,-1]){const ln=tag(new T.Mesh(lwG('dsLine'),GM(C.ac,.7)),'back');ln.scale.set(.02,t.len*.6,1);ln.position.set(0,-t.len*.5,z*t.r*1.05);if(z<0)ln.rotation.y=Math.PI;l[0].add(ln)}mark('pernas');
+  if(l[1]&&sh){const kn=tag(plate(),'back');kn.scale.set(sh.r*1.25,sh.r*1.1,sh.r*.9);kn.rotation.x=Math.PI/2;kn.position.set(0,0,sh.r*.55);l[1].add(kn);mark('joelhos');
+   const gr=tag(new T.Mesh(lwTor(),GM(C.ac,.75)),'back');gr.rotation.x=Math.PI/2;gr.scale.set(sh.r*1.15,sh.r*1.15,1);gr.position.y=sh.minY*.55;l[1].add(gr);
+   for(let k=0;k<3;k++){const tl=tag(new T.Mesh(lwG('dsClaw'),bone),'back');tl.rotation.x=Math.PI/2;tl.position.set((k-1)*sh.r*.45,sh.minY+.03,sh.maxZ+.02);l[1].add(tl)}mark('pés')}});
+ const tor=K.root,neck=tag(new T.Mesh(lwTor(),dsMat(L.mT||L.mS,C.cl,null,cache)),'torso');neck.rotation.x=Math.PI/2;neck.scale.set(M.tw*.24,M.tw*.24,2.2);neck.position.y=M.neckY;tor.add(neck);mark('pescoço');
+ const sig=tag(new T.Mesh(lwG('dsSig',()=>new T.RingGeometry(.7,1,24)),GM(C.ac,.85)),'torso');sig.scale.setScalar(M.tw*.16);sig.position.set(0,M.neckY-.28,M.td*.52+.01);tor.add(sig);
+ const sl=tag(new T.Mesh(lwG('dsLine'),GM(C.ac,.85)),'torso');sl.scale.set(.02,.34,1);sl.position.set(0,M.neckY-.42,M.td*.52+.012);tor.add(sl);mark('peito');mark('abdômen');
+ for(let k=0;k<4;k++){const sp=tag(new T.Mesh(lwG('dsSpine',()=>new T.ConeGeometry(.035,.12,4)),dsMat(L.mT||L.mS,C.cl,null,cache)),'back');sp.rotation.x=-Math.PI/2;sp.position.set(0,M.neckY-.1-k*.13,-M.td*.52-.03);tor.add(sp)}mark('costas');
+ const belt=tag(new T.Mesh(lwTor(),GM(C.ac,.7)),'torso');belt.rotation.x=Math.PI/2;belt.scale.set(M.hipX+.12,M.td*.62,1.4);belt.position.y=M.hipY+.06;tor.add(belt);mark('quadril');
+ // --- (c) adapta as peças da forma (naForm) às medidas: braços/pernas mais grossos ou finos recebem peças proporcionais
+ if(F&&F.parts)F.parts.forEach(p=>{const par=p.parent;let k=null;K.arms.forEach((a,i)=>{if(par===a[0])k=M.ua[i].r/.085;else if(par===a[1]&&M.fa[i])k=M.fa[i].r/.075});K.legs.forEach((l,i)=>{if(par===l[0])k=M.th[i].r/.1;else if(par===l[1]&&M.sh[i])k=M.sh[i].r/.085});if(k&&isFinite(k)){k=Math.max(.7,Math.min(1.9,k));const b=p.userData.bs||[1,1,1];p.userData.bs=[b[0]*k,b[1],b[2]*k];p.scale.set(p.userData.bs[0],b[1],p.userData.bs[2])}});
+ ['cabeça','rosto'].forEach(k=>{if(K.head)mark(k)});
+ const R={parts,reg,M,undo:()=>{swapped.forEach(([o,mt])=>{o.material=mt});swapped.length=0;cache.forEach(m=>{try{m.dispose()}catch(e){}});cache.clear();parts.forEach(p=>{if(p.parent)p.parent.remove(p)})}};
+ if(F&&F.parts)parts.forEach(p=>F.parts.push(p));return R}
+const DSREG=['cabeça','rosto','olhos','cabelos','pescoço','ombros','peito','costas','braços','antebraços','mãos','dedos','abdômen','quadril','pernas','joelhos','pés'];
+function dsCover(sk){return DSREG.filter(k=>!(sk&&sk.reg[k]))}
+const _naForm0=naForm;naForm=function(fk,L){const F=_naForm0(fk,L);try{const sk=dSkin(fk,L||PP,F);F.skin=sk;const d0=F.detach;F.detach=()=>{try{sk.undo()}catch(e){}d0()}}catch(e){}return F};
+
+// ================= ROSTO E CABELO MAIS DEFINIDOS (V74) =================
+// pupilas, cílios, lábios, orelhas e franja/costeletas modeladas. Corpo original; nenhum modelo externo foi importado.
+const FCM={};function fcMat(k,c){return FCM[k]||(FCM[k]=Object.assign(mat(c),{_keep:true}))}
+function faceUp(p,L){if(!p||!p.fg||!p.hg)return;const E=EYES[L.eyes]||EYES[0];
+ if(!p.fg.children.some(o=>o.userData.fu)){for(const s of[-1,1]){if(!E.arc){const pu=lkAdd(p.fg,lwG('fcPup',()=>new T.SphereGeometry(.018,8,6)),fcMat('pup',0x0a0608),s*.085,1.955,.226);pu.scale.set(1,1.3*(E.i?E.i[1]:1),.4);pu.userData.fu=1;
+   const la=lkAdd(p.fg,lwG('fcLash',()=>new T.TorusGeometry(.062,.008,4,12,Math.PI)),fcMat('lash',0x140c0a),s*.085,1.96+.012*(E.w?E.w[1]:1),.206);la.scale.set(E.w?E.w[0]:1,(E.w?E.w[1]:1)*.9,.5);la.userData.fu=1}}
+  const lp=lkAdd(p.fg,lwG('fcLip',()=>new T.SphereGeometry(.03,10,6)),p.mLip||(p.mLip=mat(0xb8645a)),0,1.842,.218);lp.scale.set(1.35,.32,.45);lp.userData.fu=1;try{if(p.mS&&p.mLip)p.mLip.color.copy(p.mS.color).lerp(new T.Color(0xc0504a),.45)}catch(e){}}
+ if(p.hs&&!p._ears){p._ears=1;for(const s of[-1,1]){const ea=new T.Mesh(lwG('fcEar',()=>new T.SphereGeometry(.055,8,6)),p.mS);ea.scale.set(.45,1,.75);ea.position.set(s*.245,-.02,-.01);p.hs.add(ea)}}
+ if(!p.hg.children.some(o=>o.userData.fu)&&L.hair!=4&&L.hair!=7){for(let i=0;i<5;i++){const x=(i-2)*.075,b=lkAdd(p.hg,lwG('fcBang',()=>new T.ConeGeometry(.052,.24,5)),p.mH,x,2.11-Math.abs(i-2)*.012,.2);b.rotation.set(2.75,0,(i-2)*-.18);b.userData.fu=1}
+  for(const s of[-1,1]){const sb=lkAdd(p.hg,lwG('fcSide',()=>new T.ConeGeometry(.045,.26,5)),p.mH,s*.222,1.99,.06);sb.rotation.set(Math.PI,0,s*.12);sb.userData.fu=1}}}
+const _dressUp0=dressUp;dressUp=function(p,L0){_dressUp0(p,L0);try{faceUp(p,lkNorm(L0))}catch(e){}};
+
+// ================= REQUISITO DE NÍVEL 30 PARA CONTRATOS DEMONÍACOS (V74) =================
+// vale para todos os demônios (Liebe, os quatro de Nacht e Zagred). Quem já tinha contrato antes desta versão mantém (não apagamos progresso).
+const DLV=30;
+function dLvOk(k){return P.lv>=DLV||relOk(k)}
+function dLvMsg(){toast('🔒 Você precisa alcançar o nível 30 para estabelecer um contato com um demônio. (Seu nível: '+P.lv+' · Necessário: '+DLV+')');banner('NÍVEL 30 NECESSÁRIO','Seu nível: '+P.lv+' · Necessário: '+DLV,'#ff4d6a')}
+
+// ================= ALCANCE DE CADA HABILIDADE (curto / médio / longo) =================
+// medido nos parâmetros de cada habilidade (raio, distância do alvo ou comprimento do feixe)
+const RNG={fball:['l',30],fchain:['m',14],fsoul:['m',16],finferno:['l',24],mchain:['m',18],mtag:['m',16],
+ wgale:['l',26],wtorn:['m',16],wrun:['c',0,'mobilidade'],wtemp:['m',18],wprison:['m',18],wcyc:['c',9],sgale:['l',28],svort:['m',18],sdive:['c',0,'mobilidade'],stemp:['l',26],sprison:['m',18],scyc:['m',12],
+ aimp:['l',22],aerup:['c',7.5],aph:['m',10],aann:['l',20],agrasp:['m',16],ajudg:['m',14],udiv:['l',24],uabys:['m',16],uover:['c',8],uking:['l',32],ugrasp:['m',16],ujudg:['m',14],uwing:['c',6.5],umet:['l',30],
+ tarrow:['l',30],tprison:['m',18],taccel:['c',0,'próprio corpo'],treq:['l',22],tcoll:['m',18],tdom:['l',20],kspear:['l',28],kabyss:['m',18],klegion:['m',16],kdom:['l',24],krupt:['m',16],kcmd:['c',12,'área ao redor'],
+ sgspear:['l',24],sgabyss:['m',18],sgguard:['c',0,'defesa'],sgempress:['l',24],sgcath:['c',6],sgcdom:['m',14],sofrac:['l',28],soparade:['m',16],soglam:['m',14],sonight:['l',24],sodom:['m',12],sorep:['c',4],
+ esrift:['l',24],esgate:['m',18,'portais'],esdom:['m',16],escoll:['l',24],esscol:['m',16],esdbrk:['c',6],nassa:['m',18],nagimo:['m',16,'invocação'],nacontr:['c',0,'contratos'],naunion:['c',0,'transformação'],nsdom:['m',10],nsdev:['l',26],
+ nurend:['c',6],nuprison:['m',14],nureq:['l',22],nf5:['m',14],nf6:['l',22],
+ fswing:['c',5.5],lray:['l',30],lblade:['m',20],lflash:['c',12,'avanço'],lprison:['m',16],ljudg:['l',24],lsun:['c',14,'área ao redor'],
+ tspear:['m',17],tfort:['c',3.5,'defesa'],tfist:['c',9],tcrys:['m',16],tquake:['c',12,'área ao redor'],tmount:['l',26],
+ adrag:['l',24],alance:['l',32],aprison:['m',14],avort:['m',14],aocean:['l',26],atsu:['c',16,'área ao redor'],
+ slash:['c',5],nova:['c',7],dash:['m',10],nup:['c',2.5],nwave:['l',20,'onda'],proj:['l',24],beam:['l',26],big:['l',24],heal:['c',0,'próprio corpo'],shield:['c',3,'defesa'],cone:['c',6],meteor:['l',12]};
+const RNGN={c:'Curto',m:'Médio',l:'Longo'};
+function rngOf(s){const r=RNG[s&&s[3]];return r||null}
+function rngTxt(s){const r=rngOf(s);if(!r)return'—';return RNGN[r[0]]+(r[1]?' · '+String(r[1]).replace('.',',')+' m':'')+(r[2]?' ('+r[2]+')':'')}
+// linha completa de uma habilidade: ícone, nome, recarga, mana, alcance, nível necessário e estado
+function skRow(s,i,alt){const lv=skl(i),lk=P.lv<lv,cd=(s[5]||.5)*(1-cb('cdr')),col=P.g?P.g.c:0xffffff;
+ return '<div class="skr'+(lk?' lk':'')+'"><i class="ski">'+skIcon(s[0],col)+'</i><div><b>'+(lk?'🔒 ':'')+s[0]+'</b><span class="skc"><em>⏱ '+String(+cd.toFixed(1)).replace('.',',')+'s</em><em>💧 '+mcost(s)+(alt&&s[6]?' + '+s[6]+' energia':'')+'</em><em>📏 '+rngTxt(s)+'</em><em class="'+(lk?'no':'ok')+'">'+(lk?'Nível '+lv+' (você: '+P.lv+')':'Disponível'+(alt?'':' · Nv '+lvl(i)+(lvl(i)<10?' · uso '+(P.xp[i]%8)+'/8':' · máx.')))+'</em></span></div></div>'}
+// título nas teclas (PC): passar o mouse mostra os mesmos dados
+function skTitle(s,i){if(!s)return'';const lk=P.lv<skl(i);return s[0]+' — recarga '+(s[5]||.5)+'s · mana '+mcost(s)+' · alcance '+rngTxt(s)+' · '+(lk?'bloqueada até o Nível '+skl(i):'disponível')}
+function rngMix(list){const n={c:0,m:0,l:0};(list||[]).forEach(s=>{const r=rngOf(s);if(r)n[r[0]]++});return '<p class="sm">📏 Estilo de alcance: '+n.c+' curto · '+n.m+' médio · '+n.l+' longo</p>'}
+
+Object.assign(SKI,{
+ 'Magna: Flame Swing Breaker':'<path d="M4 20L18 6" stroke="L" stroke-width="2.6" stroke-linecap="round"/><path d="M18 6c2-3 4-2 4 0s-2 3-4 0" fill="C"/><path d="M3 12a9 9 0 0 1 9-9M21 12a9 9 0 0 1-9 9" stroke="C" stroke-width="1.6" fill="none"/>',
+ 'Light: Divine Ray':'<circle cx="5" cy="12" r="3.5" fill="none" stroke="C" stroke-width="1.6"/><path d="M8 12h14" stroke="L" stroke-width="3.2" stroke-linecap="round"/><path d="M9 9.5l11 1M9 14.5l11-1" stroke="C" stroke-width="1"/>',
+ 'Light: Solar Blades':'<path d="M4 20l6-14 1 6zM10 20l4-15 1 7zM16 20l3-14 1 7z" fill="L" stroke="C" stroke-width=".8"/><circle cx="12" cy="4" r="1.6" fill="C"/>',
+ 'Light: Flash Step':'<path d="M3 15h9M2 11h8M4 19h7" stroke="C" stroke-width="1.6" stroke-linecap="round"/><path d="M14 4l-2 8h5l-3 8 8-11h-5l3-5z" fill="L"/>',
+ 'Light: Radiant Prison':'<path d="M5 4v16M9.5 4v16M14.5 4v16M19 4v16" stroke="L" stroke-width="1.8"/><ellipse cx="12" cy="4" rx="8" ry="1.8" fill="none" stroke="C" stroke-width="1.4"/><ellipse cx="12" cy="20" rx="8" ry="1.8" fill="none" stroke="C" stroke-width="1.4"/>',
+ "Light: Heaven's Judgment":'<ellipse cx="12" cy="4" rx="8" ry="2.2" fill="none" stroke="C" stroke-width="1.4"/><path d="M6 6v13M12 6v15M18 6v13" stroke="L" stroke-width="2.2" stroke-linecap="round"/>',
+ 'Light: Absolute Sun':'<circle cx="12" cy="12" r="5" fill="L"/><g stroke="C" stroke-width="1.8" stroke-linecap="round"><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2"/></g>',
+ 'Earth: Earth Spear':'<path d="M3 21l3-10 2 10zM9 21l3-15 3 15zM16 21l3-9 2 9z" fill="C"/><path d="M12 6l1.5 15" stroke="L" stroke-width=".8"/><path d="M2 21h20" stroke="L" stroke-width="1.4"/>',
+ 'Earth: Stone Fortress':'<path d="M3 20V9h3v2h2V9h3v2h2V9h3v2h2V9h3v11z" fill="C"/><path d="M10 20v-5a2 2 0 0 1 4 0v5" fill="L"/>',
+ 'Earth: Titan Fist':'<rect x="5" y="7" width="12" height="9" rx="2" fill="C"/><path d="M7 7V5M10 7V4.5M13 7V4.5M16 7V5" stroke="L" stroke-width="2.2" stroke-linecap="round"/><path d="M17 11h4M18 15h3M17 7h3" stroke="L" stroke-width="1.4" stroke-linecap="round"/><path d="M8 16v5h6v-5" fill="C"/>',
+ 'Earth: Crystal Prison':'<path d="M6 21l-2-9 3-7 2 16zM12 21l-2-12 2-7 2 7zM18 21l-2-16 3 7-2 9z" fill="L" stroke="C" stroke-width=".9"/>',
+ 'Earth: Earthquake Dominion':'<path d="M2 14h20" stroke="C" stroke-width="1.8"/><path d="M6 14l2 3-1 3M12 14l-1 4 2 3M17 14l2 3" stroke="L" stroke-width="1.4" fill="none"/><path d="M4 11l2-4 2 4M14 11l3-6 3 6" fill="C"/>',
+ 'Earth: Mountain Breaker':'<path d="M12 22L4 6h16z" fill="C"/><path d="M8 6l4 3 4-3" stroke="L" stroke-width="1.2" fill="none"/><path d="M2 22h20M5 19l-3 2M19 19l3 2" stroke="L" stroke-width="1.4"/>',
+ 'Water: Water Dragon':'<path d="M3 18c3 0 3-5 6-5s3 5 6 5 3-6 6-8" stroke="C" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="20" cy="9" r="2.4" fill="L"/><path d="M21 6l2-3M19 6l-1-3" stroke="L" stroke-width="1.2"/>',
+ 'Water: Aqua Lance':'<path d="M2 12h15" stroke="C" stroke-width="2.4" stroke-linecap="round"/><path d="M16 8l6 4-6 4z" fill="L"/><path d="M4 9c2 1 4 1 6 0M4 15c2-1 4-1 6 0" stroke="L" stroke-width="1" fill="none"/>',
+ 'Water: Tidal Prison':'<circle cx="12" cy="12" r="8" fill="none" stroke="C" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="L" opacity=".55"/><path d="M8 9a5 5 0 0 1 5-2" stroke="#fff" stroke-width="1.2" fill="none"/>',
+ 'Water: Hydro Vortex':'<path d="M12 12m-1 0a1 1 0 1 1 2 0a3 3 0 1 1-6 0a5 5 0 1 1 10 0a7 7 0 1 1-14 0" stroke="C" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="1.4" fill="L"/>',
+ 'Water: Ocean Dominion':'<path d="M2 20h20" stroke="C" stroke-width="1.6"/><path d="M3 19c0-9 7-15 15-12-4 0-6 3-5 6 1 2 4 2 5 0" fill="C"/><path d="M7 16c1-4 4-7 8-8" stroke="L" stroke-width="1.2" fill="none"/>',
+ 'Water: Abyssal Tsunami':'<path d="M2 21c2-8 6-14 10-17 4 3 8 9 10 17z" fill="C"/><path d="M6 19c2-4 4-7 6-9 2 2 4 5 6 9" stroke="L" stroke-width="1.4" fill="none"/><circle cx="12" cy="15" r="1.6" fill="L"/>',
+ 'Uppercut Ascendente':'<path d="M9 22v-6l-2-3 2-4h5l1 4-2 3v6" fill="C"/><path d="M13 9V3M10 5l3-3 3 3" stroke="L" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+ 'Punho Sísmico':'<rect x="8" y="3" width="8" height="8" rx="2" fill="C"/><path d="M12 11v4" stroke="C" stroke-width="2"/><path d="M2 18c3-2 5-2 10 0s7 2 10 0M4 22c3-1 5-1 8 0s5 1 8 0" stroke="L" stroke-width="1.4" fill="none"/>',
+ 'Devil Union: Demon Wing Tempest':'<path d="M12 12L2 6l3 6-2 5zM12 12l10-6-3 6 2 5z" fill="C"/><circle cx="12" cy="12" r="9" fill="none" stroke="L" stroke-width="1.2" stroke-dasharray="3 2"/>',
+ "Devil Union: Liebe's Black Meteor":'<circle cx="15" cy="9" r="5" fill="C"/><circle cx="15" cy="9" r="6.5" fill="none" stroke="L" stroke-width="1.2"/><path d="M11 13L3 21M9 11l-6 4M13 15l-4 6" stroke="L" stroke-width="1.4" stroke-linecap="round"/>'});
+
+// ================= CORPO HUMANOIDE NOVO (V76) =================
+// Base original modelada com curvas (torno/lathe) e deformação de vértices: peitoral, costas, abdômen,
+// deltoides, bíceps, antebraços, mãos com 5 dedos, coxas, joelhos, panturrilhas, pés com calçado,
+// cabeça com crânio, mandíbula e queixo. Mesmo esqueleto (articulações) de antes → animações, roupas,
+// transformações e multiplayer continuam funcionando. Cada tipo de corpo usa as próprias medidas.
+const HB={};function hbG(k,f){let g=HB[k];if(!g){g=f();g._keep=true;HB[k]=g}return g}
+// junta várias geometrias (com transformação) numa só malha → menos objetos para o celular desenhar
+function hbMerge(list){let n=0;const parts=list.map(([g,m])=>{const q=(g.index?g.toNonIndexed():g.clone());if(m)q.applyMatrix4(m);n+=q.attributes.position.count;return q});
+ const pos=new Float32Array(n*3),nor=new Float32Array(n*3);let o=0;for(const q of parts){if(!q.attributes.normal)q.computeVertexNormals();pos.set(q.attributes.position.array,o*3);nor.set(q.attributes.normal.array,o*3);o+=q.attributes.position.count}
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));g.setAttribute('normal',new T.BufferAttribute(nor,3));if(parts.some(q=>q.attributes.color)){const col=new Float32Array(n*3);let o2=0;for(const q of parts){const c=q.attributes.color,m=q.attributes.position.count;for(let i=0;i<m;i++){col[(o2+i)*3]=c?c.getX(i):.06;col[(o2+i)*3+1]=c?c.getY(i):.03;col[(o2+i)*3+2]=c?c.getZ(i):.035}o2+=m}g.setAttribute('color',new T.BufferAttribute(col,3))}parts.forEach(q=>q.dispose());g.computeBoundingSphere();return g}
+const _hbM=new T.Matrix4(),_hbQ=new T.Quaternion(),_hbE=new T.Euler(),_hbV=new T.Vector3(),_hbS=new T.Vector3();
+function hbMat(x,y,z,rx,ry,rz,sx,sy,sz){_hbE.set(rx||0,ry||0,rz||0);_hbQ.setFromEuler(_hbE);_hbV.set(x||0,y||0,z||0);_hbS.set(sx||1,sy==null?(sx||1):sy,sz==null?(sx||1):sz);return new T.Matrix4().compose(_hbV,_hbQ,_hbS)}
+// segmento de membro: perfil com músculo (bulge) e pontas arredondadas; de y=0 (articulação) até y=-len
+function hbLimb(len,rt,rb,bA,bP,front,seg){const N=11,pts=[];for(let i=N;i>=0;i--){const t=i/N,y=-t*len;let r=rt+(rb-rt)*t;r+=bA*Math.exp(-Math.pow((t-bP)/.28,2));const cap=Math.min(1,Math.sin(Math.min(1,t/.12)*Math.PI/2)*.35+.65)*Math.min(1,Math.sin(Math.min(1,(1-t)/.12)*Math.PI/2)*.35+.65);pts.push(new T.Vector2(Math.max(.004,r*cap),y))}
+ const g=new T.LatheGeometry(pts,seg||12);if(front){const p=g.attributes.position;for(let i=0;i<p.count;i++){const z=p.getZ(i),t=-p.getY(i)/len;if(z>0)p.setZ(i,z*(1+front*Math.exp(-Math.pow((t-bP)/.25,2))))}g.computeVertexNormals()}return g}
+// tronco: da cintura (y=0) até os ombros (y=h); peito largo, cintura fina, peitoral na frente e escápulas atrás
+function hbTorso(w,h,d,tb,mus,fat){const N=16,pts=[];for(let i=0;i<=N;i++){const t=i/N;let r;if(t<.62)r=(w/2*tb)*(1-t/.62)+(w/2)*(t/.62)*(1-.06*Math.sin(t/.62*Math.PI));else{const u=(t-.62)/.38;r=w/2*(1-.42*Math.pow(u,2.2))}if(fat)r*=1+.18*Math.sin(t*Math.PI*.9);pts.push(new T.Vector2(Math.max(.02,r),t*h))}
+ const g=new T.LatheGeometry(pts,24),p=g.attributes.position,dz=d/w;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),t=y/h;let z=p.getZ(i)*dz;
+  if(z>0){const pec=(mus?1.6:1)*.045*Math.exp(-Math.pow((t-.72)/.11,2))*Math.max(0,1-Math.pow(Math.abs(Math.abs(x)-w*.2)/(w*.24),2));z+=pec;z+=(fat?.08:.012)*Math.exp(-Math.pow((t-.3)/.2,2))}
+  else{z-=.025*Math.exp(-Math.pow((t-.74)/.12,2))*Math.max(0,1-Math.pow(Math.abs(Math.abs(x)-w*.18)/(w*.22),2))}
+  p.setZ(i,z)}g.computeVertexNormals();return g}
+// cabeça: crânio redondo, maçãs do rosto, mandíbula afinando até o queixo, rosto levemente achatado (unidade .48 × .528 × .48)
+function hbHead(){return hbG('head',()=>{const g=new T.SphereGeometry(.25,28,22),p=g.attributes.position;for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);const t=y/.25;
+  if(t<0){const k=-t;x*=1-.38*Math.pow(k,1.6);z*=1-.12*k;if(z>0)z+=.02*k;y*=1+.12*k}else{y*=1.04;z*=1+.03*t}
+  if(z>.12&&t>-.2&&t<.35)z-=.012;p.setXYZ(i,x,y+.004,z)}g.computeVertexNormals();return g})}
+// mão: palma arredondada + 4 dedos com 3 falanges + polegar (uma malha só)
+function hbHand(w,h,d,side){return hbG('hand'+[w,h,d,side].join('_'),()=>hbHand0(w,h,d,side))}
+function hbHand0(w,h,d,side){const L=[],sph=hbG('hbSphL',()=>new T.SphereGeometry(1,6,5)),cyl=hbG('hbCylL',()=>new T.CylinderGeometry(1,1,1,6,1,true));
+ L.push([hbG('hbSph',()=>new T.SphereGeometry(1,10,8)),hbMat(0,-h*.42,0,0,0,0,w*.52,h*.5,d*.48)]);
+ for(let f=0;f<4;f++){const x=(f-1.5)*w*.235,fl=h*(f==1||f==2?.62:.52),r=w*.085;let y=-h*.82,z=d*.05,ang=.18+f*.03;
+  for(let k=0;k<3;k++){const l=fl*[.42,.32,.26][k];ang+=k?.22:0;const cy=y-Math.cos(ang)*l/2,cz=z+Math.sin(ang)*l/2;L.push([cyl,hbMat(x,cy,cz,-ang,0,0,r*(1-k*.12),l,r*(1-k*.12))]);L.push([sph,hbMat(x,y,z,0,0,0,r*(1-k*.1))]);y-=Math.cos(ang)*l;z+=Math.sin(ang)*l}L.push([sph,hbMat(x,y,z,0,0,0,r*.85)])}
+ let tx=-side*w*.48,ty=-h*.42,tz=d*.2;const ta=.7;for(let k=0;k<2;k++){const l=h*.3;const cx=tx-side*Math.sin(ta)*l*.5,cy=ty-Math.cos(ta)*l*.5;L.push([cyl,hbMat(cx,cy,tz+.01,0,0,side*ta,w*.1,l,w*.1)]);L.push([sph,hbMat(tx,ty,tz,0,0,0,w*.1)]);tx-=side*Math.sin(ta)*l;ty-=Math.cos(ta)*l}L.push([sph,hbMat(tx,ty,tz,0,0,0,w*.09)]);
+ return hbMerge(L)}
+// calçado: bota/sapato com bico arredondado, salto e sola
+function hbShoe(w,h,l){const sph=hbG('hbSph'),box=hbG('hbBox',()=>new T.BoxGeometry(1,1,1));return hbMerge([[sph,hbMat(0,h*.45,l*.18,0,0,0,w*.5,h*.62,l*.5)],[sph,hbMat(0,h*.6,-l*.12,0,0,0,w*.48,h*.75,l*.3)],[box,hbMat(0,h*.06,l*.12,0,0,0,w*.98,h*.14,l*.92)]])}
+function buildBody2(p,bi){const B=BODIES[bi]||BODIES[0],S=B.s;while(p.bm.length){const m=p.bm.pop();if(m.parent)m.parent.remove(m);if(m.geometry&&!m.geometry._keep)m.geometry.dispose()}
+ const part=(par,geo,mtl,x,y,z,fl,out)=>{const e=new T.Mesh(geo,mtl);e.position.set(x||0,y||0,z||0);e.castShadow=true;if(out!==0){const o=new T.Mesh(geo,olm);o.scale.setScalar(1.035);e.add(o)}if(fl)Object.assign(e.userData,fl);par.add(e);p.bm.push(e);return e};
+ const R=p.bR,to=S.to,hp=S.hp,th=S.th,sh=S.sh,ft=S.ft,ua=S.ua,fa=S.fa,hn=S.hn,nk=S.nk,hd=S.hd,mus=!!S.mus,fat=!!S.fat;
+ const kneeY=sh.l+ft.h/2,hipY=kneeY+th.l,pelY=hipY+.04,pelTop=pelY+hp.h/2,tBot=pelTop-.05,ty=tBot+to.h/2,tTop=tBot+to.h,tb=to.tb||1;
+ // quadril (pelve arredondada) e tronco anatômico
+ {const N=10,pts=[];for(let i=0;i<=N;i++){const t=i/N;pts.push(new T.Vector2(Math.max(.02,hp.w/2*(.78+.22*Math.sin(t*Math.PI*.9))),(t-.5)*hp.h*1.15))}const g=new T.LatheGeometry(pts,20);g.scale(1,1,hp.d/hp.w);part(R,g,p.mP,0,pelY,0,{up:1})}
+ part(R,hbTorso(to.w,to.h,to.d,tb,mus,fat),p.mT,0,tBot,0);
+ if(mus)for(let r=0;r<3;r++)for(const s of[-1,1]){const a=part(R,hbG('hbSph',()=>new T.SphereGeometry(1,10,8)),p.mT,s*.055,ty-to.h*.05-r*.085,to.d/2-.012,null,0);a.scale.set(.05,.036,.022)}
+ // pescoço e cabeça
+ const shY=tTop-ua.w*.45,shX=to.w/2+ua.w*(ua.sh?.12:.18),nkB=tTop-.06,nkT=nkB+nk.h+.04;
+ {const g=hbLimb(nk.h+.12,nk.r*.95,nk.r*1.12,0,.5,0,12);part(R,g,p.mS,0,nkT+.02,0,null,0)}
+ const hc=nkT+hd.h*.44;p.hj.position.set(0,hc,0);p.hs.scale.set(hd.w/.48,hd.h/.528,hd.d/.48);
+ part(p.hs,hbHead(),p.mS,0,0,0);
+ {const ns=part(p.hs,hbG('nose2',()=>{const g=new T.SphereGeometry(.022,10,8);g.scale(.8,1.1,1);return g}),p.mS,0,-.04,.238,null,0)}
+ {const ch=part(p.hs,hbG('chin',()=>new T.SphereGeometry(.05,10,8)),p.mS,0,-.205,.135,null,0);ch.scale.set(1.3,.7,.9)}
+ p.hH.scale.set(1,1,1);p.hF.position.z=.045;p.mouth.position.z=.2;p.hOff=hc-1.95;p.hTop=hc+hd.h/2;p.bshape='rb';p.hshape='rb';
+ if(S.blush)for(const s of[-1,1]){const bl=part(p.hj,new T.SphereGeometry(.06,8,6),p.mBlush||(p.mBlush=mat(0xff9a9a)),s*hd.w*.3,-hd.h*.1,hd.d/2+.012,null,0);bl.scale.set(1.2,.65,.25)}
+ const rt=to.w/2,rbt=rt*tb,avg=(rt+rbt)/2,dep=to.d/2,sx=Math.max(rt/.34,avg/.305),sy=to.h/.6,sz=dep/.238;
+ p.tspace.scale.set(sx,sy,sz);p.tspace.position.set(0,ty-1.36*sy,0);p.tq.position.set(0,ty,0);p.pspace.scale.set(hp.w/.6*1.04,1,hp.d/.6*1.12);p.pspace.position.y=pelTop-.06-1.02;
+ p.tdim={rt,h:to.h,d:dep,w:to.w,D:to.d,r:Math.max(to.r,.14),tb};
+ // braços: deltoide → bíceps → cotovelo → antebraço → punho → mão de 5 dedos
+ p.arms.forEach((a,i)=>{const s=i?1:-1,S0=a[0],E=a[1];S0.position.set(s*shX,shY,0);
+  const dl=part(S0,hbG('hbSph',()=>new T.SphereGeometry(1,10,8)),p.mT,0,-ua.w*.08,0,{sl:1});dl.scale.set(ua.w*.62*(mus?1.25:1),ua.w*.6*(mus?1.15:1),ua.w*.6*(mus?1.15:1));
+  part(S0,hbLimb(ua.l+ua.w*.1,ua.w*.5,ua.w*.4,ua.w*(mus?.12:.06),.45,mus?.25:.12),p.mT,0,0,0,{sl:1});
+  E.position.set(0,-ua.l,0);part(E,hbG('hbSph',()=>new T.SphereGeometry(1,10,8)),p.mS,0,0,0,null,0).scale.setScalar(Math.min(fa.w,fa.d)*.46);
+  part(E,hbLimb(fa.l,fa.w*.48,fa.w*.32,fa.w*(mus?.12:.07),.28,0),p.mS,0,0,0);
+  part(E,hbHand(hn.w,hn.h,hn.d,s),p.mS,0,-fa.l+.005,0,null,0);
+  for(const c of E.children)if(c.userData.att)c.position.y=-(fa.l+.03)});
+ p.attY=-(fa.l+.03);
+ // pernas: coxa (quadríceps) → joelho → panturrilha → tornozelo → calçado
+ p.pb=[];p.legs.forEach((l,i)=>{const s=i?1:-1,H=l[0],Kn=l[1];H.position.set(s*S.lg,hipY,0);Kn.position.set(0,-th.l,0);
+  part(H,hbLimb(th.l+th.w*.15,th.w*.55,th.w*.38,th.w*(mus?.1:.05),.35,.1),p.mP,0,th.w*.1,0,{up:1});
+  part(Kn,hbG('knee'+sh.w,()=>{const g=new T.SphereGeometry(1,10,8);g.scale(sh.w*.46,sh.w*.46,sh.w*.5);return g}),p.mP,0,0,.012,{lo:1},0);
+  const cf=part(Kn,hbLimb(sh.l-ft.h*.3,sh.w*.44,sh.w*.3,sh.w*(mus?.12:.08),.3,-.15),p.mP,0,0,0,{lo:1});
+  part(Kn,hbShoe(ft.w,ft.h*1.25,ft.l),p.mSh,0,-sh.l-ft.h*.15,ft.l*.12);
+  if(p.bootS)part(Kn,hbLimb(sh.l*.32,sh.w*.5,sh.w*.48,0,.5,0),p.mSh,0,-sh.l*.66,0,null,0);
+  const b=part(Kn,hbLimb(sh.l*.62,sh.w*.56,sh.w*.5,0,.5,0),p.mSh,0,-sh.l*.36,0);b.visible=false;p.pb.push(b)});
+ p.root.scale.setScalar(p.h0);p.bodyI=bi}
+const _buildBody0=buildBody;buildBody=function(p,bi){const B=BODIES[bi]||BODIES[0];if(B.s.box)return _buildBody0(p,bi);try{return buildBody2(p,bi)}catch(e){if(!buildBody.w){buildBody.w=1;console.warn('corpo novo indisponível neste aparelho, usando o anterior: '+(e&&e.message))}while(p.bm.length){const m=p.bm.pop();if(m.parent)m.parent.remove(m)}return _buildBody0(p,bi)}};
+
+// ================= CABELO EM MECHAS + CAPA DE TECIDO (V76) =================
+// cada penteado é feito de mechas 3D afinando até a ponta (corte achatado, curvadas pela gravidade),
+// presas a um couro cabeludo que acompanha o formato da cabeça. Tudo vira uma malha só (leve no celular).
+const HC=new T.Vector3(0,1.97,0),_hY=new T.Vector3(0,1,0),_hq=new T.Quaternion(),_hq2=new T.Quaternion(),_hv=new T.Vector3(),_hv2=new T.Vector3();
+function hrStrand(len,r,bend,flat){const k='hs'+[len,r,bend,flat].map(v=>(+v).toFixed(3)).join('_');return hbG(k,()=>{const N=6,S=5,pos=[],idx=[];
+ for(let i=0;i<=N;i++){const t=i/N,cy=t*len,cz=bend*t*t*len,rr=r*Math.pow(1-t*.94,.85);for(let j=0;j<S;j++){const a=j/S*Math.PI*2;pos.push(Math.cos(a)*rr*flat,cy,cz+Math.sin(a)*rr)}}
+ const tip=pos.length/3;pos.push(0,len*1.04,bend*len*1.06);const base=tip+1;pos.push(0,-.01,0);
+ for(let i=0;i<N;i++)for(let j=0;j<S;j++){const a=i*S+j,b=i*S+(j+1)%S,c=a+S,d=b+S;idx.push(a,c,b,b,c,d)}for(let j=0;j<S;j++){idx.push(N*S+j,tip,N*S+(j+1)%S);idx.push(j,(j+1)%S,base)}
+ const col=[];for(let i=0;i<pos.length;i+=3){const t=Math.max(0,Math.min(1,pos[i+1]/len)),k=t<.55?0:Math.pow((t-.55)/.45,1.4);col.push(.06+(.95-.06)*k,.03+(.12-.03)*k,.035+(.16-.035)*k)}const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();return g})}
+// matriz que coloca a mecha na raiz `root`, apontando para `dir`, curvando para "baixo" (gravidade)
+function hrPlace(root,dir,sc){const d=_hv.copy(dir).normalize();_hq.setFromUnitVectors(_hY,d);const z=new T.Vector3(0,0,1).applyQuaternion(_hq);const g=new T.Vector3(0,-1,0);g.sub(d.clone().multiplyScalar(g.dot(d)));
+ if(g.lengthSq()>1e-4){g.normalize();let a=Math.acos(Math.max(-1,Math.min(1,z.dot(g))));if(new T.Vector3().crossVectors(z,g).dot(d)<0)a=-a;_hq2.setFromAxisAngle(d,a);_hq.premultiply(_hq2)}
+ return new T.Matrix4().compose(root.clone().sub(HC),_hq.clone(),new T.Vector3(sc||1,sc||1,sc||1))}
+function hrDir(th,ph){return new T.Vector3(Math.sin(th)*Math.sin(ph),Math.cos(th),Math.sin(th)*Math.cos(ph))}
+function hrRoot(th,ph,R){return hrDir(th,ph).multiplyScalar(R||.25).add(HC)}
+const D2R=Math.PI/180;
+function hrCap(L,full){const g=hbG('hrCap'+(full?1:0),()=>{const q=new T.SphereGeometry(.262,24,16,0,Math.PI*2,0,Math.PI*(full?.66:.56));q.rotateX(-.42);q.translate(0,.005,-.012);return q});L.push([g,null])}
+function hrMesh(p,g,L,flow){const geo=hbMerge(L.length?L:[[hbG('hrNone',()=>new T.BufferGeometry().setFromPoints([new T.Vector3()])),null]]);const m=new T.Mesh(geo,p.mH);m.position.copy(HC);m.castShadow=true;const o=new T.Mesh(geo,olm);o.scale.setScalar(1.025);m.add(o);m.userData.fu=1;m.userData.hair=1;g.add(m);if(flow)p.hFlow=m;return m}
+function hrBangs(L,n,len,spread){for(let i=0;i<n;i++){const u=n==1?0:i/(n-1)-.5,ph=u*spread*D2R,th=(40+Math.abs(u)*22)*D2R,root=hrRoot(th,ph,.25),d=new T.Vector3(Math.sin(ph)*.5,-.75,.62+Math.cos(ph)*.1);L.push([hrStrand(len*.7*(1-Math.abs(u)*.3),.05,-.35,1.7),hrPlace(root,d)])}}
+function hrSides(L,len){for(const s of[-1,1]){const root=hrRoot(78*D2R,s*82*D2R,.245);L.push([hrStrand(len,.045,.05,1.4),hrPlace(root,new T.Vector3(s*.12,-1,.08))])}}
+const HAIRB=[
+ // 0 Espetado: mechas grossas em leque saindo do topo e da nuca + franja pontuda
+ (p,g)=>{const L=[];hrCap(L);const rings=[[8,3,.3],[30,6,.33],[55,8,.3],[78,8,.26]];rings.forEach(([th,n,len],ri)=>{for(let k=0;k<n;k++){const ph=(k/n)*Math.PI*2+ri*.4;if(th>45&&Math.cos(ph)>.55)continue;const n0=hrDir(th*D2R,ph),root=hrRoot(th*D2R,ph,.24),d=n0.clone().add(new T.Vector3(0,.55,0)).add(new T.Vector3(0,0,-.25));L.push([hrStrand(len*(.85+((k*37)%10)/40),.075,.22,1.6),hrPlace(root,d)])}});hrBangs(L,5,.2,70);hrSides(L,.16);hrMesh(p,g,L)},
+ // 1 Curto: mechas curtas penteadas para trás + franja curta
+ (p,g)=>{const L=[];hrCap(L);for(let ri=0;ri<3;ri++)for(let k=0;k<9;k++){const th=(20+ri*25)*D2R,ph=k/9*Math.PI*2+ri*.3;if(ri>0&&Math.cos(ph)>.6)continue;const n0=hrDir(th,ph),root=hrRoot(th,ph,.25),d=n0.clone().multiplyScalar(.35).add(new T.Vector3(0,-.1,-.7));L.push([hrStrand(.11,.05,.3,1.7),hrPlace(root,d)])}hrBangs(L,5,.12,60);hrSides(L,.1);hrMesh(p,g,L)},
+ // 2 Longo: cortina de mechas até os ombros + mechas laterais + franja
+ (p,g)=>{const L=[];hrCap(L,1);for(let k=0;k<13;k++){const ph=(100+k*13)*D2R,th=(62+(k%3)*8)*D2R,root=hrRoot(th,ph,.25);L.push([hrStrand(.6+(k%4)*.04,.075,.12,1.8),hrPlace(root,new T.Vector3(Math.sin(ph)*.25,-1,Math.cos(ph)*.25-.05))])}
+  for(const s of[-1,1])for(let k=0;k<2;k++){const root=hrRoot(70*D2R,s*(70+k*14)*D2R,.25);L.push([hrStrand(.5,.06,.1,1.6),hrPlace(root,new T.Vector3(s*.18,-1,.12-k*.1))])}hrBangs(L,5,.2,70);hrMesh(p,g,L,1)},
+ // 3 Rabo de cavalo: cabelo puxado para trás, laço na nuca e rabo de mechas
+ (p,g)=>{const L=[];hrCap(L,1);const tie=new T.Vector3(0,2.04,-.27);L.push([hbG('hrTie',()=>new T.TorusGeometry(.05,.022,6,12)),new T.Matrix4().makeTranslation(tie.x,tie.y-HC.y,tie.z)]);for(let k=0;k<7;k++){const a=k/7*Math.PI*2,root=tie.clone().add(new T.Vector3(Math.cos(a)*.03,Math.sin(a)*.03,-.02));L.push([hrStrand(.48,.06,.35,1.5),hrPlace(root,new T.Vector3(Math.cos(a)*.15,-.55,-.8))])}hrBangs(L,3,.16,50);hrSides(L,.18);hrMesh(p,g,L,1)},
+ // 4 Moicano: crista de mechas no centro, laterais raspadas
+ (p,g)=>{const L=[];L.push([hbG('hrMoh',()=>{const q=new T.SphereGeometry(.258,14,10,0,Math.PI*2,0,1.25);q.scale(.38,1,1);q.rotateX(-.2);return q}),null]);for(let k=0;k<8;k++){const th=(-35+k*16)*D2R,ph=th<0?0:Math.PI,root=hrRoot(Math.abs(th),th<0?0:Math.PI,.25),d=new T.Vector3(0,1,-.35+k*.04);L.push([hrStrand(.26-Math.abs(k-3)*.018,.06,.25,.55),hrPlace(root,d)])}hrMesh(p,g,L)},
+ // 5 Bagunçado: mechas médias em várias direções
+ (p,g)=>{const L=[];hrCap(L);let sd=7;const rnd=()=>{sd=(sd*9301+49297)%233280;return sd/233280};for(let k=0;k<26;k++){const th=(10+rnd()*70)*D2R,ph=rnd()*Math.PI*2;if(th>50*D2R&&Math.cos(ph)>.5)continue;const n0=hrDir(th,ph),root=hrRoot(th,ph,.245),d=n0.clone().add(new T.Vector3((rnd()-.5)*.8,.2,(rnd()-.5)*.8));L.push([hrStrand(.14+rnd()*.1,.06,(rnd()-.5)*.6,1.5),hrPlace(root,d)])}hrBangs(L,5,.17,75);hrSides(L,.14);hrMesh(p,g,L)},
+ // 6 Topete: grande mecha frontal que sobe e volta para trás + laterais curtas
+ (p,g)=>{const L=[];hrCap(L);for(let k=0;k<5;k++){const ph=(k-2)*16*D2R,root=hrRoot(42*D2R,ph,.25);L.push([hrStrand(.22-Math.abs(k-2)*.025,.09,-.35,1.7),hrPlace(root,new T.Vector3(Math.sin(ph)*.2,.95,.42))])}for(let k=0;k<10;k++){const ph=(60+k*24)*D2R,root=hrRoot(55*D2R,ph,.25);L.push([hrStrand(.1,.05,.3,1.6),hrPlace(root,new T.Vector3(Math.sin(ph)*.3,-.2,Math.cos(ph)*.3-.6))])}hrSides(L,.1);hrMesh(p,g,L)},
+ // 7 Careca
+ ()=>{}];
+HAIRS.forEach((h,i)=>{const old=h.b;if(HAIRB[i])h.b=(p,g)=>{try{HAIRB[i](p,g)}catch(e){while(g.children.length)g.remove(g.children[0]);try{old(p,g)}catch(e2){}}}});
+// capa: tecido curvo com dobras que abre na barra e balança ao andar/correr
+function capeGeo(w){return hbG('cape'+w.toFixed(3),()=>{const W=.62*w,g=new T.PlaneGeometry(W,1.02,10,12),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),v=(.51-y)/1.02,u=x/(W/2);
+  const nx=x*(1+.28*v),nz=-.015+.09*u*u*(1-v*.6)-.04*v+.025*Math.sin(u*Math.PI*2.5)*v,ny=y+.025*Math.sin(u*9)*v*v;p.setXYZ(i,nx,ny-.51,nz)}g.computeVertexNormals();return g})}
+function capeUp(p){const c=p.cp;if(!c||c.userData.cloth)return;c.userData.cloth=1;const w=(c.geometry&&c.geometry.parameters&&c.geometry.parameters.width||.62)/.62;c.geometry=capeGeo(w);c.position.y+=.5;c.position.z-=.01;try{c.material.side=T.DoubleSide;c.children.forEach(o=>{if(o.material===olm)o.visible=false})}catch(e){}}
+const _dressUp1=dressUp;dressUp=function(p,L0){_dressUp1(p,L0);try{capeUp(p)}catch(e){}};
+
+// ================= EXPRESSÕES FACIAIS + PISCAR + CAPA QUE BALANÇA (V76) =================
+// estados: normal, concentração mágica, ataque, transformação, dano e vitória — sobrancelhas, olhos e boca mudam juntos.
+function fxRig(p){if(p._fx)return p._fx;const fg=p.fg;if(!fg||!p.hF)return null;const R={br:[],wh:[],ir:p.eyes||[],md:[]};
+ fg.children.forEach(o=>{if(!o.isMesh)return;const gt=o.geometry&&o.geometry.type;if(o.material===p.mH&&gt=='BoxGeometry')R.br.push({o,y:o.position.y,rz:o.rotation.z,s:Math.sign(o.position.x)||1});else if(o.material===p.mW2&&gt=='SphereGeometry'&&o.geometry.parameters.radius>.05)R.wh.push({o,sy:o.scale.y})});
+ R.ir=R.ir.map(o=>({o,sy:o.scale.y}));R.ey=[];fg.children.forEach(o=>{if(!o.isMesh||R.br.some(b=>b.o===o)||R.wh.some(w=>w.o===o)||R.ir.some(w=>w.o===o))return;if(Math.abs(Math.abs(o.position.x)-.085)<.03&&o.position.y>1.92&&o.position.y<2.0)R.ey.push({o,y:o.position.y,sy:o.scale.y})});const mk=(geo,c,x,y,z,sx,sy,sz)=>{const m=new T.Mesh(geo,c);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.visible=false;p.hF.add(m);return m};
+ const dark=fcMat('mouthD',0x3a0a0a),teeth=fcMat('teeth',0xf4f0e8),lip=p.mLip||fcMat('lip',0xb8645a);
+ R.open=mk(hbG('fxO',()=>new T.SphereGeometry(.03,12,8)),dark,0,-.1,.198,1.25,1.1,.35);
+ R.teeth=mk(hbG('fxT',()=>new T.BoxGeometry(.07,.016,.01)),teeth,0,-.092,.206,1,1,1);
+ R.smile=mk(hbG('fxS',()=>new T.TorusGeometry(.032,.009,5,14,Math.PI)),lip,0,-.09,.206,1.1,1,1);R.smile.rotation.z=Math.PI;
+ R.base=p.mouth;try{fg.children.forEach(o=>{if(o.material===p.mLip)o.scale.set(.9,.22,.35)})}catch(e){}R.bk={t:2+Math.random()*3,on:0};p._fx=R;return R}
+function fxState(p){if(p!==PP)return'normal';if(window.FXF)return window.FXF;if(P.dead>0||P.hitf>.05)return'dano';if(P.vic>0)return'vitória';if((P.union||P.nacht||P.zg||POS.on)&&!P.ps)return'transformação';
+ if(P.ps){return /^(throw|push|slam|dash|tpunch|spin|upper|tstomp)$/.test(P.ps)?'ataque':'concentração'}return'normal'}
+function faceExpr(p,t,dt){const R=fxRig(p);if(!R)return;const st=fxState(p);if(R.st!==st){R.st=st}
+ // piscar (só nos estados calmos)
+ R.bk.t-=dt;if(R.bk.t<=0){R.bk.on=.13;R.bk.t=2.5+Math.random()*3.5}if(R.bk.on>0)R.bk.on-=dt;const blink=R.bk.on>0&&(st=='normal'||st=='concentração')?.12:1;
+ const E={normal:[1,0,0,0,'base'],concentração:[.72,-.012,.22,0,'base'],ataque:[1.05,-.016,.42,0,'open'],transformação:[1.1,-.014,.38,0,'grin'],dano:[.45,-.008,-.3,0,'grim'],vitória:[.35,.014,-.15,0,'smile']}[st];
+ R.wh.forEach(w=>w.o.scale.y=w.sy*E[0]*blink);R.ir.forEach(w=>w.o.scale.y=w.sy*Math.min(1,E[0]*1.05)*blink);
+ const kk=E[0]*blink;R.ey.forEach(w=>{w.o.position.y=1.958+(w.y-1.958)*kk;w.o.scale.y=w.sy*Math.min(1,kk)});R.br.forEach(b=>{b.o.position.y=b.y+E[1];b.o.rotation.z=b.rz-b.s*E[2]});
+ const m=E[4];if(R.base)R.base.visible=m=='base';R.open.visible=m=='open';R.teeth.visible=m=='grin'||m=='grim';R.smile.visible=m=='smile';if(m=='open')R.open.scale.y=1.1+.25*Math.abs(Math.sin(t*14));if(m=='grim'){R.teeth.scale.set(.85,1.4,1)}else R.teeth.scale.set(1,1,1)}
+const _animF=anim;anim=function(p,t,mv,air){_animF(p,t,mv,air);const s=p._an;const dt=s&&s._lt2!=null?Math.min(.2,Math.max(0,t-s._lt2)):.016;if(s)s._lt2=t;try{faceExpr(p,t,dt)}catch(e){}
+ try{if(p.cp&&p.cp.userData.cloth){const k=Math.min(1.3,s?s.mv:0);p.cp.rotation.x=.05+k*.38+Math.sin(t*2.3)*.025+(air?.35:0)}}catch(e){}
+ if(p===PP&&P.vic>0)P.vic-=dt};
+// vitória: ao subir de nível, completar missão ou derrotar chefe
+const _gainXPv=gainXP;gainXP=function(n){const l0=P.lv;_gainXPv(n);if(P.lv>l0)P.vic=2.5};
+
+// ================= UNIÃO DEMONÍACA INTEGRADA AO CORPO (V76) =================
+// 1) a pele e a roupa recebem uma TEXTURA demoníaca própria de cada demônio (rachaduras, runas, glifos)
+//    que brilha — as marcas fazem parte do corpo, não são peças coladas;
+// 2) no Liebe, revestimento de placas que acompanha as medidas de cada segmento (peitoral, ombreiras,
+//    manoplas com garras, grevas com esporões), chifres proporcionais à cabeça, faixa de energia nos olhos,
+//    selo no peito e ASAS com estrutura de ossos e membrana rasgada; tudo preso às articulações.
+const DTX={};function dtCanvas(n){const c=document.createElement('canvas');c.width=c.height=n;return c}
+function dtTex(kind){if(DTX[kind])return DTX[kind];let c;try{c=dtCanvas(256)}catch(e){return null}const x=c.getContext&&c.getContext('2d');if(!x)return null;let sd=kind.length*977;const rnd=()=>{sd=(sd*9301+49297)%233280;return sd/233280};
+ const bg={liebe_sk:'#170709',liebe_cl:'#0c0507',nacht_sk:'#1a1226',nacht_cl:'#0d0814',zag_sk:'#cfc6dc',zag_cl:'#22103a'}[kind]||'#111',ln={liebe_sk:'#ff2a3c',liebe_cl:'#ff1e30',nacht_sk:'#b070ff',nacht_cl:'#8a50e0',zag_sk:'#9a40ff',zag_cl:'#d080ff'}[kind]||'#f00';
+ x.fillStyle=bg;x.fillRect(0,0,256,256);x.strokeStyle=ln;x.lineCap='round';x.shadowColor=ln;x.shadowBlur=6;
+ if(kind.startsWith('liebe')){const N=kind.endsWith('sk')?9:5;for(let k=0;k<N;k++){let px=rnd()*256,py=rnd()*256,a=rnd()*6.28;x.lineWidth=kind.endsWith('sk')?2.2:1.6;x.beginPath();x.moveTo(px,py);for(let s=0;s<14;s++){a+=(rnd()-.5)*1.3;px+=Math.cos(a)*12;py+=Math.sin(a)*12;x.lineTo(px,py);if(rnd()<.25){x.moveTo(px,py);const b=a+(rnd()<.5?1:-1)*.9;x.lineTo(px+Math.cos(b)*14,py+Math.sin(b)*14);x.moveTo(px,py)}}x.stroke()}}
+ else if(kind.startsWith('nacht')){x.lineWidth=2;for(let k=0;k<7;k++){const y=18+k*36;x.beginPath();for(let s=0;s<=16;s++){const X=s*16,Y=y+Math.sin(s*1.3+k)*6;s?x.lineTo(X,Y):x.moveTo(X,Y)}x.stroke()}for(let k=0;k<10;k++){const cx=rnd()*256,cy=rnd()*256;x.beginPath();x.arc(cx,cy,5,0,6.28);x.moveTo(cx-7,cy);x.lineTo(cx+7,cy);x.stroke()}}
+ else{x.lineWidth=1.8;for(let k=0;k<14;k++){const cx=rnd()*256,cy=rnd()*256,r=6+rnd()*8;x.beginPath();x.moveTo(cx,cy-r);x.lineTo(cx+r*.8,cy);x.lineTo(cx,cy+r);x.lineTo(cx-r*.8,cy);x.closePath();x.moveTo(cx,cy-r*1.6);x.lineTo(cx,cy+r*1.6);x.stroke()}}
+ const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t._keep=true;DTX[kind]=t;return t}
+const DTEX={cur:null};
+const DTSET={liebe:{p:'liebe',glow:0xff2a3c},canis:{p:'nacht',glow:0x9a6aff},equus:{p:'nacht',glow:0x8ab0ff},felis:{p:'nacht',glow:0xd8c0ff},gallus:{p:'nacht',glow:0xff4050},quatro:{p:'nacht',glow:0xb070ff},zagred:{p:'zag',glow:0xb06aff}};
+const _dsMat0=dsMat;dsMat=function(o,col,em,cache){const m=_dsMat0(o,col,em,cache);const D=DTEX.cur;try{if(D&&m&&m.isMaterial&&!m.userData.tx&&(col===D.sk||col===D.cl)&&('map' in m)){const tx=dtTex(D.p+(col===D.sk?'_sk':'_cl'));if(tx){m.userData.tx=1;m.map=tx;if('emissiveMap' in m){m.emissiveMap=tx;m.emissive.setHex(D.glow);m.emissiveIntensity=.9}m.color.setHex(0xffffff);m.needsUpdate=true}}}catch(e){}return m};
+DSK.liebe.hr=0x1a0a10;DSK.liebe.sk=0x200a0e;
+// ---------- peças do Liebe ----------
+function dmMat(c,em){const m=new T.MeshToonMaterial({color:c,gradientMap:gmap});if(em!=null){m.emissive=new T.Color(em)}return m}
+function dmShell(len,r0,r1,jag){const N=10,pts=[];for(let i=N;i>=0;i--){const t=i/N;pts.push(new T.Vector2(Math.max(.01,r0+(r1-r0)*t),-t*len))}const g=new T.LatheGeometry(pts,14);if(jag){const p=g.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);if(y<-len*.97){const a=Math.atan2(p.getX(i),p.getZ(i));p.setY(i,y-jag*(Math.abs(Math.sin(a*3))))}}g.computeVertexNormals()}return g}
+function dmWing(span,side){const g=new T.Group(),bones=[],P2=(x,y,z)=>new T.Vector3(x*span*side,y*span,(z||0)*span);
+ const B=P2(0,0),E=P2(.34,.2,-.05),W=P2(.6,.36,-.08),F=[P2(1.02,.28,-.1),P2(.95,-.1,-.08),P2(.74,-.42,-.06),P2(.44,-.6,-.04)],A=P2(.06,-.48);
+ const pos=[],tri=(a,b,c)=>pos.push(a.x,a.y,a.z,b.x,b.y,b.z,c.x,c.y,c.z);let sd=11;const rnd=()=>{sd=(sd*9301+49297)%233280;return sd/233280};
+ const edge=(a,b,inward)=>{const pts=[];for(let k=0;k<=8;k++){const u=k/8,p=a.clone().lerp(b,u),c=W.clone().sub(p);p.add(c.multiplyScalar(Math.sin(u*Math.PI)*inward));if(k%2&&k<8)p.add(c.normalize().multiplyScalar(span*.035*(.5+rnd())));pts.push(p)}return pts};
+ const chain=[F[0],F[1],F[2],F[3],A];for(let i=0;i<chain.length-1;i++){const e=edge(chain[i],chain[i+1],i==3?.12:.22);for(let k=0;k<e.length-1;k++)tri(W,e[k],e[k+1])}tri(W,A,E);tri(E,A,B);
+ const mg=new T.BufferGeometry();mg.setAttribute('position',new T.Float32BufferAttribute(pos,3));mg.computeVertexNormals();
+ const mem=new T.Mesh(mg,new T.MeshPhongMaterial({color:0x14060a,emissive:0x2a0008,specular:0x401018,shininess:20,side:T.DoubleSide}));g.add(mem);
+ const bm=dmMat(0x0a0406,0x1a0004),cyl=hbG('dmBone',()=>new T.CylinderGeometry(1,.7,1,6)),link=(a,b,r)=>{const m=new T.Mesh(cyl,bm),d=b.clone().sub(a);m.position.copy(a).add(b).multiplyScalar(.5);m.scale.set(r,d.length(),r);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());g.add(m)};
+ link(B,E,span*.035);link(E,W,span*.03);F.forEach(f=>link(W,f,span*.017));
+ const hk=new T.Mesh(hbG('dmHook',()=>new T.ConeGeometry(1,1,5)),dmMat(0xe0d6c8));hk.scale.set(span*.025,span*.1,span*.025);hk.position.copy(W).add(P2(.02,.06));hk.rotation.z=-side*.6;g.add(hk);
+ const rim=new T.Mesh(hbG('dmRim',()=>new T.SphereGeometry(1,8,6)),GLM(0xff2040,.5));rim.scale.setScalar(span*.03);rim.position.copy(W);g.add(rim);return g}
+function liebeForm(F,L){try{if(typeof sword!='undefined'&&sword)sword.userData.att=1}catch(e){}const M=dsAnalyze(L),K=M.K,add=(m,par,st)=>{m.userData.stage=st||'arms';m.userData.ds=1;m.userData.bs=[m.scale.x,m.scale.y,m.scale.z];par.add(m);F.parts.push(m);return m};
+ // remove a versão antiga (planos de asa, mangas cilíndricas, colar) e as peças genéricas; mantém só a cauda
+ const keep=new Set();(F.tails||[]).forEach(s=>s.forEach(o=>{let q=o,n=0;while(q&&!F.parts.includes(q)&&n++<30)q=q.parent;if(q&&F.parts.includes(q))keep.add(q)}));
+ F.parts=F.parts.filter(p=>{if(keep.has(p))return true;if(p.parent)p.parent.remove(p);return false});F.wings=[];
+ const arm=dmMat(0x0e0608,0x120002),armT=(()=>{const m=dmMat(0xffffff,0xff2030);const tx=dtTex('liebe_cl');if(tx){m.map=tx;m.emissiveMap=tx}return m})(),glow=GLM(0xff2a3c,.9),bone=dmMat(0x2a0c10,0x3a0006);
+ const tq=L.tq,D=L.tdim||{w:.6,h:.6,D:.34,tb:.9},tBot=(tq?tq.position.y:1.36)-D.h/2,R=K.root;
+ // peitoral: casca do tronco (parte de cima) com borda serrilhada + selo de estrela no peito
+ {const g=hbTorso(D.w*1.07,D.h*.62,D.D*1.15,1.05,0,0);const p=g.attributes.position;for(let i=0;i<p.count;i++){if(p.getY(i)<.01){const a=Math.atan2(p.getX(i),p.getZ(i));p.setY(i,-Math.abs(Math.sin(a*4))*.07)}}g.computeVertexNormals();add(new T.Mesh(g,armT),R,'torso').position.y=tBot+D.h*.4;
+  const st=new T.Shape();for(let k=0;k<10;k++){const a=k/10*Math.PI*2,r=k%2?.025:.07;st[k?'lineTo':'moveTo'](Math.sin(a)*r,Math.cos(a)*r)}const sg=new T.Mesh(new T.ShapeGeometry(st),glow);sg.position.set(0,tBot+D.h*.74,D.D*.6+.02);add(sg,R,'torso');
+  for(const s of[-1,1]){const ln=new T.Mesh(hbG('dmLn',()=>new T.PlaneGeometry(1,1)),glow);ln.scale.set(.018,D.h*.38,1);ln.position.set(s*D.w*.13,tBot+D.h*.6,D.D*.6+.015);ln.rotation.z=s*.55;add(ln,R,'torso')}}
+ // ombreiras em camadas com esporões, do tamanho de cada ombro
+ K.arms.forEach((a,i)=>{const s=i?1:-1,u=M.ua[i],f=M.fa[i];for(let k=0;k<3;k++){const pl=new T.Mesh(hbG('dmPaul',()=>new T.SphereGeometry(1,12,8,0,Math.PI*2,0,1.25)),armT);pl.scale.set(u.r*(1.9-k*.25),u.r*(1.3-k*.15),u.r*(1.8-k*.25));pl.position.set(s*u.r*.1,u.r*(.35-k*.4),0);pl.rotation.z=-s*(.25+k*.2);add(pl,a[0])}
+  for(let k=0;k<2;k++){const sp=new T.Mesh(hbG('dmSpk',()=>new T.ConeGeometry(1,1,5)),arm);sp.scale.set(u.r*.32,u.r*1.4,u.r*.32);sp.position.set(s*u.r*(.6+k*.35),u.r*(.7-k*.3),-u.r*.2);sp.rotation.z=-s*(.7+k*.25);add(sp,a[0])}
+  // manopla do antebraço com esporão no cotovelo e garras longas nas pontas dos dedos
+  if(a[1]&&f){const sh=new T.Mesh(dmShell(f.len*.82,f.r*1.18,f.r*1.02,.04),armT);sh.position.y=-f.len*.12;add(sh,a[1]);const el=new T.Mesh(hbG('dmSpk'),arm);el.scale.set(f.r*.4,f.r*2.2,f.r*.4);el.position.set(0,-f.len*.1,-f.r*1.1);el.rotation.x=-2.3;add(el,a[1]);
+   const rg=new T.Mesh(lwTor(),glow);rg.rotation.x=Math.PI/2;rg.scale.set(f.r*1.22,f.r*1.22,.6);rg.position.y=-f.len*.55;add(rg,a[1]);
+   for(let k=0;k<4;k++){const cl=new T.Mesh(hbG('dmClaw',()=>{const g=new T.ConeGeometry(1,1,4);g.translate(0,-.5,0);return g}),bone);cl.scale.set(f.r*.17,f.r*1.5,f.r*.17);cl.position.set((k-1.5)*f.r*.48,f.minY-f.r*.9,f.r*.55);cl.rotation.x=.45;add(cl,a[1])}}});
+ // coxas e grevas (canelas) com esporão no joelho e garras nos pés
+ K.legs.forEach((l,i)=>{const t=M.th[i],sh=M.sh[i];const tp=new T.Mesh(dmShell(t.len*.55,t.r*1.12,t.r*1.0,.05),armT);tp.position.y=-t.len*.05;add(tp,l[0],'back');
+  if(l[1]&&sh){const gv=new T.Mesh(dmShell(sh.len*.7,sh.r*1.2,sh.r*1.05,.03),armT);gv.position.y=-sh.len*.1;add(gv,l[1],'back');const kn=new T.Mesh(hbG('dmSpk'),arm);kn.scale.set(sh.r*.45,sh.r*2,sh.r*.45);kn.position.set(0,sh.r*.2,sh.r*.9);kn.rotation.x=.9;add(kn,l[1],'back');
+   const gl=new T.Mesh(hbG('dmLn'),glow);gl.scale.set(.016,sh.len*.45,1);gl.position.set(0,-sh.len*.4,sh.r*1.24);add(gl,l[1],'back');
+   for(let k=0;k<3;k++){const tl=new T.Mesh(hbG('dmClaw'),arm);tl.scale.set(sh.r*.16,sh.r*.55,sh.r*.16);tl.rotation.x=-1.4;tl.position.set((k-1)*sh.r*.5,sh.minY+.04,sh.maxZ+.02);add(tl,l[1],'back')}}});
+ // cabeça: chifres curvos proporcionais, faixa de energia sobre os olhos
+ const hd=K.head;if(hd){for(const s of[-1,1]){const hn=new T.Mesh(hrStrand(.44,.068,.7,1),dmMat(0x1a080c,0x3a0008));const m=hrPlace(new T.Vector3(s*.17,1.97+.12,.02),new T.Vector3(s*1,.85,-.1));m.decompose(hn.position,hn.quaternion,hn.scale);add(hn,hd,'head');const tip=new T.Mesh(hrStrand(.12,.022,.6,1),glow);tip.position.copy(hn.position);tip.quaternion.copy(hn.quaternion);tip.translateY(.4);add(tip,hd,'head')}
+  const bd=new T.Mesh(hbG('dmBand',()=>new T.CylinderGeometry(.258,.258,.03,24,1,true,-1.15,2.3)),GLM(0xff2030,.55));bd.position.y=.035;add(bd,hd,'head')}
+ // asas: estrutura de ossos + membrana rasgada, presas às costas na altura das escápulas
+ const span=Math.min(1.45,Math.max(.9,D.w*2.1));for(const s of[-1,1]){const w=dmWing(span,s);w.position.set(s*D.w*.12,tBot+D.h*.78,-D.D*.55);w.rotation.set(.12,-s*.35,0);add(w,R,'back');F.wings.push({w,s,liebe:1})}
+ const a0=F.anim;F.anim=t=>{try{a0(t)}catch(e){}F.wings.forEach(o=>{if(o.liebe){o.w.rotation.y=-o.s*(.35+Math.sin(t*2.2)*.22);o.w.rotation.z=o.s*Math.sin(t*2.2+.6)*.08}})};
+ try{if(F.au)F.au.visible=false;if(F.au2)F.au2.material.opacity=.035}catch(e){}
+ if(L===PP&&typeof sword!='undefined'&&sword){const bl=sword.children[0];if(bl&&bl.isMesh&&!bl.userData.m0){bl.userData.m0=bl.material;const sm=dmMat(0xffffff,0xff2030);const tx=dtTex('liebe_cl');if(tx){sm.map=tx;sm.emissiveMap=tx}bl.material=sm;const d0=F.detach;F.detach=()=>{try{bl.material=bl.userData.m0;bl.userData.m0=null;sm.dispose()}catch(e){}d0()}}}
+ if(F.skin&&F.skin.reg)['ombros','peito','costas','braços','antebraços','mãos','dedos','pernas','joelhos','pés','cabeça'].forEach(k=>F.skin.reg[k]=1);return F}
+const _naF1=naForm;naForm=function(fk,L){L=L||PP;const S0=DTSET[fk];DTEX.cur=S0?{p:S0.p,glow:S0.glow,sk:(DSK[fk]||DSK.liebe).sk,cl:(DSK[fk]||DSK.liebe).cl}:null;let F;try{F=_naF1(fk,L)}finally{DTEX.cur=null}
+ try{if(fk=='liebe'&&L.hs&&F.skin){const kept=F.skin.parts;kept.forEach(p=>{if(p.parent)p.parent.remove(p)});F.parts=F.parts.filter(p=>!kept.includes(p));liebeForm(F,L);if(L===PP&&typeof aura!='undefined'&&aura)aura.visible=false}}catch(e){console.warn('liebeForm',e)}try{if(F.au)F.au.visible=false;if(F.au2)F.au2.material.opacity=.035}catch(e){}return F};
+
+const _addSword0=addSword;addSword=function(){_addSword0();try{if(sword)sword.userData.att=1}catch(e){}};
+const _dsAn0=dsAnalyze;dsAnalyze=function(L){try{if(typeof sword!='undefined'&&sword)sword.userData.att=1}catch(e){}return _dsAn0(L)};
+
+// ================= UNIÃO DE LIEBE — RECONSTRUÍDA (V76b) =================
+// Abordagem: o corpo continua sendo o corpo do jogador (cada um dos 8 tipos), e a forma demoníaca é feita de:
+//  • materiais por região: traje de couro demoníaco com relevo de escamas (bump), rosto cinza-cinza escuro,
+//    placas metálicas facetadas, cabelo escuro com pontas vermelhas;
+//  • linhas de energia MODELADAS (tubos 3D) que seguem a anatomia: contorno do peitoral, linha do esterno,
+//    "V" do quadril, linhas laterais dos braços e frontais das pernas, anéis nos punhos e tornozelos;
+//  • placas finas do tamanho de cada segmento (ombreira, manopla, joelheira, greva, protetor de quadril,
+//    placas do abdômen, gola alta e crista na coluna) + garras nas mãos e nos pés + chifres + olhos em fenda;
+//  • asas com esqueleto articulado (ombro, cotovelo, punho, 4 dedos) e membrana de 2 camadas com curvatura,
+//    recalculada a cada quadro → abrem ao transformar, dobram ao correr, batem no ar;
+//  • estilo adaptado ao tipo de corpo (Chibi menor, Blocado geométrico, Musculoso com linhas dos músculos...).
+DTSET.liebe=null;
+const LBK={};function lbTex(k){if(LBK[k])return LBK[k];let c;try{c=document.createElement('canvas');c.width=c.height=128}catch(e){return null}const x=c.getContext&&c.getContext('2d');if(!x)return null;
+ if(k=='scale'){x.fillStyle='#808080';x.fillRect(0,0,128,128);for(let j=0;j<9;j++)for(let i=0;i<9;i++){const cx=i*16+(j%2)*8,cy=j*14;const g=x.createRadialGradient(cx,cy-3,1,cx,cy,9);g.addColorStop(0,'#c8c8c8');g.addColorStop(.7,'#8a8a8a');g.addColorStop(1,'#404040');x.fillStyle=g;x.beginPath();x.ellipse(cx,cy,8,7,0,0,Math.PI*2);x.fill()}}
+ else if(k=='metal'){x.fillStyle='#909090';x.fillRect(0,0,128,128);for(let i=0;i<40;i++){x.strokeStyle='rgba(40,40,40,.35)';x.lineWidth=1;x.beginPath();const y=Math.random()*128;x.moveTo(0,y);x.lineTo(128,y+(Math.random()-.5)*6);x.stroke()}}
+ const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(k=='scale'?4:1,k=='scale'?4:1);t._keep=true;LBK[k]=t;return t}
+function lbMats(){const suit=new T.MeshToonMaterial({color:0x3a161c,gradientMap:gmap}),face=new T.MeshToonMaterial({color:0x5a4a52,gradientMap:gmap}),plate=new T.MeshPhongMaterial({color:0x1c1014,specular:0x6a3038,shininess:55,flatShading:true}),
+ bone=new T.MeshPhongMaterial({color:0x22080c,specular:0x803040,shininess:70}),hair=new T.MeshToonMaterial({color:0xffffff,gradientMap:gmap,vertexColors:true}),
+ glow=new T.MeshBasicMaterial({color:0xff2438}),halo=new T.MeshBasicMaterial({color:0xff2a3c,transparent:true,opacity:.28,blending:T.AdditiveBlending,depthWrite:false}),
+ mem=new T.MeshToonMaterial({color:0x2c0c12,gradientMap:gmap,side:T.DoubleSide}),memIn=new T.MeshToonMaterial({color:0x4a1018,gradientMap:gmap,side:T.DoubleSide});
+ const sc=lbTex('scale'),mt=lbTex('metal');if(sc){suit.bumpMap=sc;suit.bumpScale=.022;mem.bumpMap=sc;mem.bumpScale=.02}if(mt){plate.bumpMap=mt;plate.bumpScale=.02}
+ return{suit,face,plate,bone,hair,glow,halo,mem,memIn}}
+// tubo de energia ao longo de pontos (núcleo + halo)
+function lbLine(par,pts,r,M,list){if(pts.length<2)return;const cv=new T.CatmullRomCurve3(pts),n=Math.max(8,pts.length*6);const a=new T.Mesh(new T.TubeGeometry(cv,n,r,5,false),M.glow),b=new T.Mesh(new T.TubeGeometry(cv,n,r*2.6,5,false),M.halo);par.add(a,b);list.push(a,b);return[a,b]}
+// pontos sobre a superfície de um membro (cilindro de raio r) num ângulo `ang` (0 = frente, ±π/2 = lados)
+function lbLimbPts(len,r0,r1,ang,y0,y1,n){const P=[];for(let i=0;i<=n;i++){const u=i/n,y=-(y0+(y1-y0)*u)*len,r=(r0+(r1-r0)*u)*1.06;P.push(new T.Vector3(Math.sin(ang)*r,y,Math.cos(ang)*r))}return P}
+// superfície do tronco (mesmo perfil do corpo novo): t = 0 cintura → 1 ombros, x = deslocamento lateral, retorna z na frente/atrás
+function lbTorsoZ(D,t,x,back){const w=D.w,tb=D.tb||1;let r;if(t<.62)r=(w/2*tb)*(1-t/.62)+(w/2)*(t/.62)*(1-.06*Math.sin(t/.62*Math.PI));else{const u=(t-.62)/.38;r=w/2*(1-.42*Math.pow(u,2.2))}const dz=D.D/w,q=Math.max(0,1-Math.pow(x/(r*1.001),2));let z=Math.sqrt(q)*r*dz;if(!back)z+=.04*Math.exp(-Math.pow((t-.72)/.11,2))*Math.max(0,1-Math.pow(Math.abs(Math.abs(x)-w*.2)/(w*.24),2));return(back?-1:1)*(z+.012)}
+// ---------- asa articulada ----------
+function lbWing(span,side,M,style){const g=new T.Group(),bones=[],cyl=hbG('lbBone',()=>new T.CylinderGeometry(1,.62,1,7)),knob=hbG('lbKnob',()=>new T.SphereGeometry(1,8,6));
+ const mkB=(r)=>{const m=new T.Mesh(cyl,M.bone);m.userData.r=r;g.add(m);bones.push(m);return m},mkK=r=>{const m=new T.Mesh(knob,M.bone);m.scale.setScalar(r);g.add(m);return m};
+ const L1=span*.3,L2=span*.32,FL=[.44,.4,.34,.27].map(v=>v*span),bU=mkB(span*.028),bF=mkB(span*.022),bFi=FL.map(()=>mkB(span*.011)),kE=mkK(span*.032),kW=mkK(span*.028),kR=mkK(span*.035);
+ const hook=new T.Mesh(hbG('lbHook',()=>{const q=new T.ConeGeometry(1,1,6);q.translate(0,.5,0);return q}),M.bone);hook.scale.set(span*.02,span*.09,span*.02);g.add(hook);
+ const NE=7,nV=(4*NE+6)*3;const mk=(mat)=>{const geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(new Float32Array(nV*3),3));const m=new T.Mesh(geo,mat);m.frustumCulled=false;g.add(m);return m};
+ const memA=mk(M.mem),memB=mk(M.memIn);const V=(x,y,z)=>new T.Vector3(x*side,y,z||0);
+ const place=(m,a,b)=>{const d=b.clone().sub(a),l=d.length();m.position.copy(a).add(b).multiplyScalar(.5);m.scale.set(m.userData.r,l,m.userData.r);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())};
+ let sd=31;const jag=[];for(let i=0;i<4*NE;i++){sd=(sd*9301+49297)%233280;jag.push(sd/233280)}
+ const upd=(fold,flap)=>{// fold 0 = fechada junto às costas, 1 = aberta
+  const sh=-1.0+1.45*fold+flap,el=.4+2.25*fold,R0=new T.Vector3(0,0,0),dirU=new T.Vector2(Math.cos(sh),Math.sin(sh));const E=V(dirU.x*L1,dirU.y*L1,-span*.04*(1-fold));
+  const fa=sh-(Math.PI-el),dirF=new T.Vector2(Math.cos(fa),Math.sin(fa)),W=E.clone().add(V(dirF.x*L2,dirF.y*L2,-span*.03));
+  const spread=[.25,-.3,-.82,-1.3].map((a,i)=>a*fold+(-.08*i)*(1-fold)),F=FL.map((l,i)=>{const a=fa+spread[i]+(i?0:.1);return W.clone().add(V(Math.cos(a)*l,Math.sin(a)*l,-span*(.06+.03*i)*fold))});
+  const A=V(span*.05,-span*.46*(.4+.6*fold),-span*.02);
+  place(bU,R0,E);place(bF,E,W);F.forEach((f,i)=>place(bFi[i],W,f));kE.position.copy(E);kW.position.copy(W);kR.position.copy(R0);hook.position.copy(W);hook.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),V(.2,1,0).normalize());
+  const ch=[F[0],F[1],F[2],F[3],A],pa=memA.geometry.attributes.position,pb=memB.geometry.attributes.position;let k=0,ji=0;const th=span*.012;
+  const put=(p,cup)=>{pa.setXYZ(k,p.x,p.y,p.z-cup);pb.setXYZ(k,p.x,p.y,p.z-cup-th);k++};
+  for(let s2=0;s2<4;s2++){const a=ch[s2],b=ch[s2+1];let prev=a.clone();for(let e=1;e<=NE;e++){const u=e/NE,p=a.clone().lerp(b,u),c=W.clone().sub(p);p.add(c.multiplyScalar(Math.sin(u*Math.PI)*(s2==3?.1:.2)+(e<NE&&e%2?jag[ji]*.025:0)));ji++;const cup=span*.06*fold*Math.sin(u*Math.PI);put(W,0);put(prev,0);put(p,cup);prev=p}}
+  put(W,0);put(A,0);put(E,0);put(E,0);put(A,0);put(R0,0);
+  pa.needsUpdate=pb.needsUpdate=true;memA.geometry.computeVertexNormals();memB.geometry.computeVertexNormals()};
+ upd(0,0);return{g,upd}}
+// ---------- a forma ----------
+function liebeForm(F,L){try{if(typeof sword!='undefined'&&sword)sword.userData.att=1}catch(e){}
+ const M=dsAnalyze(L),K=M.K,bi=L.bodyI|0,ST={chibi:bi==5,box:bi==2,mus:bi==4,fat:bi==6,slim:bi==7||bi==1,tall:bi==3},MT=lbMats(),lines=[],own=[],sz=ST.chibi?.65:ST.mus||ST.fat?1.15:1;
+ const add=(m,par,st)=>{m.userData.stage=st||'arms';m.userData.ds=1;m.userData.bs=[m.scale.x,m.scale.y,m.scale.z];par.add(m);F.parts.push(m);return m};
+ const keep=new Set();(F.tails||[]).forEach(s=>s.forEach(o=>{let q=o,n=0;while(q&&!F.parts.includes(q)&&n++<30)q=q.parent;if(q&&F.parts.includes(q))keep.add(q)}));
+ F.parts=F.parts.filter(p=>{if(keep.has(p))return true;if(p.parent)p.parent.remove(p);return false});F.wings=[];
+ // materiais por região (o dSkin já trocou tudo; aqui refinamos: rosto, traje com relevo, placas, cabelo com pontas vermelhas)
+ const C=DSK.liebe,head=K.head,swp=[],inside=(o,J)=>{for(let p=o;p;p=p.parent)if(p===J)return true;return false};
+ L.root.traverse(o=>{if(!o.isMesh||!o.material||o.userData.ds||!o.material.color)return;for(let p=o;p&&p!==L.root;p=p.parent)if(p.userData&&(p.userData.att||p.userData.stage))return;const h=o.material.color.getHex();let nm=null;
+  if(h===C.sk)nm=head&&inside(o,head)?MT.face:MT.suit;else if(h===C.cl)nm=MT.suit;else if(h===C.hr&&o.geometry&&o.geometry.attributes.color)nm=MT.hair;if(nm){swp.push([o,o.material]);o.material=nm}});
+ const tq=L.tq,D=L.tdim||{w:.6,h:.6,D:.34,tb:.9},tBot=(tq?tq.position.y:1.36)-D.h/2,R=K.root,lr=.011*sz;
+ const shell=(len,r0,r1,jagA)=>{if(ST.box){const g=new T.BoxGeometry(r0*2,len,r0*2);g.translate(0,-len/2,0);return g}return dmShell(len,r0,r1,jagA)};
+ // ---- tronco: gola alta, placa do esterno, placas do abdômen, crista na coluna, linhas do peitoral/esterno/quadril
+ const tP=(t,x,b)=>new T.Vector3(x,tBot+t*D.h,ST.box?(b?-1:1)*(D.D/2+.012):lbTorsoZ(D,t,x,b));
+ lbLine(R,[tP(.86,-D.w*.36),tP(.7,-D.w*.26),tP(.6,-D.w*.08),tP(.6,0)],lr,MT,lines);lbLine(R,[tP(.86,D.w*.36),tP(.7,D.w*.26),tP(.6,D.w*.08),tP(.6,0)],lr,MT,lines);
+ lbLine(R,[tP(.6,0),tP(.4,0),tP(.18,0)],lr,MT,lines);lbLine(R,[tP(.18,-D.w*.24),tP(.06,-D.w*.08),tP(0,0)],lr,MT,lines);lbLine(R,[tP(.18,D.w*.24),tP(.06,D.w*.08),tP(0,0)],lr,MT,lines);
+ lbLine(R,[tP(.92,0,1),tP(.6,0,1),tP(.2,0,1)],lr,MT,lines);for(const s of[-1,1])lbLine(R,[tP(.88,s*D.w*.08,1),tP(.74,s*D.w*.26,1),tP(.55,s*D.w*.2,1)],lr,MT,lines);
+ if(ST.mus)for(const s of[-1,1])lbLine(R,[tP(.42,s*D.w*.14),tP(.3,s*D.w*.16),tP(.18,s*D.w*.14)],lr*.8,MT,lines);
+ {const st=new T.Mesh(hbG('lbStern',()=>{const g=new T.ConeGeometry(1,1,4);g.rotateX(Math.PI);return g}),MT.plate);st.scale.set(D.w*.07,D.h*.2,.02);st.position.copy(tP(.68,0)).add(new T.Vector3(0,0,.01));add(st,R,'torso');
+  const sg=new T.Mesh(hbG('lbSig',()=>{const s=new T.Shape();for(let k=0;k<10;k++){const a=k/10*Math.PI*2,r=k%2?.4:1;s[k?'lineTo':'moveTo'](Math.sin(a)*r,Math.cos(a)*r)}return new T.ShapeGeometry(s)}),MT.glow);sg.scale.setScalar(D.w*.055*sz);sg.position.copy(tP(.72,0)).add(new T.Vector3(0,0,.022));add(sg,R,'torso')}
+ for(let r=0;r<3;r++)for(const s of[-1,1]){const ab=new T.Mesh(hbG('lbAb',()=>new T.SphereGeometry(1,8,6)),MT.plate);ab.scale.set(D.w*.075,D.h*.045,.018);ab.position.copy(tP(.42-r*.11,s*D.w*.085));add(ab,R,'torso')}
+ for(let k=0;k<5;k++){const sp=new T.Mesh(hbG('lbSpine',()=>{const g=new T.ConeGeometry(1,1,4);g.translate(0,.5,0);return g}),MT.plate);const t=.9-k*.15;sp.scale.set(.022*sz,.07*sz*(1-k*.12),.022*sz);sp.position.copy(tP(t,0,1));sp.rotation.x=-1.9;add(sp,R,'back')}
+ for(const s of[-1,1]){const cl=new T.Mesh(hbG('lbCollar',()=>new T.SphereGeometry(1,10,6,0,Math.PI,0,Math.PI/2)),MT.plate);cl.scale.set(D.w*.17,D.h*.2*sz,D.D*.42);cl.position.set(s*D.w*.15,tBot+D.h*.93,-.01);cl.rotation.set(0,s*Math.PI/2,s*.15);add(cl,R,'torso')}
+ // ---- braços: ombreira facetada, linha lateral, manopla com aleta no cotovelo, anel no punho e 4 garras
+ K.arms.forEach((a,i)=>{const s=i?1:-1,u=M.ua[i],f=M.fa[i];
+  const pl=new T.Mesh(hbG('lbPaul',()=>new T.SphereGeometry(1,9,6,0,Math.PI*2,0,1.3)),MT.plate);pl.scale.set(u.r*1.45,u.r*1.1,u.r*1.4);pl.position.set(s*u.r*.08,u.r*.25,0);pl.rotation.z=-s*.25;add(pl,a[0]);
+  for(let k=0;k<2;k++){const sp=new T.Mesh(hbG('lbSpk',()=>{const g=new T.ConeGeometry(1,1,5);g.translate(0,.5,0);return g}),MT.plate);sp.scale.set(u.r*.18,u.r*(ST.chibi?.5:.9)*(1-k*.3),u.r*.18);sp.position.set(s*u.r*(.55+k*.3),u.r*(.85-k*.25),-u.r*.1);sp.rotation.z=-s*(.55+k*.35);add(sp,a[0])}
+  lbLine(a[0],lbLimbPts(u.len,u.r,u.r*.92,s*Math.PI/2,.12,.95,6),lr,MT,lines);
+  if(a[1]&&f){add(new T.Mesh(shell(f.len*.62,f.r*1.13,f.r*1.02,.02),MT.plate),a[1]).position.y=-f.len*.3;
+   const fin=new T.Mesh(hbG('lbFin',()=>{const g=new T.ConeGeometry(1,1,4);g.scale(1,1,.35);g.translate(0,.5,0);return g}),MT.plate);fin.scale.set(f.r*.5,f.r*(ST.chibi?1:1.9),f.r*.5);fin.position.set(0,-f.len*.15,-f.r*.9);fin.rotation.x=-2.5;add(fin,a[1]);
+   lbLine(a[1],lbLimbPts(f.len,f.r*1.13,f.r*1.03,Math.PI,.12,.9,6),lr,MT,lines);
+   {const rg=new T.Mesh(new T.TorusGeometry(f.r*1.12,lr*1.2,5,18),MT.glow);rg.rotation.x=Math.PI/2;rg.position.y=-f.len*.93;add(rg,a[1])}
+   for(let k=0;k<4;k++){const cw=new T.Mesh(hbG('lbClaw',()=>{const g=new T.ConeGeometry(1,1,5);g.translate(0,-.5,0);return g}),MT.bone);cw.scale.set(f.r*.13,f.r*(ST.chibi?.6:1),f.r*.13);cw.position.set((k-1.5)*f.r*.42,f.minY+f.r*.15,f.r*.32);cw.rotation.x=.5;add(cw,a[1])}}});
+ // ---- pernas: protetor de quadril, linha frontal da coxa, joelheira com esporão, greva, linha da canela, anel no tornozelo, garras nos pés
+ K.legs.forEach((l,i)=>{const s=i?1:-1,t=M.th[i],sh=M.sh[i];
+  const hg=new T.Mesh(hbG('lbHip',()=>new T.SphereGeometry(1,8,6,0,Math.PI,0,Math.PI*.7)),MT.plate);hg.scale.set(t.r*1.25,t.r*1.6,t.r*1.25);hg.rotation.set(0,s*Math.PI/2,0);hg.position.set(s*t.r*.2,t.r*.1,0);add(hg,l[0],'back');
+  lbLine(l[0],lbLimbPts(t.len,t.r,t.r*.85,0,.15,.9,6),lr,MT,lines);
+  if(l[1]&&sh){const kn=new T.Mesh(hbG('lbKnee',()=>new T.SphereGeometry(1,8,6,0,Math.PI*2,0,1.2)),MT.plate);kn.scale.set(sh.r*1.15,sh.r*1.1,sh.r*.9);kn.rotation.x=Math.PI/2;kn.position.set(0,0,sh.r*.45);add(kn,l[1],'back');
+   const ks=new T.Mesh(hbG('lbSpk'),MT.plate);ks.scale.set(sh.r*.2,sh.r*(ST.chibi?.6:1.1),sh.r*.2);ks.position.set(0,sh.r*.25,sh.r*1);ks.rotation.x=1;add(ks,l[1],'back');
+   add(new T.Mesh(shell(sh.len*.55,sh.r*1.14,sh.r*1.04,.02),MT.plate),l[1],'back').position.y=-sh.len*.3;
+   lbLine(l[1],lbLimbPts(sh.len,sh.r*1.15,sh.r*1.05,0,.32,.88,5),lr,MT,lines);
+   {const rg=new T.Mesh(new T.TorusGeometry(sh.r*1.06,lr*1.2,5,18),MT.glow);rg.rotation.x=Math.PI/2;rg.position.y=-sh.len*.9;add(rg,l[1],'back')}
+   for(let k=0;k<3;k++){const tl=new T.Mesh(hbG('lbClaw'),MT.bone);tl.scale.set(sh.r*.14,sh.r*.55,sh.r*.14);tl.rotation.x=-1.45;tl.position.set((k-1)*sh.r*.42,sh.minY+.035,sh.maxZ+.01);add(tl,l[1],'back')}}});
+ // ---- cabeça: chifres curvos (proporcionais à cabeça), marcas no rosto, olhos em fenda
+ if(head){for(const s of[-1,1]){const hn=new T.Mesh(hrStrand(.3,.05,.62,1.1),MT.plate);const m=hrPlace(new T.Vector3(s*.165,1.97+.13,.03),new T.Vector3(s*.9,.95,-.15));m.decompose(hn.position,hn.quaternion,hn.scale);add(hn,head,'head');
+   lbLine(head,[new T.Vector3(s*.075,-.06,.222),new T.Vector3(s*.1,-.12,.205),new T.Vector3(s*.095,-.17,.18)],.0055,MT,lines);}
+  lbLine(head,[new T.Vector3(0,.14,.226),new T.Vector3(0,.09,.24)],.006,MT,lines)}
+ try{(L.fg?L.fg.children:[]).forEach(o=>{if(o.material===fcMat('pup',0x0a0608)){own.push([o,o.scale.x]);o.scale.x*=.38}})}catch(e){}
+ lines.forEach(m=>{m.userData.ds=1;m.userData.stage=m.userData.stage||'torso';m.userData.bs=[1,1,1];F.parts.push(m)});
+ // ---- asas articuladas nas escápulas
+ const H=L.hTop||2.2,span=H*(ST.chibi?.4:ST.box?.6:.7)*(ST.fat?1.05:1),WG=[];
+ for(const s of[-1,1])try{const w=lbWing(span,s,MT,ST);w.g.position.set(s*D.w*.13,tBot+D.h*.8,ST.box?-D.D/2-.04:lbTorsoZ(D,.8,s*D.w*.13,1)-.02);w.g.rotation.set(.1,s*.32,0);add(w.g,R,'back');WG.push(w)}catch(e){}
+ const t0=performance.now()/1000;F.anim=t=>{const s=L._an,mv=s?s.mv:0,air=(L===PP?P.y>.3||P.fly>0||P.afly>0:0);const open=Math.min(1,(t-t0)/.8),fold=open*(air?1:Math.max(.35,1-Math.min(1,mv)*.65));const flap=air?Math.sin(t*7)*.45:Math.sin(t*1.6)*.06;WG.forEach(w=>w.upd(fold,flap));
+  const g=.75+.25*Math.sin(t*3);MT.halo.opacity=.2+.12*Math.sin(t*3);MT.glow.color.setRGB(1,.14*g,.2*g)};
+ // ---- espada da União: lâmina de metal escuro com fio claro e runas em linha (sem rabiscos)
+ if(L===PP&&typeof sword!='undefined'&&sword){const bl=sword.children[0];if(bl&&bl.isMesh&&!bl.userData.m0){bl.userData.m0=bl.material;bl.material=new T.MeshPhongMaterial({color:0x17151a,specular:0x8a8090,shininess:80,flatShading:true});const rn=new T.Group();for(let k=0;k<5;k++){const q=new T.Mesh(hbG('lbRune',()=>new T.PlaneGeometry(.035,.12)),MT.glow);q.position.set(0,.35+k*.24,.052);rn.add(q);const q2=q.clone();q2.position.z=-.052;q2.rotation.y=Math.PI;rn.add(q2)}sword.add(rn);own.push(['rune',rn,bl])}}
+ if(L.cp){own.push(['cape',L.cp,L.cp.visible]);L.cp.visible=false}
+ const d0=F.detach;F.detach=()=>{try{swp.forEach(([o,m])=>o.material=m);own.forEach(x=>{if(x[0]==='cape'){x[1].visible=x[2];return}if(x[0]==='rune'){x[1].parent&&x[1].parent.remove(x[1]);const bl=x[2];if(bl.userData.m0){bl.material.dispose();bl.material=bl.userData.m0;bl.userData.m0=null}}else x[0].scale.x=x[1]});Object.values(MT).forEach(m=>{try{m.dispose()}catch(e){}})}catch(e){}d0()};
+ try{if(F.au)F.au.visible=false;if(F.au2)F.au2.material.opacity=.03}catch(e){}
+ if(F.skin&&F.skin.reg)DSREG.forEach(k=>F.skin.reg[k]=1);F.lbStyle=ST;return F}
 
 function tUpdate(dt,moving){tTrails(dt,moving);tPresence(dt)}
 // ---------- multiplayer: visual leve das conjurações do Tempo dos outros jogadores ----------
@@ -3722,6 +4477,10 @@ const CODES={ // r: c=moedas, xp=experiência, pv/pm/el=itens. exp=data de valid
  GUSTAVO:{r:{agiros:100}}}; // agiros = Giros Admin (só grimório Lendário ou Mítico) // max = sobe o jogador direto para o nível máximo // ggiros = giros de grimório, gsgiros = super giros de grimório // giros = giros de clã comuns, sgiros = super giros
 const SOCIAL=[]; // ex.: {nome:'Instagram',url:'https://...'} — ainda sem redes oficiais
 const NEWS=[ // t=título, d=descrição, date=AAAA-MM-DD, img=URL opcional
+ {t:'Personagens 3D refeitos + nova União com Liebe',d:'Os personagens ganharam um corpo novo modelado: peitoral, costas e abdômen, deltoides, bíceps, cotovelos, antebraços, mãos com 5 dedos, coxas, joelhos, panturrilhas e botas, cabeça com mandíbula e queixo. Os 8 penteados agora são feitos de mechas 3D (franja, costeletas, rabo de cavalo, topete...), a capa é de tecido com dobras e balança ao correr, e o rosto tem 6 expressões (normal, concentração, ataque, transformação, dano e vitória) e pisca. A União com Liebe foi reconstruída: traje de couro demoníaco com relevo de escamas, rosto cinza com marcas e olhos em fenda, cabelo escuro com pontas vermelhas, linhas de energia em 3D que seguem o peitoral, o esterno, o quadril, os braços e as pernas, placas finas do tamanho de cada parte (ombreiras, manoplas, joelheiras, grevas, gola alta e crista na coluna), garras nas mãos e nos pés, chifres e asas com esqueleto articulado que abrem ao transformar, dobram ao correr e batem no pulo. A capa some durante a União e a espada ganha runas. O visual se adapta a cada um dos 8 corpos (Chibi com asas menores, Blocudo com placas geométricas...). Nacht e Zagred ganharam texturas próprias (runas e glifos). Funciona nos 8 tipos de corpo.',date:'2026-11-02'},
+ {t:'Luz, Terra e Água renascem com 6 magias cada',d:'Os três grimórios foram refeitos do zero. LUZ: Divine Ray (feixe que atravessa todos em linha, 30 m), Solar Blades (5 lâminas que perseguem os alvos), Flash Step (avanço-relâmpago com rastro que fere), Radiant Prison (gaiola de pilares de luz), Heaven\'s Judgment (círculos no céu disparam feixes em sequência) e Absolute Sun (sol que cresce e explode em 14 m). TERRA: Earth Spear (lanças de pedra brotam em linha), Stone Fortress (muralhas com colisão de verdade: bloqueiam inimigos e projéteis, −80% de dano), Titan Fist (punho gigante de pedra), Crystal Prison (cristais prendem e estilhaçam), Earthquake Dominion (rachaduras e pilares erguendo inimigos) e Mountain Breaker (uma montanha despenca no alvo). ÁGUA: Water Dragon (dragão que persegue e atravessa), Aqua Lance (lança comprimida de 32 m), Tidal Prison (esfera d\'água que ergue o alvo), Hydro Vortex (redemoinho que puxa), Ocean Dominion (onda gigante que varre o campo) e Abyssal Tsunami (muralha d\'água + redemoinhos + explosão final). Desbloqueio: Nv 1/5/10/16/25/40.',date:'2026-11-02'},
+ {t:'União de Liebe com golpes próprios + contratos a partir do Nível 30',d:'Na União com Liebe, as duas últimas magias deixaram de ser cópias mais fortes: agora são Demon Wing Tempest (asas giratórias que rebatem projéteis, puxam e repelem; curto alcance) e Liebe\'s Black Meteor (o braço de Liebe arremessa um meteoro negro a 30 m e cria uma cúpula de Anti-Magia). O primeiro contato com QUALQUER demônio (Liebe, Gimodelo, Slotos, Plumede, Walgner, Zagred) agora exige Nível 30 — quem já tinha contrato mantém. As formas demoníacas transformam o corpo inteiro: pele, roupa, cabelo e olhos mudam, e ombreiras, marcas, garras, joelheiras, garras nos pés, colar, selo no peito e espinhos nas costas se ajustam às medidas de cada corpo. As Uniões também drenam ~12% menos.',date:'2026-11-02'},
+ {t:'Animações e rostos novos',d:'Andar e correr agora seguem a velocidade real (sem deslizar), com transição suave, giro de quadril e respiração parado. Pulo e queda têm poses diferentes, a aterrissagem dobra os joelhos, levar dano faz o personagem recuar, escudos ativam a guarda e ser derrotado mostra a queda antes de acordar na vila. Cada grimório solta partículas próprias das mãos ao conjurar. Os rostos ganharam pupilas, cílios, lábios, orelhas, franja e costeletas. No Grimório, cada magia mostra recarga, mana, alcance (curto/médio/longo), nível e estado. Sem Magia ganhou Uppercut Ascendente (curto) e Punho Sísmico (onda de 20 m). No Fogo, a Magna: Infernal Chain repetia a Fire: Infernal Chain e virou Magna: Flame Swing Breaker (dois giros do bastão em chamas, curto alcance). Todos os grimórios agora têm magias de curto, médio e longo alcance.',date:'2026-11-02'},
  {t:'Demônios com contrato, batalha e possessão',d:'As Uniões Demoníacas agora precisam ser conquistadas. Ao tentar a União pela primeira vez você entra na dimensão do demônio (Liebe, Gimodelo, Slotos, Plumede, Walgner ou Zagred): ele anda, observa, reage e conversa. Você escolhe entre propor aliança, oferecer pacto, demonstrar confiança, desafiar ou ir direto para a batalha — e cada demônio responde do seu jeito: aceita, recusa, faz uma exigência ou propõe a luta. Vencer a batalha (chefe com 3 fases) domina o demônio; perder faz ele controlar seu corpo por 60s, atacando os inimigos, sem perder nada. Relacionamento (confiança, respeito, vitórias, derrotas) fica salvo na conta. Veja em Grimório > Contratos Demoníacos.',date:'2026-11-02'},
  {t:'Mais XP, desbloqueio por nível e menos dreno',d:'XP necessário por nível ficou bem menor, inimigos dão 60% mais XP e missões 25% mais (as missões não mudaram). O nível máximo continua 50. Cada grimório libera suas 6 habilidades em níveis próprios (ex.: Fogo 1/5/10/16/25/38). Mana gasta 10–15% menos (diferente por grimório), recupera mais rápido fora de combate, e as transformações drenam mais devagar (União de Liebe ~29s, Nacht ~36s, Sylph ~26s). Depois do contrato, a ativação da União tem uma cutscene curta (≈18–27s) com falas que mudam se foi pacto ou domínio.',date:'2026-11-02'},
  {t:'Multiplayer: invocações e cutscenes para todos',d:'Criaturas do Nightmare Parade, demônios de Nacht, cães do Pack, réplicas e lacaios do Kotodama agora aparecem, se movem e atacam na tela dos outros jogadores. Quem estiver perto vê a cutscene da União de outro jogador sincronizada pelo tempo, com o próprio botão PULAR (pular não afeta mais ninguém). As formas da União também aparecem para todos.',date:'2026-11-02'},
@@ -3922,7 +4681,7 @@ function mkOther(pr,by){const lk=pr.lk||{},sk=SK[lk.q]||SK.civil,L=person({top:s
 function applyOther(o,pr){const lk=pr.lk||{},sk=SK[lk.q]||SK.civil;o.L.mT.color.setHex(sk[2]);o.L.mC.color.setHex(sk[3]);try{dressUp(o.L,lk.L||{hc:lk.h,ec:lk.e});o.un.position.y=o.L.hOff||0;o.bk.position.y=.72*Math.min(1,(o.L.hTop||2.21)/2.21)}catch(x){}if(lk.u){o.L.mT.color.setHex(0x161014);o.L.mE.color.setHex(0xff2a3a)}const g=GR[lk.g];o.bk.visible=!!(g&&g.id!='nenhum'&&lk.a);if(g)o.bk.material.color.setHex(g.c);
  o.un.visible=false;if(lk.sy&&!o.sya){o.sya=new T.Group();const au=new T.Mesh(new T.SphereGeometry(1.3,12,8),GLM(0x3dff9a,.16));au.position.y=1.15;au.scale.y=1.35;o.sya.add(au);for(const sd of[-1,1]){const w=new T.Mesh(new T.PlaneGeometry(1.5,1.5),GLM(0xc8ffe0,.45));w.position.set(sd*.85,1.9,-.35);w.rotation.y=sd*.4;o.sya.add(w)}o.g.add(o.sya)}if(o.sya)o.sya.visible=!!lk.sy;if(lk.zg){o.L.mS.color.setHex(0x5a4a6e);o.L.mE.color.setHex(0xff2050)}o.sw.visible=!!lk.s;o.cpl.visible=lk.q=='touros';if(o.L.cp)o.L.cp.visible=lk.q!='touros';if(lk.u&&o.L.mH)0;
  xApplyOther(o,lk);if(pr.c&&pr.c.n!==o.cn){o.cn=pr.c.n;ghostCast(o,pr.c)}}
-function ghostCast(o,c){if(Math.hypot(o.x-P.x,o.z-P.z)>Math.min(80,CULL))return;if(KFX.length>((GFX[CFG.gfx]||GFX.medio).kc)){try{kShock(o.x,o.z,4,(GR[c.el]||GR.fogo).c,.4,1)}catch(e){}return}try{if(xRemote(o,c)||tRemote(o,c)||kotoRemote(o,c)||wRemote(o,c)||aRemote(o,c)||fRemote(o,c))return}catch(e){}const f=+c.f||0,dx=Math.sin(f),dz=Math.cos(f),el=GR[c.el]?c.el:'nenhum';burst(el,o.x+dx*.6,1.5,o.z+dz*.6,14,3);const fn=MK[c.nm];if(fn){const m=fn();m.position.set(o.x+dx*.8,1.3,o.z+dz*.8);m.rotation.y=f;S.add(m);MP.ghosts.push({m,vx:dx*18,vz:dz*18,t:1.2,el})}else{ring(5,GR[el].c,o.x,o.z);burst(el,o.x,.6,o.z,24,6)}}
+function ghostCast(o,c){if(Math.hypot(o.x-P.x,o.z-P.z)>Math.min(80,CULL))return;if(LWN[c&&c.nm]&&KFX.length<=((GFX[CFG.gfx]||GFX.medio).kc)&&lwRemote(o,c))return;if(KFX.length>((GFX[CFG.gfx]||GFX.medio).kc)){try{kShock(o.x,o.z,4,(GR[c.el]||GR.fogo).c,.4,1)}catch(e){}return}try{if(xRemote(o,c)||tRemote(o,c)||kotoRemote(o,c)||wRemote(o,c)||aRemote(o,c)||fRemote(o,c))return}catch(e){}const f=+c.f||0,dx=Math.sin(f),dz=Math.cos(f),el=GR[c.el]?c.el:'nenhum';burst(el,o.x+dx*.6,1.5,o.z+dz*.6,14,3);const fn=MK[c.nm];if(fn){const m=fn();m.position.set(o.x+dx*.8,1.3,o.z+dz*.8);m.rotation.y=f;S.add(m);MP.ghosts.push({m,vx:dx*18,vz:dz*18,t:1.2,el})}else{ring(5,GR[el].c,o.x,o.z);burst(el,o.x,.6,o.z,24,6)}}
 function mpUpdate(dt,moving){if(!MP.r)return;MP.st-=dt;if(MP.st<=0){MP.st=.1;MP.r.presence({p:[+P.x.toFixed(2),+P.z.toFixed(2),+P.y.toFixed(2),+P.f.toFixed(2)],mv:moving?1:0,nm:MP.nick,H:MP.host?1:0,ff:MP.host&&MP.ffOpt?1:0,hits:MP.hits||[],hp:Math.round(P.hp),mhp:P.mhp,lv:P.lv,lk:{L:P.look,h:P.hair,e:P.eye,q:P.eq,g:P.g?P.g.id:'nenhum',u:P.union?1:0,zg:P.zg?1:0,sy:P.sy?1:0,a:P.acc?1:0,s:P.sword?1:0,...xLk()},c:MP.cast,sc:MP.sc||null,pw:fPowP(),bs:enemies.filter(e=>e.boss&&e.own&&e.hp>0).map(e=>({id:e.bid,t:e.bt2,x:+e.x.toFixed(1),z:+e.z.toFixed(1),hp:Math.round(e.hp),mhp:e.mhp,lv:e.lv})),bh:MP.bh||[],bd:MP.bd||[]}).catch(()=>{})}
  if(MP.host){MP.ht-=dt;if(MP.ht<=0){MP.ht=4;mpHostPresence()}}
  {const ps=MP.r.peers(),mine=ps.find(p=>p.sameTab);MP.myPeer=mine&&mine.peer;MP.ff=ps.some(p=>p.presence&&p.presence.H&&p.presence.ff)}
