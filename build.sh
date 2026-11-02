@@ -78,6 +78,7 @@ cat > app/project.yml <<'YML'
 name: CloverRPG
 options:
   bundleIdPrefix: com.cloverrpg
+  projectFormat: xcode15_3
   deploymentTarget:
     iOS: "14.0"
 targets:
@@ -129,10 +130,12 @@ brew install xcodegen
 )
 # Gerar o projeto Xcode
 (
+X=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1); if [ -n "$X" ]; then sudo xcode-select -s "$X"; fi
 cd app && xcodegen generate
 )
 # Compilar o app (sem assinatura; o ESign assina no iPhone)
 (
+X=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1); if [ -n "$X" ]; then sudo xcode-select -s "$X"; fi; xcodebuild -version
 cd app
 xcodebuild -project CloverRPG.xcodeproj -target CloverRPG -configuration Release -sdk iphoneos SYMROOT="$PWD/build" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
 )
