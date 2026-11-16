@@ -10,12 +10,14 @@
     "typecheck": "tsc -p .",
     "test": "node tests/autofx.test.mjs",
     "dev": "vite",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tauri": "tauri"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2",
     "vite": "^6.0.0",
-    "colyseus.js": "^0.16.0"
+    "colyseus.js": "^0.16.0",
+    "@tauri-apps/cli": "^2.0.0"
   }
 }
