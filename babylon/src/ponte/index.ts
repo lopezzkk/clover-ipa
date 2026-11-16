@@ -43,7 +43,7 @@ class Ponte {
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
-  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; private tAnt = 0;
+  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; private tAnt = 0;
 
   private canvasPrincipal: HTMLCanvasElement | null = null; private pr = 1; private reserva: T3 = null;
   /** Motor Babylon como renderizador ÚNICO do jogo: o three.js não desenha mais nada (nem cria contexto WebGL).
@@ -61,7 +61,7 @@ class Ponte {
       getSize(v: T3) { const w = cv.clientWidth, h = cv.clientHeight; return v ? v.set(w, h) : { x: w, y: h, width: w, height: h }; },
       compile() {}, setClearColor() {}, clear() {}, dispose() {}, setAnimationLoop() {},
       getContext() { return self.engine ? (self.engine as any)._gl : null; },
-      render(s: T3, c: T3) { if (self.ativo) { self.render(s, c, R); R.info.render.calls = (self.engine as any)?._drawCalls?.current || 0; } else self.desenharReserva(s, c, R); },
+      render(s: T3, c: T3) { if (self.ativo) { self.render(s, c, R); R.info.render.calls = self.desenhos; } else self.desenharReserva(s, c, R); },
     };
     return R;
   }
@@ -209,7 +209,9 @@ class Ponte {
       if (t0 - this.q > 500) { this.q = t0; const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); }
       const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 110], alto: [48, 160], ultra: [64, 240] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]);
       this.msSync = this.msSync * 0.9 + (performance.now() - t0) * 0.1;
+      const dc = (this.engine as any)._drawCalls; if (dc && dc.fetchNewFrame) dc.fetchNewFrame(); // contador de desenhos por quadro (não acumulado)
       this.engine.beginFrame(); this.scene.render(); this.engine.endFrame();
+      if (dc) this.desenhos = dc.current;
     } catch (err) {
       // se algo der errado na ponte, o jogo volta a desenhar com o three.js (nada trava)
       this.erros++; console.error('[Ponte Babylon]', err);
@@ -223,7 +225,7 @@ class Ponte {
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.engine ? (this.engine as any)._drawCalls?.current : 0, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos }; }
+  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos }; }
 }
 
 (window as any).PONTE141 = new Ponte();
