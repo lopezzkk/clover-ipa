@@ -1,0 +1,204 @@
+// Tradutor three.js → Babylon.js.
+// A cada quadro: o jogo monta a cena dele (three.js) do mesmo jeito de sempre; aqui cada objeto visível ganha (ou atualiza)
+// uma cópia no Babylon. Geometrias, materiais e texturas são traduzidos uma vez e reaproveitados; só o que muda é atualizado.
+import { Scene } from '@babylonjs/core/scene';
+import { Mesh } from '@babylonjs/core/Meshes/mesh';
+import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
+import { VertexBuffer } from '@babylonjs/core/Buffers/buffer';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { Color3 } from '@babylonjs/core/Maths/math.color';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import { Matrix } from '@babylonjs/core/Maths/math.vector';
+import { Engine } from '@babylonjs/core/Engines/engine';
+import { Material } from '@babylonjs/core/Materials/material';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { Constants } from '@babylonjs/core/Engines/constants';
+import { LinesMesh } from '@babylonjs/core/Meshes/linesMesh';
+import { Geometry } from '@babylonjs/core/Meshes/geometry';
+import { CreatePlane } from '@babylonjs/core/Meshes/Builders/planeBuilder';
+import { CreateLineSystem } from '@babylonjs/core/Meshes/Builders/linesBuilder';
+
+type T3 = any; // objetos do three.js (o jogo usa o r128 global)
+
+interface Rep { b: AbstractMesh; visto: number; m: Float32Array; tipo: string; mat: T3; geo: T3; geoV: number; matV: number }
+
+export class Tradutor {
+  quadro = 0;
+  private reps = new Map<T3, Rep>();
+  private geos = new Map<T3, { g: Geometry; v: number; temCor: boolean; n: number }>();
+  private mats = new Map<string, { m: StandardMaterial; src: T3; v: string }>();
+  private texs = new Map<T3, { t: Texture; v: number }>();
+  sombraAdd?: (m: AbstractMesh) => void; sombraRem?: (m: AbstractMesh) => void;
+  melhorar?: (b: StandardMaterial, src: T3, obj: T3) => void;
+  stats = { objetos: 0, malhas: 0, novos: 0, liberados: 0 };
+
+  constructor(private s: Scene) {}
+
+  // ---------- texturas ----------
+  textura(t3: T3): Texture | null {
+    if (!t3 || !t3.image) return null;
+    const c = this.texs.get(t3);
+    if (c && c.v === t3.version) return c.t;
+    const img = t3.image; let t: Texture;
+    if (c) { // mudou (ex.: textura desenhada que foi atualizada)
+      if (c.t instanceof DynamicTexture) { const ctx = c.t.getContext(); ctx.clearRect(0, 0, c.t.getSize().width, c.t.getSize().height); ctx.drawImage(img, 0, 0, c.t.getSize().width, c.t.getSize().height); c.t.update(t3.flipY !== false); c.v = t3.version; return c.t; }
+    }
+    const w = img.width || img.videoWidth || 1, h = img.height || img.videoHeight || 1;
+    if (img instanceof HTMLImageElement && img.src && img.complete) t = new Texture(img.src, this.s, false, t3.flipY !== false);
+    else { const d = new DynamicTexture('t3', { width: w, height: h }, this.s, true); try { d.getContext().drawImage(img, 0, 0, w, h); } catch { /* imagem ainda não pronta */ } d.update(t3.flipY !== false); t = d; }
+    t.wrapU = t3.wrapS === 1001 ? Texture.CLAMP_ADDRESSMODE : t3.wrapS === 1002 ? Texture.MIRROR_ADDRESSMODE : Texture.WRAP_ADDRESSMODE;
+    t.wrapV = t3.wrapT === 1001 ? Texture.CLAMP_ADDRESSMODE : t3.wrapT === 1002 ? Texture.MIRROR_ADDRESSMODE : Texture.WRAP_ADDRESSMODE;
+    if (t3.repeat) { t.uScale = t3.repeat.x; t.vScale = t3.repeat.y; } if (t3.offset) { t.uOffset = t3.offset.x; t.vOffset = t3.offset.y; }
+    if (t3.magFilter === 1003) t.updateSamplingMode(Texture.NEAREST_SAMPLINGMODE);
+    t.anisotropicFilteringLevel = 4;
+    if (c) c.t.dispose();
+    this.texs.set(t3, { t, v: t3.version });
+    if (!c && t3.addEventListener) t3.addEventListener('dispose', () => { const x = this.texs.get(t3); if (x) { x.t.dispose(); this.texs.delete(t3); } });
+    return t;
+  }
+
+  // ---------- materiais ----------
+  // a chave inclui o que muda a forma de desenhar (cores do vértice); propriedades simples são copiadas todo quadro
+  material(m3: T3, temCor: boolean, obj: T3): StandardMaterial {
+    const k = m3.uuid + (temCor ? 'c' : '');
+    let c = this.mats.get(k);
+    if (!c) {
+      const m = new StandardMaterial('m3_' + (m3.name || m3.type), this.s);
+      m.specularColor = new Color3(0.06, 0.06, 0.06);
+      c = { m, src: m3, v: '' }; this.mats.set(k, c);
+      if (m3.addEventListener) m3.addEventListener('dispose', () => { const x = this.mats.get(k); if (x) { x.m.dispose(); this.mats.delete(k); } });
+      this.copiarMaterial(c, temCor);
+      this.melhorar?.(m, m3, obj);
+    } else this.copiarMaterial(c, temCor);
+    return c.m;
+  }
+  private copiarMaterial(c: { m: StandardMaterial; src: T3; v: string }, temCor: boolean) {
+    const s = c.src, m = c.m;
+    const assin = [s.version, s.opacity, s.color && s.color.getHex(), s.emissive && s.emissive.getHex(), s.emissiveIntensity, s.transparent, s.blending, s.depthWrite, s.side, s.visible, s.map && s.map.version].join('|');
+    if (assin === c.v) return; c.v = assin;
+    const basico = s.type === 'MeshBasicMaterial' || s.type === 'SpriteMaterial' || s.type === 'PointsMaterial' || s.type === 'LineBasicMaterial';
+    const cor = s.color ? new Color3(s.color.r, s.color.g, s.color.b) : new Color3(1, 1, 1);
+    const tx = this.textura(s.map);
+    if (basico) {
+      m.disableLighting = true; m.emissiveColor = cor; m.diffuseColor = Color3.Black(); m.emissiveTexture = tx; m.diffuseTexture = null;
+      if (tx && tx.hasAlpha === false) tx.hasAlpha = true;
+    } else {
+      m.disableLighting = false; m.diffuseColor = cor; m.diffuseTexture = tx;
+      const em = s.emissive ? new Color3(s.emissive.r, s.emissive.g, s.emissive.b).scale(s.emissiveIntensity ?? 1) : Color3.Black();
+      if (!m.metadata?.emissivoProprio) m.emissiveColor = em;
+    }
+    if (tx && s.map && s.map.format === 1023) tx.hasAlpha = true; // RGBA
+    m.alpha = s.transparent ? s.opacity : 1;
+    if (s.transparent && tx) m.useAlphaFromDiffuseTexture = true;
+    if (s.alphaTest > 0 && tx) { tx.hasAlpha = true; m.transparencyMode = Material.MATERIAL_ALPHATEST; m.alphaCutOff = s.alphaTest; }
+    m.alphaMode = s.blending === 2 ? Constants.ALPHA_ADD : Constants.ALPHA_COMBINE;
+    m.disableDepthWrite = s.depthWrite === false;
+    // lados: 0 frente (padrão) · 1 só o verso (contorno preto dos personagens) · 2 os dois
+    // (no modo de mão direita do Babylon o lado "de trás" fica invertido, por isso a comparação é ao contrário)
+    m.backFaceCulling = s.side !== 2; m.cullBackFaces = s.side === 1;
+    m.wireframe = !!s.wireframe;
+    m.fogEnabled = s.fog !== false;
+    if (s.type === 'PointsMaterial') { m.pointsCloud = true; m.pointSize = Math.max(1, (s.size || 1) * 2); }
+    if (!temCor) m.metadata = Object.assign(m.metadata || {}, { semCor: true });
+  }
+
+  // ---------- geometrias ----------
+  geometria(g3: T3, mesh: Mesh): { temCor: boolean } {
+    const at = g3.attributes; const v = (at.position.version || 0) + (at.normal ? at.normal.version : 0) * 1e-3 + (at.color ? at.color.version : 0) * 1e-6 + (g3.index ? g3.index.version : 0) * 1e-9;
+    let c = this.geos.get(g3);
+    if (c && c.v === v) { if (mesh.geometry !== c.g) c.g.applyToMesh(mesh); return { temCor: c.temCor }; }
+    const vd = new VertexData();
+    const pos = at.position; const n = pos.count;
+    vd.positions = pos.isInterleavedBufferAttribute ? Array.from({ length: n * 3 }, (_, i) => pos.getComponent ? pos.getComponent(Math.floor(i / 3), i % 3) : [pos.getX, pos.getY, pos.getZ][i % 3].call(pos, Math.floor(i / 3))) : (pos.array.length === n * 3 ? pos.array : Array.from(pos.array).slice(0, n * 3));
+    if (at.normal) vd.normals = at.normal.array.length === n * 3 ? at.normal.array : null as any;
+    if (at.uv) vd.uvs = at.uv.array;
+    let temCor = false;
+    if (at.color) { const a = at.color.array, sz = at.color.itemSize; const col = new Float32Array(n * 4); for (let i = 0; i < n; i++) { col[i * 4] = a[i * sz]; col[i * 4 + 1] = a[i * sz + 1]; col[i * 4 + 2] = a[i * sz + 2]; col[i * 4 + 3] = sz === 4 ? a[i * sz + 3] : 1; } vd.colors = col; temCor = true; }
+    if (g3.index) vd.indices = g3.index.array; else { const ix = new Uint32Array(n); for (let i = 0; i < n; i++) ix[i] = i; vd.indices = ix; }
+    if (!vd.normals) { const nn: number[] = []; VertexData.ComputeNormals(vd.positions as any, vd.indices as any, nn); vd.normals = nn; }
+    if (c) { // atualização (efeitos que mexem nos vértices)
+      const g = c.g; const tot = g.getTotalVertices();
+      if (tot === n && g.getTotalIndices() === vd.indices!.length) {
+        g.setVerticesData(VertexBuffer.PositionKind, vd.positions as any, true); if (vd.normals) g.setVerticesData(VertexBuffer.NormalKind, vd.normals as any, true);
+        if (vd.colors) g.setVerticesData(VertexBuffer.ColorKind, vd.colors as any, true); if (vd.uvs) g.setVerticesData(VertexBuffer.UVKind, vd.uvs as any, true);
+        if (g3.index && g3.index.version) g.setIndices(vd.indices as any, n, true);
+      } else { g.setAllVerticesData(vd, true); }
+      c.v = v; c.temCor = temCor; if (mesh.geometry !== g) g.applyToMesh(mesh); return { temCor };
+    }
+    const g = new Geometry('g3', this.s, vd, true);
+    this.geos.set(g3, { g, v, temCor, n });
+    if (g3.addEventListener) g3.addEventListener('dispose', () => { const x = this.geos.get(g3); if (x) { this.geos.delete(g3); setTimeout(() => { try { if (!x.g.meshes.length) x.g.dispose(); } catch { /* já liberada */ } }, 0); } });
+    g.applyToMesh(mesh);
+    return { temCor };
+  }
+
+  // ---------- objetos ----------
+  objeto(o: T3, mundo: Float32Array): Rep | null {
+    let r = this.reps.get(o);
+    const tipo = o.isSprite ? 'sprite' : o.isPoints ? 'pontos' : o.isLine ? 'linha' : o.isSkinnedMesh ? 'pele' : o.isMesh ? 'malha' : '';
+    if (!tipo) return null;
+    if (!r) {
+      let b: AbstractMesh;
+      if (tipo === 'sprite') { b = CreatePlane('sprite', { size: 1 }, this.s); (b as Mesh).billboardMode = Mesh.BILLBOARDMODE_ALL; }
+      else if (tipo === 'linha') { const p = o.geometry.attributes.position.array; const L: any[] = []; for (let i = 0; i + 5 < p.length; i += 6) L.push([{ x: p[i], y: p[i + 1], z: p[i + 2] }, { x: p[i + 3], y: p[i + 4], z: p[i + 5] }]); b = CreateLineSystem('linha', { lines: L as any }, this.s); const c = o.material && o.material.color; if (c) (b as LinesMesh).color = new Color3(c.r, c.g, c.b); }
+      else { b = new Mesh(tipo, this.s); }
+      b.isPickable = false; b.doNotSyncBoundingInfo = false;
+      r = { b, visto: 0, m: new Float32Array(16), tipo, mat: null, geo: null, geoV: -1, matV: -1 };
+      this.reps.set(o, r); this.stats.novos++;
+      if ((o.castShadow) && this.sombraAdd && tipo !== 'sprite' && tipo !== 'linha') this.sombraAdd(b);
+      b.receiveShadows = !!o.receiveShadow;
+    }
+    r.visto = this.quadro;
+    if (!r.b.isEnabled(false)) r.b.setEnabled(true);
+    // geometria + material
+    if (tipo === 'malha' || tipo === 'pele' || tipo === 'pontos') {
+      const mesh = r.b as Mesh; let temCor = false;
+      if (tipo === 'pele') temCor = this.pele(o, mesh).temCor; else temCor = this.geometria(o.geometry, mesh).temCor;
+      const m3 = Array.isArray(o.material) ? o.material[0] : o.material;
+      const usaCor = temCor && !!(m3 && m3.vertexColors);
+      mesh.useVertexColors = usaCor; mesh.hasVertexAlpha = false;
+      if (m3) { const bm = this.material(m3, usaCor, o); if (mesh.material !== bm) mesh.material = bm; mesh.visibility = m3.visible === false ? 0 : 1; }
+      const dr = o.geometry.drawRange; if (dr && (dr.start > 0 || dr.count !== Infinity) && mesh.subMeshes && mesh.subMeshes[0]) { const tot = mesh.getTotalIndices(); const cnt = Math.min(tot - dr.start, dr.count === Infinity ? tot : dr.count); mesh.subMeshes[0].indexStart = dr.start; mesh.subMeshes[0].indexCount = Math.max(0, cnt); }
+      if (o.renderOrder) mesh.alphaIndex = o.renderOrder;
+    } else if (tipo === 'sprite') {
+      const bm = this.material(o.material, false, o); if (r.b.material !== bm) r.b.material = bm;
+    }
+    // posição/rotação/escala: a matriz do mundo do three vai direto (os dois usam mão direita)
+    let mudou = false; const e = o.matrixWorld.elements; const m = r.m;
+    for (let i = 0; i < 16; i++) if (m[i] !== e[i]) { mudou = true; m[i] = e[i]; }
+    if (mudou) {
+      if (tipo === 'sprite') { r.b.position.set(e[12], e[13], e[14]); r.b.scaling.set(Math.hypot(e[0], e[1], e[2]), Math.hypot(e[4], e[5], e[6]), 1); }
+      else r.b.freezeWorldMatrix(Matrix.FromArray(m));
+    }
+    void mundo;
+    return r;
+  }
+
+  // malha com esqueleto: calcula a pose no processador (poucos modelos na tela)
+  private pele(o: T3, mesh: Mesh) {
+    const g3 = o.geometry; const pos = g3.attributes.position; const n = pos.count;
+    const c = this.geometria(g3, mesh);
+    if (!o.boneTransform || !o.skeleton) return c;
+    o.skeleton.update();
+    const T = (window as any).THREE; const v = new T.Vector3(); const out = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { o.boneTransform(i, v); out[i * 3] = v.x; out[i * 3 + 1] = v.y; out[i * 3 + 2] = v.z; }
+    // boneTransform (r128) devolve a posição no espaço do próprio objeto; a matriz do mundo é aplicada depois
+    mesh.setVerticesData(VertexBuffer.PositionKind, out, true);
+    return c;
+  }
+
+  /** esconde o que não apareceu neste quadro e libera o que sumiu há muito tempo */
+  fim() {
+    let ativos = 0;
+    for (const [o, r] of this.reps) {
+      if (r.visto === this.quadro) { ativos++; continue; }
+      if (r.b.isEnabled(false)) r.b.setEnabled(false);
+      if (this.quadro - r.visto > 600 && !o.parent) { this.sombraRem?.(r.b); r.b.dispose(false, false); this.reps.delete(o); this.stats.liberados++; }
+    }
+    this.stats.malhas = ativos; this.stats.objetos = this.reps.size;
+  }
+  get totalTexturas() { return this.texs.size; }
+  get totalGeometrias() { return this.geos.size; }
+}
+export { Engine };
