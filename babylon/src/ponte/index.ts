@@ -29,7 +29,7 @@ import '@babylonjs/core/PostProcesses/RenderPipeline/postProcessRenderPipelineMa
 import '@babylonjs/core/Meshes/thinInstanceMesh';
 import { SkyMaterial } from '@babylonjs/materials/sky/skyMaterial';
 import { Tradutor } from './tradutor';
-import { melhorarMaterial, ajustarCena, Grama } from './visual';
+import { melhorarMaterial, ajustarCena, Grama, Faiscas } from './visual';
 
 type T3 = any;
 type Nivel = 'muitobaixo' | 'baixo' | 'medio' | 'alto' | 'ultra';
@@ -39,7 +39,7 @@ class Ponte {
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
-  ms = 0; erros = 0; grama!: Grama;
+  ms = 0; erros = 0; grama!: Grama; faiscas!: Faiscas;
 
   private iniciar(R: T3) {
     const c3: HTMLCanvasElement = R.domElement;
@@ -59,7 +59,7 @@ class Ponte {
     // céu
     this.ceu = CreateBox('ceu', { size: 3000 }, s); const sm = new SkyMaterial('ceu', s); sm.backFaceCulling = false; sm.turbidity = 5; sm.luminance = 1; sm.rayleigh = 1.4; sm.mieCoefficient = 0.004; sm.useSunPosition = true; sm.sunPosition = new Vector3(100, 140, 60);
     this.ceu.material = sm; this.ceu.infiniteDistance = true; this.ceu.isPickable = false; this.ceu.applyFog = false;
-    ajustarCena(s); this.grama = new Grama(s);
+    ajustarCena(s); this.grama = new Grama(s); this.faiscas = new Faiscas(s);
     this.pronto = true;
   }
 
@@ -89,7 +89,7 @@ class Ponte {
     if (this.glow) { this.glow.dispose(); this.glow = null; }
     if (n !== 'muitobaixo') {
       const gl = new GlowLayer('brilho', s, { mainTextureRatio: n === 'baixo' ? 0.25 : 0.4, blurKernelSize: n === 'baixo' ? 16 : 32 }); gl.intensity = 0.55;
-      gl.customEmissiveColorSelector = (mesh, _sub, mat, res) => { const m = mat as StandardMaterial; if (m && (m.alphaMode === Constants.ALPHA_ADD || m.metadata?.brilha)) res.set(m.emissiveColor.r * 0.45 * m.alpha, m.emissiveColor.g * 0.45 * m.alpha, m.emissiveColor.b * 0.45 * m.alpha, 1); else res.set(0, 0, 0, 0); void mesh; };
+      gl.customEmissiveColorSelector = (mesh, _sub, mat, res) => { const m = mat as StandardMaterial; const cc = (m && (m.metadata?.corBasica || m.emissiveColor)); if (m && (m.alphaMode === Constants.ALPHA_ADD || m.metadata?.brilha)) res.set(cc.r * 0.45 * m.alpha, cc.g * 0.45 * m.alpha, cc.b * 0.45 * m.alpha, 1); else res.set(0, 0, 0, 0); void mesh; };
       this.glow = gl;
     }
     // pós-processamento
@@ -151,7 +151,9 @@ class Ponte {
         else if ((o.layers.mask & mask) !== 0 && (o.isMesh || o.isSprite || o.isPoints || o.isLine)) tr.objeto(o, o.matrixWorld.elements);
         const ch = o.children; for (let i = 0; i < ch.length; i++) walk(ch[i]);
       };
+      tr.efeitos.length = 0;
       walk(s3);
+      const lim: Record<string, number> = { muitobaixo: 0, baixo: 12, medio: 30, alto: 50, ultra: 80 }; this.faiscas.quadro(tr.efeitos, lim[this.nivel || 'medio']);
       tr.fim();
       if (t0 - this.q > 500) { this.q = t0; const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); }
       const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 110], alto: [48, 160], ultra: [64, 240] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]);
@@ -169,7 +171,7 @@ class Ponte {
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.engine ? (this.engine as any)._drawCalls?.current : 0, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros }; }
+  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.engine ? (this.engine as any)._drawCalls?.current : 0, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros }; }
 }
 
 (window as any).PONTE141 = new Ponte();

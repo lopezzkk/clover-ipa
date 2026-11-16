@@ -32,6 +32,7 @@ export class Tradutor {
   sombraAdd?: (m: AbstractMesh) => void; sombraRem?: (m: AbstractMesh) => void;
   melhorar?: (b: StandardMaterial, src: T3, obj: T3) => void;
   stats = { objetos: 0, malhas: 0, novos: 0, liberados: 0 };
+  efeitos: { x: number; y: number; z: number; r: number; c: Color3; novo: boolean }[] = [];
 
   constructor(private s: Scene) {}
 
@@ -81,10 +82,12 @@ export class Tradutor {
     const cor = s.color ? new Color3(s.color.r, s.color.g, s.color.b) : new Color3(1, 1, 1);
     const tx = this.textura(s.map);
     if (basico) {
-      m.disableLighting = true; m.emissiveColor = cor; m.diffuseColor = Color3.Black(); m.emissiveTexture = tx; m.diffuseTexture = null;
+      // sem iluminação: cor × textura (como o MeshBasicMaterial do three). No Babylon, com a luz desligada,
+      // o resultado é (cor emissiva) × (textura difusa), por isso a cor vai no emissivo e a imagem no difuso
+      m.disableLighting = true; m.diffuseColor = Color3.Black(); m.diffuseTexture = tx; m.emissiveTexture = null; m.emissiveColor = cor; m.metadata = Object.assign(m.metadata || {}, { corBasica: cor });
       if (tx && tx.hasAlpha === false) tx.hasAlpha = true;
     } else {
-      m.disableLighting = false; m.diffuseColor = cor; m.diffuseTexture = tx;
+      m.disableLighting = false; m.diffuseColor = cor; m.diffuseTexture = tx || m.metadata?.texDet || null;
       const em = s.emissive ? new Color3(s.emissive.r, s.emissive.g, s.emissive.b).scale(s.emissiveIntensity ?? 1) : Color3.Black();
       if (!m.metadata?.emissivoProprio) m.emissiveColor = em;
     }
@@ -117,6 +120,10 @@ export class Tradutor {
     if (at.color) { const a = at.color.array, sz = at.color.itemSize; const col = new Float32Array(n * 4); for (let i = 0; i < n; i++) { col[i * 4] = a[i * sz]; col[i * 4 + 1] = a[i * sz + 1]; col[i * 4 + 2] = a[i * sz + 2]; col[i * 4 + 3] = sz === 4 ? a[i * sz + 3] : 1; } vd.colors = col; temCor = true; }
     if (g3.index) vd.indices = g3.index.array; else { const ix = new Uint32Array(n); for (let i = 0; i < n; i++) ix[i] = i; vd.indices = ix; }
     if (!vd.normals) { const nn: number[] = []; VertexData.ComputeNormals(vd.positions as any, vd.indices as any, nn); vd.normals = nn; }
+    { const P = vd.positions as any, N = vd.normals as any, U = new Float32Array(n * 2), k = 1 / 2.2;
+      for (let i = 0; i < n; i++) { const nx = Math.abs(N[i * 3]), ny = Math.abs(N[i * 3 + 1]), nz = Math.abs(N[i * 3 + 2]); const x = P[i * 3], y = P[i * 3 + 1], z = P[i * 3 + 2];
+        if (ny >= nx && ny >= nz) { U[i * 2] = x * k; U[i * 2 + 1] = z * k; } else if (nx >= nz) { U[i * 2] = z * k; U[i * 2 + 1] = y * k; } else { U[i * 2] = x * k; U[i * 2 + 1] = y * k; } }
+      vd.uvs2 = U; }
     if (c) { // atualização (efeitos que mexem nos vértices)
       const g = c.g; const tot = g.getTotalVertices();
       if (tot === n && g.getTotalIndices() === vd.indices!.length) {
@@ -163,6 +170,9 @@ export class Tradutor {
       if (m3) { const bm = this.material(m3, usaCor, o); if (mesh.material !== bm) mesh.material = bm; mesh.visibility = m3.visible === false ? 0 : 1; }
       const dr = o.geometry.drawRange; if (dr && (dr.start > 0 || dr.count !== Infinity) && mesh.subMeshes && mesh.subMeshes[0]) { const tot = mesh.getTotalIndices(); const cnt = Math.min(tot - dr.start, dr.count === Infinity ? tot : dr.count); mesh.subMeshes[0].indexStart = dr.start; mesh.subMeshes[0].indexCount = Math.max(0, cnt); }
       if (o.renderOrder) mesh.alphaIndex = o.renderOrder;
+      const bmat = mesh.material as StandardMaterial;
+      if (bmat && bmat.alphaMode === Constants.ALPHA_ADD && bmat.alpha > 0.05) { const e = o.matrixWorld.elements; const sc = Math.hypot(e[0], e[1], e[2]); const gs = o.geometry.boundingSphere || (o.geometry.computeBoundingSphere(), o.geometry.boundingSphere);
+        this.efeitos.push({ x: e[12], y: e[13], z: e[14], r: Math.min(6, (gs ? gs.radius : 0.5) * sc), c: (bmat.metadata && bmat.metadata.corBasica) || bmat.emissiveColor, novo: r.visto === this.quadro && r.geoV === -1 }); r.geoV = 0; }
     } else if (tipo === 'sprite') {
       const bm = this.material(o.material, false, o); if (r.b.material !== bm) r.b.material = bm;
     }
