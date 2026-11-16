@@ -1,0 +1,12 @@
+# Render.com: cria o servidor do Clover RP a partir deste repositório (Blueprint).
+services:
+  - type: web
+    name: clover-rp-servidor
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    healthCheckPath: /saude
+    envVars:
+      - key: FIREBASE_PROJECT_ID
+        sync: false

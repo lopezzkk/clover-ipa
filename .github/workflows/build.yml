@@ -7,7 +7,21 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      publicar:
+      servidor:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm ls colyseus colyseus.js @colyseus/ws-transport firebase-admin --depth=0 || true
+      - run: npm test
+
+  publicar:
         description: 'Publicar no GitHub Pages? (só o dono decide)'
         type: choice
         options: ['nao', 'sim']
@@ -30,6 +44,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+        env:
+          CLOVER_SERVER_URL: ${{ vars.CLOVER_SERVER_URL }}
       - run: npm run build:single
       - name: Conferir o Vite (config e plugin do build)
         run: npx vite build --outDir ../vite-check --emptyOutDir && ls vite-check && rm -rf vite-check
@@ -43,7 +59,7 @@ jobs:
 
   publicar:
     if: github.event_name == 'workflow_dispatch' && inputs.publicar == 'sim'
-    needs: build
+    needs: [build, servidor]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

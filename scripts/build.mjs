@@ -39,6 +39,11 @@ function minify(code) {
 const core = esbuild.buildSync({ entryPoints: [path.join(ROOT, 'src/core/index.ts')], bundle: true, format: 'iife', target: 'es2019', minify: MIN, write: false, charset: 'utf8' }).outputFiles[0].text;
 
 const template = rd('index.template.html');
+// servidor multiplayer (Etapa 5): endereço vem da variável CLOVER_SERVER_URL no build; vazio = P2P como antes
+const SERVER_URL = (process.env.CLOVER_SERVER_URL || '').trim();
+let colyFile = null, colyCode = null;
+try { colyCode = fs.readFileSync(require.resolve('colyseus.js/dist/colyseus.js'), 'utf8'); } catch { /* sem o pacote: o jogo baixa do CDN se precisar */ }
+const cfgJs = () => `window.CLOVER_SERVER=${JSON.stringify(SERVER_URL)};` + (colyFile ? `window.__COLY_URL=${JSON.stringify(colyFile)};` : '');
 const css = s => s.replace(/(<style(?:\s[^>]*)?>)([\s\S]*?)(<\/style>)/g, (m, a, c, b) => { if (!MIN) return m; try { return a + esbuild.transformSync(c, { loader: 'css', minify: true }).code + b } catch { return m } });
 const headScripts = s => s.replace(/(<script(?:\s[^>]*)?>)([\s\S]*?)(<\/script>)/g, (m, a, code, b) => { if (/src=/.test(a) || code.trim().length < 200 || !MIN) return m; try { return a + esbuild.transformSync(code, { minifyWhitespace: true, legalComments: 'none', target: 'es2019', charset: 'utf8' }).code.replace(/<\/script/gi, '<\\/script') + b } catch { return m } });
 
@@ -46,7 +51,7 @@ if (SINGLE) {
   // um arquivo só: modelos voltam para dentro do código (como antes) e o núcleo roda antes do jogo
   const b64 = Object.fromEntries(assets.map(a => [a.id, fs.readFileSync(path.join(ROOT, 'assets/models', a.file)).toString('base64')]));
   let g = game.replace(/__A\("([^"]+)"\)/g, (m, id) => { if (!(id in b64)) throw new Error('modelo sem arquivo: ' + id); return JSON.stringify(b64[id]) });
-  const boot = core + ';(function(){var C=window.Clover;C.beforeGame();addEventListener("load",function(){C.afterGame(Math.round(performance.now()))})})();\n';
+  const boot = cfgJs() + core + ';(function(){var C=window.Clover;C.beforeGame();addEventListener("load",function(){C.afterGame(Math.round(performance.now()))})})();\n';
   let html = template.replace('/*__LOADER__*/', () => (minify(boot + g)).replace(/<\/script/gi, '<\\/script'));
   html = headScripts(css(html)); guard('clover-rpg.html', html);
   fs.mkdirSync(path.join(ROOT, 'dist-single'), { recursive: true });
@@ -60,6 +65,7 @@ const OUT = path.join(ROOT, 'dist');
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(path.join(OUT, 'js'), { recursive: true }); fs.mkdirSync(path.join(OUT, 'models'), { recursive: true });
 const gameMin = minify(game); guard('game.js', gameMin); guard('core.js', core);
+if (colyCode) { colyFile = `js/colyseus.${hash(colyCode)}.js`; fs.writeFileSync(path.join(OUT, colyFile), colyCode); }
 const gameFile = `js/game.${hash(gameMin)}.js`, coreFile = `js/core.${hash(core)}.js`;
 fs.writeFileSync(path.join(OUT, gameFile), gameMin); fs.writeFileSync(path.join(OUT, coreFile), core);
 const bootAssets = assets.map(a => {
@@ -69,7 +75,7 @@ const bootAssets = assets.map(a => {
 });
 const BOOT = { core: coreFile, game: gameFile, assets: bootAssets, gameBytes: Buffer.byteLength(gameMin) };
 const loader = esbuild.buildSync({ entryPoints: [path.join(ROOT, 'src/boot/loader.ts')], bundle: true, format: 'iife', target: 'es2019', minify: MIN, write: false, define: { __BOOT__: JSON.stringify(BOOT) } }).outputFiles[0].text;
-let html = template.replace('/*__LOADER__*/', () => loader.replace(/<\/script/gi, '<\\/script'));
+let html = template.replace('/*__LOADER__*/', () => (cfgJs() + loader).replace(/<\/script/gi, '<\\/script'));
 html = headScripts(css(html)); guard('index.html', html);
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
 // arquivos públicos (ícones, manifest, modo offline)
@@ -79,4 +85,5 @@ const ver = hash(html + gameMin + core);
 const sw = rd('public/sw.js').replace(/const V='[^']*'/, `const V='clover-${ver}'`);
 fs.writeFileSync(path.join(OUT, 'sw.js'), sw);
 const size = d => fs.readdirSync(d, { withFileTypes: true }).reduce((a, e) => a + (e.isDirectory() ? size(path.join(d, e.name)) : fs.statSync(path.join(d, e.name)).size), 0);
+console.log('servidor:', SERVER_URL || '(nenhum — P2P)', '· cliente Colyseus:', colyFile ? 'incluído' : 'CDN se precisar');
 console.log('dist/ pronto:', (size(OUT) / 1048576).toFixed(2), 'MB · jogo', (Buffer.byteLength(gameMin) / 1048576).toFixed(2), 'MB · modelos', (bootAssets.reduce((a, x) => a + x.bytes, 0) / 1048576).toFixed(2), 'MB · cache', ver);
