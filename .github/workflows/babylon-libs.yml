@@ -1,0 +1,30 @@
+# Versão experimental Babylon.js: instala as bibliotecas e guarda como artefato (para testes fora do GitHub).
+# Não publica nada.
+name: Babylon experimental
+
+on:
+  push:
+    branches: [babylon-experimental]
+    paths: ['babylon/**', '.github/workflows/babylon-libs.yml']
+  workflow_dispatch:
+
+jobs:
+  libs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: babylon
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm ls --depth=0
+      - run: tar -czf ../babylon-node_modules.tgz node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: babylon-node-modules
+          path: babylon-node_modules.tgz
+          retention-days: 5
+      - run: if [ -f build.mjs ]; then npm run build; fi
