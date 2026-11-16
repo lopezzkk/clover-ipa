@@ -57,6 +57,7 @@ export class Mundo {
     if (this.pronto) return false;
     const WB = jogo('WB83'), REG = jogo('REG83'), SOL = jogo('SOL'), ROADS = jogo('ROADS'), inW = jogo('inWater83'), P = jogo('P');
     if (!WB || !REG || !SOL || !ROADS || !inW || !P || !P.on || SOL.length < 50) return false;
+    if (WB.x1 - WB.x0 < 300 || WB.z1 - WB.z0 < 300) return false; // dentro de um interior o jogo troca os limites: espera sair
     const t0 = performance.now();
     const M = 170; this.X0 = Math.floor((WB.x0 - M) / C) * C; this.Z0 = Math.floor((WB.z0 - M) / C) * C;
     const X1 = WB.x1 + M, Z1 = WB.z1 + M; const nx = this.nx = Math.ceil((X1 - this.X0) / C) + 1, nz = this.nz = Math.ceil((Z1 - this.Z0) / C) + 1;
@@ -131,10 +132,19 @@ export class Mundo {
     for (let j = 0; j < nz; j += 2) for (let i = 0; i < nx; i += 2) { const k = j * nx + i; if (H[k] > 0.9) this.colisor(this.X0 + i * C, this.Z0 + j * C, C * 1.5); }
     this.ligarColisao();
     this.chao3 = jogo('ground');
+    this.relevoMinimapa();
     this.pronto = true; (window as any).MUNDO_NOVO = { ms: Math.round(performance.now() - t0), setores: this.setores.length, arvores: this.arvoresTotal, colisores: this.colisores };
     return true;
   }
 
+  /** desenho do relevo para o minimapa do jogo (morros em marrom, neve em branco, lava em vermelho; o plano fica transparente) */
+  private relevoMinimapa() {
+    const cv = document.createElement('canvas'); cv.width = this.nx; cv.height = this.nz; const c = cv.getContext('2d')!; const img = c.createImageData(this.nx, this.nz);
+    for (let j = 0; j < this.nz; j++) for (let i = 0; i < this.nx; i++) { const h = this.H[j * this.nx + i], k = (j * this.nx + i) * 4; if (h < 0.5) continue;
+      const t = Math.min(1, h / 40); let r = 120 - t * 40, g = 104 - t * 30, b = 78 - t * 20; if (h > 30) { r = g = b = 225; }
+      img.data[k] = r; img.data[k + 1] = g; img.data[k + 2] = b; img.data[k + 3] = 90 + Math.min(150, h * 8); }
+    c.putImageData(img, 0, 0); (window as any).MUNDO_RELEVO = { c: cv, x0: this.X0, z0: this.Z0, w: this.nx * C, h: this.nz * C };
+  }
   private colisor(x: number, z: number, r: number) { const k = Math.floor(x / 20) + ',' + Math.floor(z / 20); (this.col[k] || (this.col[k] = [])).push({ x, z, r }); this.colisores++;
     // círculos que passam da borda da célula também entram na vizinha
     const fx = x / 20 - Math.floor(x / 20), fz = z / 20 - Math.floor(z / 20); const ex = fx * 20 < r ? -1 : (1 - fx) * 20 < r ? 1 : 0, ez = fz * 20 < r ? -1 : (1 - fz) * 20 < r ? 1 : 0;

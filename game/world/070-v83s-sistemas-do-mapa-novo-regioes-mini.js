@@ -12,7 +12,7 @@ zone=function(){for(const v of VILS)if(Math.hypot(P.x-v.x,P.z-v.z)<v.r+8)return 
  const r=reg83(P.x,P.z);if(r)return r.n+' ('+r.s+')';if(P.z<-505)return 'Passagem do Norte (Reino Spade)';if(P.z<-180)return 'Reino dos Nobres (Reino de Clover)';if(P.z>90)return 'Reino Esquecido (Fronteira Sul)';return 'Reino Comum (Reino de Clover)'};
 function v83InCap(){return Math.hypot(P.x,P.z-CZ)<66}
 // ---------- minimapa novo (60 m de raio ao redor do jogador)
-drawMap=function(){const c=$('mm'),x=c.getContext&&c.getContext('2d');if(!x)return;const W=c.width,R=W/2,k=R/60,X=wx=>R+(wx-P.x)*k,Y=wz=>R+(wz-P.z)*k;x.clearRect(0,0,W,W);x.save();x.beginPath();x.arc(R,R,R,0,6.2832);x.clip();x.fillStyle='#1a3a24';x.fillRect(0,0,W,W);
+drawMap=function(){const c=$('mm'),x=c.getContext&&c.getContext('2d');if(!x)return;const W=c.width,R=W/2,k=R/60,X=wx=>R+(wx-P.x)*k,Y=wz=>R+(wz-P.z)*k;x.clearRect(0,0,W,W);x.save();x.beginPath();x.arc(R,R,R,0,6.2832);x.clip();x.fillStyle='#1a3a24';x.fillRect(0,0,W,W);try{const m=window.MUNDO_RELEVO;if(m){x.drawImage(m.c,X(m.x0),Y(m.z0),m.w*k,m.h*k)}}catch(e){}
  const circ=(cx,cz,r,f,st)=>{x.beginPath();x.arc(X(cx),Y(cz),Math.max(1,r*k),0,6.2832);x.fillStyle=f;x.fill();if(st){x.strokeStyle=st;x.lineWidth=1.5;x.stroke()}};
  for(const r of REG83)if(Math.hypot(r.x-P.x,r.z-P.z)<r.r+90)circ(r.x,r.z,r.r,'#'+((r.c&0xfefefe)>>1).toString(16).padStart(6,'0')+'cc');
  x.fillStyle='#1f5f8f';for(const w of WATER83){if(w.t=='r')x.fillRect(X(w.x0),Y(w.z0),(w.x1-w.x0)*k,(w.z1-w.z0)*k);else circ(w.x,w.z,w.r,'#1f5f8f')}for(const l of LAND83){if(l.t=='r'){x.fillStyle='#8a6a4a';x.fillRect(X(l.x0),Y(l.z0),(l.x1-l.x0)*k,(l.z1-l.z0)*k)}else circ(l.x,l.z,l.r,l.r>40?'#5a8a4a':'#9ad8ff88')}
