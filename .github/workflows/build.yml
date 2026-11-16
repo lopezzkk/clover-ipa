@@ -7,21 +7,7 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      servidor:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: server
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm install --no-audit --no-fund
-      - run: npm ls colyseus colyseus.js @colyseus/ws-transport firebase-admin --depth=0 || true
-      - run: npm test
-
-  publicar:
+      publicar:
         description: 'Publicar no GitHub Pages? (só o dono decide)'
         type: choice
         options: ['nao', 'sim']
@@ -47,6 +33,8 @@ jobs:
         env:
           CLOVER_SERVER_URL: ${{ vars.CLOVER_SERVER_URL }}
       - run: npm run build:single
+        env:
+          CLOVER_SERVER_URL: ${{ vars.CLOVER_SERVER_URL }}
       - name: Conferir o Vite (config e plugin do build)
         run: npx vite build --outDir ../vite-check --emptyOutDir && ls vite-check && rm -rf vite-check
       - uses: actions/upload-pages-artifact@v3
@@ -56,6 +44,20 @@ jobs:
         with:
           name: clover-rpg-arquivo-unico
           path: dist-single/clover-rpg.html
+
+  servidor:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm ls colyseus colyseus.js @colyseus/ws-transport firebase-admin --depth=0 || true
+      - run: npm test
 
   publicar:
     if: github.event_name == 'workflow_dispatch' && inputs.publicar == 'sim'
