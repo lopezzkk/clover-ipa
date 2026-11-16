@@ -9,14 +9,18 @@ interface Opcoes { name?: string; token?: string }
 
 export class SalaClover extends Room {
   maxClients = 64;
+  private static abertas = new Set<string>();
+  private nome = 'main';
   private js = new Map<string, EstadoJogador>();
   private uids = new Map<string, string>();
 
   onCreate(op: Opcoes) {
     const nome = nomeSala(op.name) ?? 'main';
-    this.setMetadata({ nome });
-    // salas de partida (clv-CODIGO) têm até 4 jogadores, como no jogo
-    if (nome !== 'main') this.maxClients = 4;
+    // sala de partida cheia: o Colyseus criaria outra com o mesmo código; aqui isso é recusado
+    if (nome !== 'main' && SalaClover.abertas.has(nome)) throw new Error('sala cheia');
+    this.nome = nome;
+    if (nome !== 'main') { SalaClover.abertas.add(nome); this.maxClients = 4; } // como no jogo: até 4 por sala
+    void this.setMetadata({ nome });
     this.autoDispose = true;
 
     this.onMessage('p', (c, msg) => {
@@ -41,9 +45,11 @@ export class SalaClover extends Room {
     this.js.set(c.sessionId, novoJogador());
     if (auth?.uid) this.uids.set(c.sessionId, auth.uid);
     const peers = [...this.js.entries()].map(([id, j]) => ({ id, presenca: j.presenca, uid: this.uids.get(id) ?? null }));
-    c.send('ola', { eu: c.sessionId, peers, nome: this.metadata?.nome });
+    c.send('ola', { eu: c.sessionId, peers, nome: this.nome });
     this.broadcast('entrou', { id: c.sessionId, uid: this.uids.get(c.sessionId) ?? null }, { except: c });
   }
+
+  onDispose() { if (this.nome !== 'main') SalaClover.abertas.delete(this.nome); }
 
   onLeave(c: Client) {
     this.js.delete(c.sessionId); this.uids.delete(c.sessionId);
