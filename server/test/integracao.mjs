@@ -36,8 +36,9 @@ try {
   // salas de partida separadas, com no máximo 4 jogadores
   const s = [jogador(), jogador(), jogador(), jogador()];
   for (const x of s) await x.entra('clv-abc123');
+  console.log('salas:', s.map(x => x.room.roomId).join(','), 'peers do 4º:', s[3].log.ola && s[3].log.ola.peers.length, 'nome:', s[0].log.ola && s[0].log.ola.nome);
   c(s[3].log.ola.peers.length === 4 && s[0].log.ola.nome === 'clv-abc123', 'sala de partida com 4 jogadores');
-  let cheio = false; try { await jogador().entra('clv-abc123'); } catch { cheio = true; }
+  let cheio = false; try { const q = jogador(); await q.entra('clv-abc123'); console.log('5º entrou na sala', q.room.roomId); } catch (e) { cheio = true; console.log('5º recusado:', String(e && e.message || e).slice(0, 80)); }
   c(cheio, 'quinto jogador não entra na sala cheia');
   c(!a.log.p.some(m => s.some(x => x.room.sessionId === m.id)), 'salas não se misturam');
 
