@@ -1,0 +1,51 @@
+# Compila e testa o Clover RP a cada envio. NÃO publica sozinho:
+# a publicação no GitHub Pages só acontece quando o dono aperta "Run workflow" (publicar = sim).
+name: Clover RP
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publicar:
+        description: 'Publicar no GitHub Pages? (só o dono decide)'
+        type: choice
+        options: ['nao', 'sim']
+        default: 'nao'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run build:single
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clover-rpg-arquivo-unico
+          path: dist-single/clover-rpg.html
+
+  publicar:
+    if: github.event_name == 'workflow_dispatch' && inputs.publicar == 'sim'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

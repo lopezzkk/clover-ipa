@@ -1,0 +1,29 @@
+// ================= V82 · ajustes: HUD some nas cutscenes, troca de socos na Soul Chain, taco em chamas =================
+// ---------- HUD invisível durante qualquer cutscene (Soul Chain, pacto, despertar do Asta Negro, cutscenes de União)
+{const st=document.createElement('style');st.textContent='body.v82cine #top,body.v82cine #joy,body.v82cine #jzone,body.v82cine #hud,body.v82cine #btns,body.v82cine #tools,body.v82cine #acts,body.v82cine #qind,body.v82cine #a-nacht,body.v82cine #scchip,body.v82cine #scbal,body.v82cine #lbl,body.v82cine #toast,body.v82cine #ab82,body.v82cine #fpsc{visibility:hidden!important;pointer-events:none!important}'
+ +'#sc2fist{width:clamp(64px,min(20vw,20vh),96px)!important;height:clamp(64px,min(20vw,20vh),96px)!important;border-width:3px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 12%)!important}#sc2fist b{font-size:clamp(12px,3.2vw,16px)!important;bottom:4%!important}#sc2fist svg{width:58%!important;height:58%!important}';try{document.head.appendChild(st)}catch(e){}}
+function v82CineOn(){try{if(SCAM.on)return true;if(SC.on&&SC.v2&&SC.ph&&SC.ph!='mana')return true;if(CS.on)return true;if((P.v82c||0)>0)return true}catch(e){}return false}
+// ---------- Soul Chain: na disputa de 30 s, os dois trocam socos (câmera de lado); no fim vem a cena de finalização
+SCH2.tm=0;
+const _sc2Tap0=sc2Tap;sc2Tap=function(){const n=SC.ta;_sc2Tap0();if(SC.ta>n){SC.pA={t:performance.now(),s:SC.ta%2};const pt=sc2Partner();if(pt&&Math.random()<.7){try{fxp({x:pt.x,y:1.45,z:pt.z,c:Math.random()<.5?0xffd040:0xff8a2a,n:3,sp:3,sz:.13,life:.22})}catch(e){}}if(pt&&SC.ta%5==0)try{kShock(pt.x,pt.z,1,0xffd040,.15,1.4)}catch(e){}}};
+const _sc2Duel0=sc2Duel;sc2Duel=function(){_sc2Duel0.apply(this,arguments);const pt=sc2Partner();if(pt){const dx=pt.x-P.x,dz=pt.z-P.z,L=Math.hypot(dx,dz)||1,mx=(P.x+pt.x)/2,mz=(P.z+pt.z)/2;SC.dpos={x:mx-dx/L*.85,z:mz-dz/L*.85,sx:P.x,sz:P.z,t:0}}SC.tbN=0;sc2SideCam();SCAM.close=1};
+{const _t=scTick;scTick=function(dt){_t(dt);try{if(!SC.on||!SC.v2)return;if(SC.ph=='duel'){const pt=sc2Partner();if(SC.dpos){const d=SC.dpos;d.t=Math.min(1,d.t+dt/.4);P.x=d.sx+(d.x-d.sx)*d.t;P.z=d.sz+(d.z-d.sz)*d.t}if(pt)P.f=Math.atan2(pt.x-P.x,pt.z-P.z);const nb=Math.floor(SC.tb||0);if(nb>(SC.tbN||0)){SC.tbN=nb;SC.pB={t:performance.now(),s:nb%2};if(Math.random()<.6)fxp({x:P.x,y:1.45,z:P.z,c:0xffb040,n:3,sp:3,sz:.13,life:.22});P.shake=Math.max(P.shake||0,.12)}}}catch(e){}}}
+// pose de luta aplicada logo antes de desenhar (por cima da animação normal): guarda alta + jab alternado
+function sc2Punch(L,st,now){if(!L||!L.arms)return;for(const i of[0,1]){const a=L.arms[i];if(!a||!a[0])continue;let k=0;if(st&&st.s===i){const u=(now-st.t)/170;if(u>=0&&u<1)k=Math.sin(u*Math.PI)}a[0].rotation.x=-1.05-.55*k;a[0].rotation.z=(i?-1:1)*(.18-.12*k);if(a[1])a[1].rotation.x=-1.55+1.45*k}}
+{const r0=R.render.bind(R);R.render=function(s,c){try{if(SC.on&&SC.v2&&SC.ph=='duel'){const now=performance.now();sc2Punch(PP,SC.pA,now);let L2=null;if(SC.e)L2=SC.e.L;else{const o=MP.others[SC.k||SC.from];L2=o&&o.L}sc2Punch(L2,SC.pB,now)}}catch(e){}return r0(s,c)}}
+// câmera mais perto na troca de socos e na finalização
+sc2SideCam=function(){SCAM.on=true;SCAM.f=c=>{const pt=sc2Partner()||{x:P.x+2,z:P.z};const mx=(P.x+pt.x)/2,mz=(P.z+pt.z)/2,dx=pt.x-P.x,dz=pt.z-P.z,L=Math.hypot(dx,dz)||1,D=Math.max(5.6,L*1.6);c.position.set(mx-dz/L*D,2.3,mz+dx/L*D);c.lookAt(mx,1.25,mz)}};
+// ---------- taco em chamas (também na mão dos outros jogadores)
+const _wm0=wpnModel;wpnModel=function(k){const g=_wm0(k);if(k=='bat'){const fl=[];const geo=k82G('batfl',()=>new T.ConeGeometry(.07,.32,6));for(let i=0;i<7;i++){const m=new T.Mesh(geo,GLM(i%2?0xffd040:0xff5a10,.85));const a=i/7*6.283;m.position.set(Math.cos(a)*.05,.36+i*.09,Math.sin(a)*.05);m.userData.p=Math.random()*6;g.add(m);fl.push(m)}const core=new T.Mesh(k82G('batcore',()=>new T.CylinderGeometry(.075,.045,.7,10,1,true)),GLM(0xff7a20,.35));core.position.y=.62;g.add(core);g.userData.fl=fl;g.userData.core=core}return g};
+function batFlames(h,dt,t){if(!h||!h.visible)return;const g=h.children[0];if(!g||!g.userData.fl)return;g.userData.fl.forEach((m,i)=>{const f=Math.sin(t*18+m.userData.p)*.5+.5;m.scale.set(.8+f*.4,.9+f*.8,.8+f*.4);m.rotation.y=t*4+i});g.userData.core.material.opacity=.25+.15*Math.sin(t*23);
+ if(CFG.parts&&Math.random()<dt*14*KQ()){const v=new T.Vector3((Math.random()-.5)*.08,.4+Math.random()*.6,(Math.random()-.5)*.08);g.localToWorld(v);fxp({x:v.x,y:v.y,z:v.z,c:Math.random()<.5?0xffd040:0xff5a10,n:1,sp:.3,sz:.09,life:.4,up:1.5})}}
+// troca o taco já criado pelo novo modelo em chamas
+{const fix=h=>{if(!h||h.userData.v82f)return;h.userData.v82f=1;const old=h.children[0];if(old){h.remove(old);try{freeObj(old)}catch(e){}}h.add(wpnModel('bat'))};
+ const _x=xUpdate;xUpdate=function(dt){_x(dt);try{const t=performance.now()/1000;if(BAT82.me){fix(BAT82.me);batFlames(BAT82.me,dt,t)}for(const k in MP.others){const o=MP.others[k];if(o.bat82){fix(o.bat82);batFlames(o.bat82,dt,t)}}}catch(e){}
+  try{if((P.v82c||0)>0)P.v82c-=dt;document.body.classList.toggle('v82cine',v82CineOn())}catch(e){}}}
+WPN82.bat.n='Taco do Magna (em chamas)';
+// cenas do Asta (despertar e pacto) também escondem o HUD
+{const _p=abPact;abPact=function(){P.v82c=4.6;return _p.apply(this,arguments)}}
+// na troca de socos o painel sobe para o topo (HUD escondido) e as correntes ficam discretas para não tapar os dois
+{const st=document.createElement('style');st.textContent='body.v82cine #sc2box{top:calc(env(safe-area-inset-top,0px) + 8px)!important}';try{document.head.appendChild(st)}catch(e){}}
+{const _t=scTick;scTick=function(dt){_t(dt);try{if(SC.fx&&SC.fx.ch)SC.fx.ch.visible=!(SC.ph=='duel'||SC.ph=='fin')}catch(e){}}}

@@ -1,0 +1,92 @@
+[
+ {
+  "id": "md96-liebe-d",
+  "file": "md96-liebe-d.bin",
+  "bytes": 367120,
+  "b64len": 489496
+ },
+ {
+  "id": "md96-liebeLo-d",
+  "file": "md96-liebeLo-d.bin",
+  "bytes": 79816,
+  "b64len": 106424
+ },
+ {
+  "id": "md96-skull-d",
+  "file": "md96-skull-d.bin",
+  "bytes": 188854,
+  "b64len": 251808
+ },
+ {
+  "id": "md96-blade-d",
+  "file": "md96-blade-d.bin",
+  "bytes": 60276,
+  "b64len": 80368
+ },
+ {
+  "id": "md97-asta-d",
+  "file": "md97-asta-d.bin",
+  "bytes": 98466,
+  "b64len": 131288
+ },
+ {
+  "id": "md100-gimo-d",
+  "file": "md100-gimo-d.bin",
+  "bytes": 220510,
+  "b64len": 294016
+ },
+ {
+  "id": "md100-zeph-d",
+  "file": "md100-zeph-d.bin",
+  "bytes": 152056,
+  "b64len": 202744
+ },
+ {
+  "id": "md100-wing-d",
+  "file": "md100-wing-d.bin",
+  "bytes": 52702,
+  "b64len": 70272
+ },
+ {
+  "id": "md100-nero-glb",
+  "file": "md100-nero-glb.glb",
+  "bytes": 241772,
+  "b64len": 322364
+ },
+ {
+  "id": "md100-grim-glb",
+  "file": "md100-grim-glb.glb",
+  "bytes": 100056,
+  "b64len": 133408
+ },
+ {
+  "id": "md100-dds-glb",
+  "file": "md100-dds-glb.glb",
+  "bytes": 156068,
+  "b64len": 208092
+ },
+ {
+  "id": "md120-dm_slotos-glb",
+  "file": "md120-dm_slotos-glb.glb",
+  "bytes": 221080,
+  "b64len": 294776
+ },
+ {
+  "id": "md120-dm_plumede-glb",
+  "file": "md120-dm_plumede-glb.glb",
+  "bytes": 270704,
+  "b64len": 360940
+ },
+ {
+  "id": "md120-dm_walgner-glb",
+  "file": "md120-dm_walgner-glb.glb",
+  "bytes": 199252,
+  "b64len": 265672
+ },
+ {
+  "id": "md120-dm_belzebu-glb",
+  "file": "md120-dm_belzebu-glb.glb",
+  "bytes": 506176,
+  "b64len": 674904
+ }
+]

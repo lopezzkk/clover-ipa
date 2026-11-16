@@ -1,0 +1,4 @@
+// ================= V100 · modelos GLB enviados pelo jogador (Sketchfab, CC-BY-4.0) =================
+// Créditos: Nero — BlackCube · Grimório do Asta — Ash Kelly · Espada Destruidora de Demônios — PixilatedRaven · Asta (asa da União) — Natsu dragneel (Naruto4788555964) · Gimodelo — Reggie · Spirit of Zephyr — bbonless
+const MD100={"gimo":{"b":[6.77699,8.59101,-3.26788,24.82579,27.61972,3.27095],"n":12509,"f":17988,"w":2,"d":__A("md100-gimo-d"),"eyes":[[19.53,20.69,2.6],[15.91,21.4,2.6]]},"zeph":{"b":[-52.58437,-237.30039,-38.68758,51.41717,275.55444,65.31396],"n":7563,"f":13998,"w":2,"d":__A("md100-zeph-d")},"wing":{"b":[-1700.02059,3085.39905,-3527.38735,795.62207,6431.81228,-1125.78302],"n":2523,"f":4999,"w":2,"d":__A("md100-wing-d"),"root":[336.6,3169.3,-1422.2]},"nero":{"glb":__A("md100-nero-glb")},"grim":{"glb":__A("md100-grim-glb")},"dds":{"glb":__A("md100-dds-glb")}};
+

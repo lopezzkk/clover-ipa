@@ -1,0 +1,20 @@
+{
+  "name": "clover-rp",
+  "private": true,
+  "version": "1.41.0",
+  "description": "Clover RP — RPG 3D de mundo aberto inspirado em Black Clover",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:single": "node scripts/build.mjs --single",
+    "typecheck": "tsc -p .",
+    "test": "node tests/autofx.test.mjs",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vite": "^6.0.0"
+  }
+}
