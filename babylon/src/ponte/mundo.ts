@@ -40,13 +40,13 @@ interface Setor { x: number; z: number; terreno: Mesh; arvores: Mesh[]; sombra: 
 export class Mundo {
   pronto = false; private s: Scene; private X0 = 0; private Z0 = 0; private nx = 0; private nz = 0; private H!: Float32Array; private D!: Float32Array;
   private setores: Setor[] = []; private col: Record<string, { x: number; z: number; r: number }[]> = {}; private mats: StandardMaterial[] = [];
-  private lava: Mesh | null = null; private t = 0; private q = 0; arvoresTotal = 0; colisores = 0; private nS = 1; private ok: [number, number] | null = null; private chao3: T3 = null;
+  private lava: Mesh | null = null; private t = 0; private q = 0; arvoresTotal = 0; colisores = 0; private nS = 1; private ok: [number, number] | null = null; private ult: [number, number] | null = null; private chao3: T3 = null;
   constructor(s: Scene, private sombraAdd: (m: AbstractMesh) => void, private sombraRem: (m: AbstractMesh) => void, private texChao: () => Texture) { this.s = s; }
 
   /** altura do terreno (0 em tudo onde se anda) */
   altura(x: number, z: number) {
     if (!this.pronto) return 0; const fx = (x - this.X0) / C, fz = (z - this.Z0) / C; const i = Math.floor(fx), j = Math.floor(fz);
-    if (i < 0 || j < 0 || i >= this.nx - 1 || j >= this.nz - 1) return 30; const u = fx - i, v = fz - j, H = this.H, n = this.nx;
+    if (i < 0 || j < 0 || i >= this.nx - 1 || j >= this.nz - 1) return 0; /* fora do mapa (interiores, arenas): plano */ const u = fx - i, v = fz - j, H = this.H, n = this.nx;
     return (H[j * n + i] * (1 - u) + H[j * n + i + 1] * u) * (1 - v) + (H[(j + 1) * n + i] * (1 - u) + H[(j + 1) * n + i + 1] * u) * v;
   }
   /** o jogo usa: objetos do cenário novo que esse objeto do three deve esconder (o chão antigo) */
@@ -208,7 +208,10 @@ export class Mundo {
     }
     if (this.lava) { const lm = this.lava.material as StandardMaterial; const k = 0.85 + Math.sin(this.t * 2) * 0.15; lm.emissiveColor.set(1 * k, 0.38 * k, 0.08 * k); }
     // montanha é parede: se o jogador entrar no morro (andando, voando, dash ou teleporte), volta para o último lugar plano
-    { const P = jogo('P'); if (P && typeof P.x === 'number') { const h = this.altura(P.x, P.z); if (h > 0.6) { if (this.ok) { P.x = this.ok[0]; P.z = this.ok[1]; if (P.vx) P.vx = 0; if (P.vz) P.vz = 0; } } else this.ok = [P.x, P.z]; } }
+    { const P = jogo('P'); if (P && typeof P.x === 'number') {
+      // pulos grandes (teleporte de porta, interiores, arenas, mapa): o jogo decidiu o lugar, então a parede desliga até pisar no plano
+      if (this.ult && Math.hypot(P.x - this.ult[0], P.z - this.ult[1]) > 8) this.ok = null; this.ult = [P.x, P.z];
+      const h = this.altura(P.x, P.z); if (h > 0.6) { if (this.ok) { P.x = this.ok[0]; P.z = this.ok[1]; this.ult = [P.x, P.z]; if (P.vx) P.vx = 0; if (P.vz) P.vz = 0; } } else this.ok = [P.x, P.z]; } }
     // inimigos não ficam presos dentro do morro: empurra para fora (só visual de posição; a lógica de combate é a mesma)
     if (this.q % 6 === 0) for (const e of jogo('enemies') || []) { if (!e || e.hp <= 0) continue; if (this.altura(e.x, e.z) > 0.9) { const k = this.col[Math.floor(e.x / 20) + ',' + Math.floor(e.z / 20)]; if (!k) continue; for (const o of k) { const dx = e.x - o.x, dz = e.z - o.z, dd = Math.hypot(dx, dz); if (dd < o.r && dd > 0.01) { e.x = o.x + dx / dd * o.r; e.z = o.z + dz / dd * o.r; } } } }
   }
