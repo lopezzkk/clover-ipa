@@ -15,7 +15,7 @@ const http = createServer((req, res) => {
 });
 
 const jogo = new Server({ transport: new WebSocketTransport({ server: http }) });
-jogo.define('clover', SalaClover).filterBy(['name']);
+jogo.define('clover', SalaClover).filterBy(['sala']);
 jogo.listen(PORT).then(() => console.log(`Clover RP: servidor na porta ${PORT}`));
 
 export { jogo };

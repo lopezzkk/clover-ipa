@@ -10,7 +10,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
 function jogador() {
   const cl = new Client(URL); const log = { ola: null, p: [], entrou: [], saiu: [], aviso: [] };
   return { cl, log, async entra(name) {
-    const room = await cl.joinOrCreate('clover', { name });
+    const room = await cl.joinOrCreate('clover', { sala: name });
     for (const k of ['ola', 'p', 'entrou', 'saiu', 'aviso']) room.onMessage(k, m => { if (k === 'ola') log.ola = m; else log[k].push(m) });
     this.room = room; await espera(300); return room;
   } };

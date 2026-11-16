@@ -5,7 +5,7 @@ import { Room, type Client } from 'colyseus';
 import { novoJogador, validarPatch, nomeSala, type EstadoJogador } from './regras.js';
 import { verificarToken } from './auth.js';
 
-interface Opcoes { name?: string; token?: string }
+interface Opcoes { sala?: string; token?: string }
 
 export class SalaClover extends Room {
   maxClients = 64;
@@ -15,7 +15,7 @@ export class SalaClover extends Room {
   private uids = new Map<string, string>();
 
   onCreate(op: Opcoes) {
-    const nome = nomeSala(op.name) ?? 'main';
+    const nome = nomeSala(op.sala) ?? 'main';
     // sala de partida cheia: o Colyseus criaria outra com o mesmo código; aqui isso é recusado
     if (nome !== 'main' && SalaClover.abertas.has(nome)) throw new Error('sala cheia');
     this.nome = nome;

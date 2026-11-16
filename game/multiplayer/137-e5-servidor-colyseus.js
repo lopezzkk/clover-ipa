@@ -11,7 +11,7 @@ function lib(){return new Promise((res,rej)=>{if(window.Colyseus&&Colyseus.Clien
  const next=()=>{if(i>=urls.length)return rej(new Error('cliente do servidor indisponível'));const s=document.createElement('script');s.src=urls[i++];s.onload=()=>window.Colyseus?res(Colyseus):next();s.onerror=next;document.head.appendChild(s)};next()})}
 async function token(){try{const a=window.firebase&&firebase.auth&&firebase.auth();const u=a&&a.currentUser;if(u)return await u.getIdToken()}catch(e){}return undefined}
 async function abrir(client,name){
- const room=await client.joinOrCreate('clover',{name,token:await token()});
+ const room=await client.joinOrCreate('clover',{sala:name,token:await token()});
  const S={room,eu:room.sessionId,peers:new Map(),uids:new Map(),con:true,lsP:[],lsE:[],lsC:[],my:{},q:null,qt:0,list:Object.freeze([])};
  const mk=(id)=>Object.freeze({peer:id,by:S.uids.get(id)||null,isMe:id===S.eu,sameTab:id===S.eu,kind:'viewer',guest:!S.uids.get(id),presence:S.peers.get(id)||{},updatedAt:Date.now()});
  const emit=(joined,left,updated)=>{S.list=Object.freeze([...S.peers.keys()].map(mk));const ch={peers:S.list,joined:joined.map(mk),left:left.map(id=>({peer:id})),updated:updated.map(mk)};S.lsP.slice().forEach(f=>{try{f(ch)}catch(e){}})};
