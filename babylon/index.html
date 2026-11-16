@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Clover RP · Experimental (Babylon.js)</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--ouro:#d8b45a;--azul:#0e1428e6}
+html,body{margin:0;height:100%;overflow:hidden;background:#0d0b14;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#f3ead6;touch-action:none;user-select:none;-webkit-user-select:none}
+#jogo{width:100%;height:100%;display:block;outline:none}
+.carregando{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0d0b14;z-index:50;transition:opacity .5s}
+.carregando b{font:700 26px Georgia,serif;color:var(--ouro);letter-spacing:.06em}
+html.pronto .carregando{opacity:0;pointer-events:none}
+.hud-topo{position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top));display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.lugar{background:linear-gradient(90deg,#8a1c22e6,#5a1418cc);border:1px solid var(--ouro);border-radius:4px;padding:6px 14px;box-shadow:0 4px 14px #0008}
+.lugar b{display:block;font:700 18px Georgia,serif;color:#fff2d0}.lugar span{font-size:12px;color:#f2d7a8}
+.tag{font-size:11px;letter-spacing:.08em;color:#9fe0ff;background:#0a1830cc;border:1px solid #4aa8ff66;border-radius:3px;padding:3px 8px;align-self:flex-start}
+.hud-med{position:fixed;left:12px;bottom:calc(10px + env(safe-area-inset-bottom));font:12px ui-monospace,monospace;background:#000a;padding:4px 8px;border-radius:4px;pointer-events:none}
+.hud-painel{position:fixed;right:12px;top:calc(10px + env(safe-area-inset-top));text-align:right}
+.hp-abre{width:44px;height:44px;border-radius:50%;border:1px solid var(--ouro);background:var(--azul);color:#fff;font-size:20px;cursor:pointer}
+.hp-corpo{display:none;margin-top:8px;width:min(320px,86vw);text-align:left;background:var(--azul);border:1px solid var(--ouro);border-radius:10px;padding:10px 12px;box-shadow:0 8px 24px #000a}
+.hud-painel.aberto .hp-corpo{display:block}
+.hp-corpo h4{margin:6px 0;font:700 13px Georgia,serif;color:var(--ouro)}.hp-corpo p{font-size:12px;color:#cfc6b2;margin:8px 0 2px}
+.hp-l{display:flex;flex-wrap:wrap;gap:6px}.hp-l button{flex:1 1 auto;padding:8px 10px;border-radius:8px;border:1px solid #d8b45a88;background:#1a2240;color:#f3ead6;cursor:pointer;font-size:13px}
+.hp-l button.on{background:var(--ouro);color:#1a1206;font-weight:700}
+.hud-toque{display:none}
+body.toque .hud-toque{display:block}
+.joy{position:fixed;left:calc(18px + env(safe-area-inset-left));bottom:calc(28px + env(safe-area-inset-bottom));width:clamp(110px,30vmin,150px);aspect-ratio:1;border-radius:50%;background:radial-gradient(#ffffff14,#ffffff08);border:2px solid #ffffff40}
+.knob{position:absolute;left:50%;top:50%;width:42%;aspect-ratio:1;margin:-21% 0 0 -21%;border-radius:50%;background:radial-gradient(#fff8,#fff3);border:2px solid #fff9}
+.bts{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(28px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(2,64px);gap:12px}
+.bts button{width:64px;height:64px;border-radius:50%;border:2px solid var(--ouro);background:var(--azul);color:#fff;font-size:24px}
+.bts .b-pulo{grid-column:2}.bts button.on{background:var(--ouro);color:#1a1206}
+</style>
+</head>
+<body>
+<canvas id="jogo"></canvas>
+<div class="carregando"><b>CLOVER RP</b><span>Versão experimental · Babylon.js</span></div>
+<script src="jogo.js"></script>
+</body>
+</html>
