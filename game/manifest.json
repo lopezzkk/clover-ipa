@@ -135,5 +135,6 @@
  "world/135-e3-setores-memoria.js",
  "progression/136-e4-reputacao-reinos.js",
  "multiplayer/137-e5-servidor-colyseus.js",
+ "ui/138-e6-hud-telas-grandes.js",
  "ui/132-base-estatisticas-somente-dados-reais-cont.js"
 ]
