@@ -32,7 +32,7 @@ jobs:
       - run: npm run build
       - run: npm run build:single
       - name: Conferir o Vite (config e plugin do build)
-        run: npx vite build --outDir ../vite-check --emptyOutDir && ls ../vite-check
+        run: npx vite build --outDir ../vite-check --emptyOutDir && ls vite-check && rm -rf vite-check
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
