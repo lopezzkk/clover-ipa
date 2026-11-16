@@ -5,6 +5,7 @@ export interface CloverEvents {
   'boot:ready': { ms: number };
   'storage:restored': { keys: string[] };
   'autofx:change': { factor: number; reason: 'slow' | 'fast' | 'off' };
+  'rep:change': { reino: string; v: number; d: number; motivo: string };
 }
 
 type Handler<T> = (data: T) => void;
