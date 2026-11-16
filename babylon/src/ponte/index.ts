@@ -45,13 +45,45 @@ class Ponte {
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
   ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; private tAnt = 0;
 
+  private canvasPrincipal: HTMLCanvasElement | null = null; private pr = 1; private reserva: T3 = null;
+  /** Motor Babylon como renderizador ÚNICO do jogo: o three.js não desenha mais nada (nem cria contexto WebGL).
+   *  Devolve um objeto com a mesma "cara" do renderizador que o jogo usa (render, setSize, setPixelRatio, shadowMap...). */
+  motor(cv: HTMLCanvasElement) {
+    this.canvasPrincipal = cv; const self = this;
+    const R: T3 = {
+      babylon: true, domElement: cv, localClippingEnabled: false, autoClear: true,
+      shadowMap: { enabled: true, autoUpdate: false, needsUpdate: false, type: 1 },
+      capabilities: { isWebGL2: true, getMaxAnisotropy: () => 8, maxTextures: 16, precision: 'highp' },
+      info: { render: { calls: 0, triangles: 0 }, memory: { geometries: 0, textures: 0 }, reset() {} },
+      setPixelRatio(p: number) { self.pr = p || 1; if (self.engine) { self.engine.setHardwareScalingLevel(1 / self.pr); self.engine.resize(); } },
+      getPixelRatio() { return self.pr; },
+      setSize(_w: number, _h: number, _s?: boolean) { if (self.engine) self.engine.resize(); },
+      getSize(v: T3) { const w = cv.clientWidth, h = cv.clientHeight; return v ? v.set(w, h) : { x: w, y: h, width: w, height: h }; },
+      compile() {}, setClearColor() {}, clear() {}, dispose() {}, setAnimationLoop() {},
+      getContext() { return self.engine ? (self.engine as any)._gl : null; },
+      render(s: T3, c: T3) { if (self.ativo) { self.render(s, c, R); R.info.render.calls = (self.engine as any)?._drawCalls?.current || 0; } else self.desenharReserva(s, c, R); },
+    };
+    return R;
+  }
+  /** segurança: se o Babylon falhar várias vezes, um renderizador three.js de reserva assume numa tela nova (o jogo não trava) */
+  private desenharReserva(s: T3, c: T3, R: T3) {
+    try {
+      if (!this.reserva) { const T = (window as any).THREE; if (!T) return; const cv = document.createElement('canvas'); cv.id = 'c-reserva'; cv.style.cssText = getComputedStyle(R.domElement).cssText || 'position:fixed;inset:0;width:100%;height:100%';
+        R.domElement.after(cv); R.domElement.style.visibility = 'hidden'; this.reserva = new T.WebGLRenderer({ canvas: cv, antialias: false }); this.reserva.setPixelRatio(this.pr); this.reserva.shadowMap.enabled = true; }
+      this.reserva.setSize(R.domElement.clientWidth, R.domElement.clientHeight, false); this.reserva.render(s, c);
+    } catch { /* sem reserva */ }
+  }
+
   private iniciar(R: T3) {
     const c3: HTMLCanvasElement = R.domElement;
-    const cv = document.createElement('canvas'); cv.id = 'c-babylon';
-    cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:' + (getComputedStyle(c3).zIndex === 'auto' ? '0' : getComputedStyle(c3).zIndex);
-    c3.after(cv);
+    let cv: HTMLCanvasElement;
+    if (this.canvasPrincipal) cv = this.canvasPrincipal; // motor único: desenha direto na tela do jogo
+    else { cv = document.createElement('canvas'); cv.id = 'c-babylon';
+      cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:' + (getComputedStyle(c3).zIndex === 'auto' ? '0' : getComputedStyle(c3).zIndex);
+      c3.after(cv); }
     const nv = this.lerNivel();
     this.engine = new Engine(cv, nv !== 'muitobaixo' && nv !== 'baixo', { stencil: true, preserveDrawingBuffer: false, powerPreference: 'high-performance', adaptToDeviceRatio: false, doNotHandleContextLost: false });
+    if (this.canvasPrincipal) this.engine.setHardwareScalingLevel(1 / this.pr);
     const s = this.scene = new Scene(this.engine);
     s.useRightHandedSystem = true; s.skipPointerMovePicking = true; s.blockMaterialDirtyMechanism = false;
     s.ambientColor = new Color3(0.2, 0.2, 0.22);
@@ -95,6 +127,8 @@ class Ponte {
     if (n !== 'muitobaixo') {
       const gl = new GlowLayer('brilho', s, { mainTextureRatio: n === 'baixo' ? 0.25 : 0.4, blurKernelSize: n === 'baixo' ? 16 : 32 }); gl.intensity = 0.55;
       gl.customEmissiveColorSelector = (mesh, _sub, mat, res) => { const m = mat as StandardMaterial; const cc = (m && (m.metadata?.corBasica || m.emissiveColor)); if (m && (m.alphaMode === Constants.ALPHA_ADD || m.metadata?.brilha)) res.set(cc.r * 0.45 * m.alpha, cc.g * 0.45 * m.alpha, cc.b * 0.45 * m.alpha, 1); else res.set(0, 0, 0, 0); void mesh; };
+      // otimização: a camada de brilho só desenha o que brilha (antes desenhava a cena inteira de novo, em preto)
+      (gl as any)._shouldRenderMesh = (m: AbstractMesh) => { const mt = m.material as StandardMaterial; return !!mt && (mt.alphaMode === Constants.ALPHA_ADD || !!mt.metadata?.brilha); };
       this.glow = gl;
     }
     // pós-processamento
