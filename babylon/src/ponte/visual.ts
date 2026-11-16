@@ -38,7 +38,7 @@ export function melhorarMaterial(s: Scene, m: StandardMaterial, src: T3, obj: T3
 
 // ---------- grama em volta do jogador ----------
 export class Grama {
-  private m: Mesh | null = null; private cel = ''; private cores: Float32Array | null = null; private grade: { cols: number; rows: number; x0: number; z0: number; dx: number; dz: number } | null = null;
+  private m: Mesh | null = null; private cel = ''; private pisos: { c?: [number, number, number]; b?: [number, number, number, number] }[] = []; private cores: Float32Array | null = null; private grade: { cols: number; rows: number; x0: number; z0: number; dx: number; dz: number } | null = null;
   constructor(private s: Scene) {}
   private malha() {
     const m = new Mesh('grama', this.s); const P: number[] = [], C: number[] = [], I: number[] = [], N: number[] = [];
@@ -52,6 +52,13 @@ export class Grama {
     const g = jogo('ground'); if (!g || !g.geometry.attributes.color) return false;
     const p = g.geometry.parameters; this.cores = g.geometry.attributes.color.array;
     this.grade = { cols: p.widthSegments + 1, rows: p.heightSegments + 1, x0: g.position.x - p.width / 2, z0: g.position.z - p.height / 2, dx: p.width / p.widthSegments, dz: p.height / p.heightSegments };
+    // pisos: praças, calçamentos e terra batida (peças baixas e planas por cima do chão) não ganham grama
+    const S3 = jogo('S'); const T = (window as any).THREE;
+    if (S3 && T) { const bx = new T.Box3(); S3.traverse((o: any) => { if (!o.isMesh || o === g || !o.geometry) return; const gt = o.geometry.type;
+      if (gt !== 'CircleGeometry' && gt !== 'PlaneGeometry' && gt !== 'RingGeometry' && gt !== 'BoxGeometry' && gt !== 'CylinderGeometry') return;
+      bx.setFromObject(o); if (bx.max.y > 0.45 || bx.min.y < -0.5) return; const w = bx.max.x - bx.min.x, d = bx.max.z - bx.min.z; if (w < 2.5 || d < 2.5 || w > 400) return;
+      if (gt === 'CircleGeometry' || gt === 'CylinderGeometry') this.pisos.push({ c: [(bx.min.x + bx.max.x) / 2, (bx.min.z + bx.max.z) / 2, Math.max(w, d) / 2 + 0.4] });
+      else this.pisos.push({ b: [bx.min.x - 0.3, bx.min.z - 0.3, bx.max.x + 0.3, bx.max.z + 0.3] }); }); }
     return true;
   }
   /** cor do chão em (x,z), ou null fora do mapa */
@@ -74,6 +81,7 @@ export class Grama {
       for (let n = 0; n < densidade; n++) {
         const x = bx + r() * CEL, z = bz + r() * CEL; const c = this.corChao(x, z); const rr = r(), rot = r(), e = 0.7 + r() * 0.9;
         if (!c || !(c[1] > c[0] * 1.05 && c[1] > c[2] * 1.15)) continue; // só onde o chão é verde
+        if (this.pisos.some(q => q.c ? Math.hypot(x - q.c[0], z - q.c[1]) < q.c[2] : x > q.b![0] && x < q.b![2] && z > q.b![1] && z < q.b![3])) continue;
         if (agua && agua(x, z)) continue; if (nr && nr(x, z, 2.2)) continue;
         if (solidos.some(o => o.r ? Math.hypot(x - o.x, z - o.z) < o.r + 0.3 : Math.abs(x - o.x) < o.hx + 0.3 && Math.abs(z - o.z) < o.hz + 0.3)) continue;
         const M = Matrix.Compose(new Vector3(e, e * (0.8 + rr * 0.6), e), Quaternion.RotationYawPitchRoll(rot * 6.28, 0, 0), new Vector3(x, 0.01, z));

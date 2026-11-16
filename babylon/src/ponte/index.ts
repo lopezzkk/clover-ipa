@@ -8,7 +8,6 @@ import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { PointLight } from '@babylonjs/core/Lights/pointLight';
-import { CascadedShadowGenerator } from '@babylonjs/core/Lights/Shadows/cascadedShadowGenerator';
 import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator';
 import { DefaultRenderingPipeline } from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline';
 import { SSAO2RenderingPipeline } from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline';
@@ -19,6 +18,8 @@ import { Light } from '@babylonjs/core/Lights/light';
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
+import { CreateSphere } from '@babylonjs/core/Meshes/Builders/sphereBuilder';
+import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
 import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent';
 import '@babylonjs/core/Layers/effectLayerSceneComponent';
 import '@babylonjs/core/Rendering/depthRendererSceneComponent';
@@ -37,7 +38,7 @@ class Ponte {
   ativo = true; pronto = false;
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
-  private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
+  private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
   ms = 0; erros = 0; grama!: Grama;
 
   private iniciar(R: T3) {
@@ -63,7 +64,7 @@ class Ponte {
   }
 
   private lerNivel(): Nivel {
-    const C = (window as any).CFG || {};
+    const C = (0, eval)("typeof CFG!=='undefined'?CFG:{}") || {};
     if (C.perf) return 'muitobaixo'; if (C.ultra) return 'ultra';
     return C.gfx === 'baixo' ? 'baixo' : C.gfx === 'alto' ? 'alto' : 'medio';
   }
@@ -76,8 +77,11 @@ class Ponte {
     const sol = [...this.luzes.values()].find(l => l instanceof DirectionalLight) as DirectionalLight | undefined;
     if (sol && n !== 'muitobaixo') {
       const res = n === 'ultra' ? 4096 : n === 'alto' ? 2048 : n === 'medio' ? 2048 : 1024;
-      const g = new CascadedShadowGenerator(res, sol); g.numCascades = n === 'baixo' ? 2 : n === 'medio' ? 2 : n === 'alto' ? 3 : 4; g.lambda = 0.85; g.shadowMaxZ = n === 'baixo' ? 70 : n === 'medio' ? 100 : 160; g.stabilizeCascades = true;
-      g.usePercentageCloserFiltering = true; g.filteringQuality = n === 'ultra' ? ShadowGenerator.QUALITY_HIGH : ShadowGenerator.QUALITY_MEDIUM; g.darkness = 0.32; g.bias = 0.006; g.normalBias = 0.03; g.depthClamp = true;
+      // sombra que acompanha o jogador (como no jogo original): nítida perto, sem custo longe
+      const g = new ShadowGenerator(res, sol); g.usePercentageCloserFiltering = true; g.filteringQuality = n === 'ultra' ? ShadowGenerator.QUALITY_HIGH : ShadowGenerator.QUALITY_MEDIUM;
+      g.darkness = 0.12; g.bias = 0.0015; g.normalBias = 0.02; g.transparencyShadow = false;
+      sol.autoUpdateExtends = false; sol.autoCalcShadowZBounds = false; this.raioSombra = n === 'ultra' || n === 'alto' ? 48 : 36;
+      sol.orthoLeft = -this.raioSombra; sol.orthoRight = this.raioSombra; sol.orthoTop = this.raioSombra; sol.orthoBottom = -this.raioSombra; sol.shadowMinZ = 1; sol.shadowMaxZ = 400;
       for (const m of this.casters) g.addShadowCaster(m, false);
       this.sombra = g;
     }
@@ -90,11 +94,11 @@ class Ponte {
     }
     // pós-processamento
     if (this.pipe) { this.pipe.dispose(); this.pipe = null; } if (this.ssao) { this.ssao.dispose(); this.ssao = null; }
-    const ip = s.imageProcessingConfiguration; ip.toneMappingEnabled = true; ip.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; ip.exposure = 1.12; ip.contrast = 1.08;
+    const ip = s.imageProcessingConfiguration; ip.toneMappingEnabled = true; ip.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; ip.exposure = 1.25; ip.contrast = 1.06;
     if (n === 'medio' || n === 'alto' || n === 'ultra') {
       const p = new DefaultRenderingPipeline('pos', true, s, [this.cam]);
       p.fxaaEnabled = true; p.bloomEnabled = true; p.bloomThreshold = 0.9; p.bloomWeight = n === 'medio' ? 0.22 : 0.32; p.bloomKernel = 40; p.bloomScale = 0.5;
-      p.imageProcessingEnabled = true; p.imageProcessing.toneMappingEnabled = true; p.imageProcessing.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; p.imageProcessing.exposure = 1.12; p.imageProcessing.contrast = 1.1;
+      p.imageProcessingEnabled = true; p.imageProcessing.toneMappingEnabled = true; p.imageProcessing.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; p.imageProcessing.exposure = 1.25; p.imageProcessing.contrast = 1.08;
       p.imageProcessing.vignetteEnabled = true; p.imageProcessing.vignetteWeight = 0.9; p.imageProcessing.vignetteColor = new Color4(0.08, 0.05, 0.02, 0);
       if (n !== 'medio') { p.sharpenEnabled = true; p.sharpen.edgeAmount = 0.2; }
       this.pipe = p;
@@ -112,10 +116,10 @@ class Ponte {
       else if (l3.isAmbientLight) { b = new HemisphericLight('amb', new Vector3(0, 1, 0), this.scene); }
       if (!b) return; this.luzes.set(l3, b); this.nivel = ''; // reaplica sombras
     }
-    const c = l3.color; b.diffuse = new Color3(c.r, c.g, c.b); b.intensity = l3.intensity * (l3.isHemisphereLight ? 0.95 : l3.isDirectionalLight ? 1.25 : 1);
+    const c = l3.color; b.diffuse = new Color3(c.r, c.g, c.b); b.intensity = l3.intensity * (l3.isHemisphereLight ? 1.35 : l3.isDirectionalLight ? 1.7 : 1);
     b.setEnabled(l3.visible !== false);
     const e = l3.matrixWorld.elements;
-    if (b instanceof DirectionalLight) { const t = l3.target; t.updateMatrixWorld(); const te = t.matrixWorld.elements; const d = new Vector3(te[12] - e[12], te[13] - e[13], te[14] - e[14]); if (d.lengthSquared() > 1e-6) b.direction = d.normalize(); b.position = new Vector3(e[12], e[13], e[14]); b.specular = new Color3(0.35, 0.33, 0.3); this.sol(b); }
+    if (b instanceof DirectionalLight) { const t = l3.target; t.updateMatrixWorld(); const te = t.matrixWorld.elements; const d = new Vector3(te[12] - e[12], te[13] - e[13], te[14] - e[14]); if (d.lengthSquared() > 1e-6) b.direction = d.normalize(); const PJ = (0, eval)("typeof P!=='undefined'?P:null"); const cx = PJ ? PJ.x : e[12], cz = PJ ? PJ.z : e[14]; b.position = new Vector3(cx, 0, cz).subtract(b.direction.scale(200)); b.specular = new Color3(0.35, 0.33, 0.3); this.sol(b); }
     else if (b instanceof HemisphericLight) { if (l3.groundColor) b.groundColor = new Color3(l3.groundColor.r, l3.groundColor.g, l3.groundColor.b); else b.groundColor = b.diffuse.scale(0.5); b.specular = Color3.Black(); }
     else if (b instanceof PointLight) { b.position = new Vector3(e[12], e[13], e[14]); b.range = l3.distance || 30; b.specular = b.diffuse.scale(0.2); }
   }
@@ -149,8 +153,8 @@ class Ponte {
       };
       walk(s3);
       tr.fim();
-      if (++this.q % 30 === 1) { const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); }
-      const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 55], alto: [48, 80], ultra: [64, 120] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]);
+      if (t0 - this.q > 500) { this.q = t0; const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); }
+      const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 110], alto: [48, 160], ultra: [64, 240] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]);
       this.engine.beginFrame(); this.scene.render(); this.engine.endFrame();
     } catch (err) {
       // se algo der errado na ponte, o jogo volta a desenhar com o three.js (nada trava)
@@ -159,7 +163,13 @@ class Ponte {
     }
     this.ms = this.ms * 0.9 + (performance.now() - t0) * 0.1;
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.engine ? (this.engine as any)._drawCalls?.current : 0, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, geometrias: this.tr?.totalGeometrias, erros: this.erros }; }
+  /** teste: esfera flutuando ao lado do jogador e um chão de teste, para conferir as sombras */
+  sondaSombra(x: number, z: number) {
+    const sp = CreateSphere('sonda', { diameter: 2 }, this.scene); sp.position.set(x + 3, 3, z); const m = new StandardMaterial('sondaM', this.scene); m.diffuseColor = new Color3(1, 0.2, 0.2); sp.material = m;
+    const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
+    this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
+  }
+  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.engine ? (this.engine as any)._drawCalls?.current : 0, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros }; }
 }
 
 (window as any).PONTE141 = new Ponte();

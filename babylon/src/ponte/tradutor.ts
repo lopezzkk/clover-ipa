@@ -147,7 +147,9 @@ export class Tradutor {
       r = { b, visto: 0, m: new Float32Array(16), tipo, mat: null, geo: null, geoV: -1, matV: -1 };
       this.reps.set(o, r); this.stats.novos++;
       if ((o.castShadow) && this.sombraAdd && tipo !== 'sprite' && tipo !== 'linha') this.sombraAdd(b);
-      b.receiveShadows = !!o.receiveShadow;
+      // melhoria: toda superfície sólida e iluminada recebe sombra (no jogo original só algumas recebiam)
+      const m0 = Array.isArray(o.material) ? o.material[0] : o.material;
+      b.receiveShadows = !!o.receiveShadow || !!(m0 && !m0.transparent && (m0.type === 'MeshToonMaterial' || m0.type === 'MeshLambertMaterial' || m0.type === 'MeshStandardMaterial' || m0.type === 'MeshPhongMaterial'));
     }
     r.visto = this.quadro;
     if (!r.b.isEnabled(false)) r.b.setEnabled(true);
