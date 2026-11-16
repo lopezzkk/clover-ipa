@@ -18,7 +18,7 @@ type T3 = any;
 const jogo = (n: string): any => { try { return (0, eval)(`typeof ${n}!=='undefined'?${n}:undefined`); } catch { return undefined; } };
 
 let detalhe: Texture | null = null;
-function texDetalhe(s: Scene) {
+export function texDetalhe(s: Scene) {
   if (detalhe) return detalhe;
   const t = new DynamicTexture('detalheChao', { width: 256, height: 256 }, s, true); const c = t.getContext() as unknown as CanvasRenderingContext2D;
   c.fillStyle = '#e8e8e8'; c.fillRect(0, 0, 256, 256);
