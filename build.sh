@@ -4,7 +4,7 @@ set -e
 # Montar o projeto do app
 (
 mkdir -p app/CloverRPG/Assets.xcassets/AppIcon.appiconset app/www
-cp index.html app/www/index.html
+if [ -f clover-rpg.html ]; then cp clover-rpg.html app/www/index.html; else cp index.html app/www/index.html; fi  # app de iPhone usa a versão em arquivo único
 curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js -o app/www/three.min.js
 sed -i '' 's#https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js#three.min.js#' app/www/index.html
 cp icon.png app/CloverRPG/Assets.xcassets/AppIcon.appiconset/icon-1024.png
