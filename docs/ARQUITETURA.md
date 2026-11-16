@@ -57,3 +57,23 @@ A conversão dos arquivos de `game/` para TypeScript será feita aos poucos, um 
 - O GitHub Actions (`.github/workflows/build.yml`) compila e testa a cada envio, mas **só publica quando o dono
   manda** ("Run workflow" com publicar = sim).
 - A versão do cache offline (`sw.js`) muda sozinha a cada build diferente.
+
+# Etapas 2 a 8
+
+| Etapa | Onde está | O que faz |
+|---|---|---|
+| 2 · Controles | `game/core/133-e2-teclas-configuraveis.js`, `game/ui/072-v84…` | todas as teclas do PC podem ser trocadas; barra de magias cabe no celular em pé |
+| 3 · Mundo | `game/world/135-e3-setores-memoria.js` | setores longe liberam a memória de vídeo e voltam sozinhos (Vila Hage: ~1.100 → ~300 formas na GPU) |
+| 4 · RPG | `game/progression/136-e4-reputacao-reinos.js` | reputação por reino com consequências (loja, recompensas, avisos, Status); salva no campo `rep` |
+| 5 · Multiplayer | `server/`, `game/multiplayer/137-e5-servidor-colyseus.js`, `docs/SERVIDOR.md` | servidor Colyseus com regras de validação; o jogo usa quando `CLOVER_SERVER_URL` existe |
+| 6 · Interface | `game/ui/138-e6-hud-telas-grandes.js` | HUD cresce em monitores grandes; menus conferidos de 320 px a 2560 px |
+| 7 · Otimização e testes | — | auditoria completa (magias, 163 casas, sistemas, regressões) em Chromium e WebKit |
+| 8 · Publicação | `src-tauri/`, `.github/workflows/windows.yml` | instalador do Windows gerado no GitHub; versão web pelo GitHub Pages quando o dono autorizar |
+
+## Coisas que ainda não foram feitas (e por quê)
+
+- **Oclusão** (esconder o que está atrás de prédios) e **compressão de texturas (KTX2)**: exigem mudar como o mapa e os modelos
+  são desenhados; ficaram para uma etapa própria, com testes de imagem.
+- **Atualizar o three.js** (r128 → atual): muda muitas funções usadas pelas magias e modelos; é uma etapa grande por si só.
+- **Instancing de árvores e objetos**: o v139 já junta as peças paradas, que dá um ganho parecido sem mexer no mapa.
+- **Monstros comuns, XP e moedas decididos pelo servidor**: o servidor precisa de credencial de administrador do Firebase.
