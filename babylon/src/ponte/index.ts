@@ -94,11 +94,11 @@ class Ponte {
     }
     // pós-processamento
     if (this.pipe) { this.pipe.dispose(); this.pipe = null; } if (this.ssao) { this.ssao.dispose(); this.ssao = null; }
-    const ip = s.imageProcessingConfiguration; ip.toneMappingEnabled = true; ip.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; ip.exposure = 1.25; ip.contrast = 1.06;
+    const ip = s.imageProcessingConfiguration; ip.toneMappingEnabled = true; ip.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; ip.exposure = 1.1; ip.contrast = 1.1;
     if (n === 'medio' || n === 'alto' || n === 'ultra') {
       const p = new DefaultRenderingPipeline('pos', true, s, [this.cam]);
       p.fxaaEnabled = true; p.bloomEnabled = true; p.bloomThreshold = 0.9; p.bloomWeight = n === 'medio' ? 0.22 : 0.32; p.bloomKernel = 40; p.bloomScale = 0.5;
-      p.imageProcessingEnabled = true; p.imageProcessing.toneMappingEnabled = true; p.imageProcessing.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; p.imageProcessing.exposure = 1.25; p.imageProcessing.contrast = 1.08;
+      p.imageProcessingEnabled = true; p.imageProcessing.toneMappingEnabled = true; p.imageProcessing.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES; p.imageProcessing.exposure = 1.1; p.imageProcessing.contrast = 1.12;
       p.imageProcessing.vignetteEnabled = true; p.imageProcessing.vignetteWeight = 0.9; p.imageProcessing.vignetteColor = new Color4(0.08, 0.05, 0.02, 0);
       if (n !== 'medio') { p.sharpenEnabled = true; p.sharpen.edgeAmount = 0.2; }
       this.pipe = p;
@@ -116,7 +116,7 @@ class Ponte {
       else if (l3.isAmbientLight) { b = new HemisphericLight('amb', new Vector3(0, 1, 0), this.scene); }
       if (!b) return; this.luzes.set(l3, b); this.nivel = ''; // reaplica sombras
     }
-    const c = l3.color; b.diffuse = new Color3(c.r, c.g, c.b); b.intensity = l3.intensity * (l3.isHemisphereLight ? 1.35 : l3.isDirectionalLight ? 1.7 : 1);
+    const c = l3.color; b.diffuse = new Color3(c.r, c.g, c.b); b.intensity = l3.intensity * (l3.isHemisphereLight ? 1.15 : l3.isDirectionalLight ? 1.45 : 1);
     b.setEnabled(l3.visible !== false);
     const e = l3.matrixWorld.elements;
     if (b instanceof DirectionalLight) { const t = l3.target; t.updateMatrixWorld(); const te = t.matrixWorld.elements; const d = new Vector3(te[12] - e[12], te[13] - e[13], te[14] - e[14]); if (d.lengthSquared() > 1e-6) b.direction = d.normalize(); const PJ = (0, eval)("typeof P!=='undefined'?P:null"); const cx = PJ ? PJ.x : e[12], cz = PJ ? PJ.z : e[14]; b.position = new Vector3(cx, 0, cz).subtract(b.direction.scale(200)); b.specular = new Color3(0.35, 0.33, 0.3); this.sol(b); }
