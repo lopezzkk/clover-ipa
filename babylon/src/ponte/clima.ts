@@ -33,9 +33,9 @@ export class Clima {
     // chuva
     const tg = new DynamicTexture('gota', { width: 8, height: 64 }, s, true); { const g = tg.getContext() as unknown as CanvasRenderingContext2D; const gr = g.createLinearGradient(0, 0, 0, 64); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,.9)'); g.fillStyle = gr; g.fillRect(2, 0, 4, 64); tg.hasAlpha = true; tg.update(true); }
     const ch = this.chuva = new ParticleSystem('chuva', 3200, s); ch.particleTexture = tg; ch.billboardMode = ParticleSystem.BILLBOARDMODE_STRETCHED; ch.blendMode = ParticleSystem.BLENDMODE_STANDARD;
-    ch.emitter = Vector3.Zero(); ch.minEmitBox = new Vector3(-24, 16, -24); ch.maxEmitBox = new Vector3(24, 20, 24); ch.direction1 = new Vector3(0.6, -1, 0.3); ch.direction2 = new Vector3(0.9, -1, 0.5);
-    ch.minEmitPower = 22; ch.maxEmitPower = 28; ch.minLifeTime = 0.75; ch.maxLifeTime = 0.9; ch.minSize = 0.035; ch.maxSize = 0.05; ch.minScaleY = 9; ch.maxScaleY = 13;
-    ch.color1 = new Color4(0.75, 0.82, 0.95, 0.42); ch.color2 = new Color4(0.65, 0.72, 0.88, 0.32); ch.colorDead = new Color4(0.7, 0.78, 0.9, 0.2); ch.gravity = Vector3.Zero(); ch.updateSpeed = 0.016; ch.emitRate = 0;
+    ch.emitter = Vector3.Zero(); ch.minEmitBox = new Vector3(-22, -12, -22); ch.maxEmitBox = new Vector3(22, 16, 22); ch.direction1 = new Vector3(0.6, -1, 0.3); ch.direction2 = new Vector3(0.9, -1, 0.5);
+    ch.minEmitPower = 22; ch.maxEmitPower = 28; ch.minLifeTime = 0.75; ch.maxLifeTime = 0.9; ch.minSize = 0.07; ch.maxSize = 0.1; ch.minScaleY = 6; ch.maxScaleY = 9;
+    ch.color1 = new Color4(0.8, 0.86, 0.97, 0.6); ch.color2 = new Color4(0.7, 0.77, 0.9, 0.5); ch.colorDead = new Color4(0.7, 0.78, 0.9, 0.2); ch.gravity = Vector3.Zero(); ch.updateSpeed = 0.016; ch.emitRate = 0;
     const tr = new DynamicTexture('respingo', 32, s, true); { const g = tr.getContext() as unknown as CanvasRenderingContext2D; g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 3; g.beginPath(); g.arc(16, 16, 11, 0, 6.283); g.stroke(); tr.hasAlpha = true; tr.update(true); }
     const rp = this.resp = new ParticleSystem('respingos', 600, s); rp.particleTexture = tr; rp.billboardMode = ParticleSystem.BILLBOARDMODE_ALL; rp.blendMode = ParticleSystem.BLENDMODE_STANDARD;
     rp.emitter = Vector3.Zero(); rp.minEmitBox = new Vector3(-14, 0.05, -14); rp.maxEmitBox = new Vector3(14, 0.06, 14); rp.direction1 = rp.direction2 = new Vector3(0, 0.01, 0); rp.minEmitPower = rp.maxEmitPower = 0;
@@ -64,12 +64,12 @@ export class Clima {
     const fat = ({ muitobaixo: 0.15, baixo: 0.35, medio: 0.6, alto: 0.85, ultra: 1 } as Record<string, number>)[nivel] ?? 0.6;
     (this.chuva.emitter as Vector3).set(cam.x, cam.y - 2, cam.z); this.chuva.emitRate = rk * 3600 * fat;
     (this.resp.emitter as Vector3).set(cam.x, 0, cam.z); this.resp.emitRate = nivel === 'muitobaixo' || nivel === 'baixo' ? 0 : rk * 420 * fat;
-    Clima.chuva += (rk - Clima.chuva) * Math.min(1, dt * 0.5);
+    Clima.chuva += (rk - Clima.chuva) * Math.min(1, dt * 1.2);
     const ter = this.s.getMaterialByName('terreno') as StandardMaterial | null; if (ter) { const k = 1 - Clima.chuva * 0.22; ter.diffuseColor.set(k, k, k * 1.02); ter.specularColor.set(0.04 + Clima.chuva * 0.3, 0.04 + Clima.chuva * 0.3, 0.05 + Clima.chuva * 0.32); ter.specularPower = 24 + Clima.chuva * 40; }
     // relâmpago
     const fl = W ? W.flash || 0 : 0; if (fl > 0.5 && this.flashAnt <= 0.5 && nivel !== 'muitobaixo') this.relampago(cam); this.flashAnt = fl;
     if (this.raio) { this.raioT -= dt; const v = this.raioT > 0 && (Math.floor(this.raioT * 40) % 3 !== 0); this.raio.setEnabled(v); if (this.raioT < -0.1) { this.raio.dispose(); this.raio = null; } }
-    if (fl > 0.05) for (const l of this.s.lights) if (l.name === 'ceuLuz') l.intensity += fl * 1.2;
+    if (fl > 0.05) for (const l of this.s.lights) if (l.name === 'ceuLuz') l.intensity += fl * 0.35;
   }
   get info() { return { chuva: +Clima.chuva.toFixed(2), gotas: this.chuva.getActiveCount() }; }
 }
