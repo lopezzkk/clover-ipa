@@ -35,6 +35,7 @@ import { Interface } from './interface';
 import { Vilas } from './vilas';
 import { Castelos } from './castelos';
 import { Interiores } from './interiores';
+import { Clima } from './clima';
 import { Personagens } from './personagens';
 import { Grimorios } from './grimorios';
 import { Chefes } from './chefes';
@@ -48,7 +49,7 @@ class Ponte {
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
-  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; private tAnt = 0;
+  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; private tAnt = 0;
 
   private canvasPrincipal: HTMLCanvasElement | null = null; private pr = 1; private reserva: T3 = null;
   /** Motor Babylon como renderizador ÚNICO do jogo: o three.js não desenha mais nada (nem cria contexto WebGL).
@@ -103,7 +104,7 @@ class Ponte {
     ajustarCena(s); this.grama = new Grama(s); this.faiscas = new Faiscas(s);
     this.pers = new Personagens(s, m => this.tr.sombraAdd?.(m)); this.grim = new Grimorios(s); this.chefes = new Chefes(s); this.nat = new Natureza(s);
     this.mundo = new Mundo(s, m => this.tr.sombraAdd?.(m), m => this.tr.sombraRem?.(m), () => texDetalhe(s));
-    this.ui = new Interface(s); this.vilas = new Vilas(s); this.castelos = new Castelos(s); this.interiores = new Interiores(s);
+    this.ui = new Interface(s); this.vilas = new Vilas(s); this.castelos = new Castelos(s); this.interiores = new Interiores(s); this.clima = new Clima(s);
     this.interiores.vinheta = on => { const p = this.pipe as any; if (!p || !p.imageProcessing) return; p.imageProcessing.vignetteEnabled = on; p.imageProcessing.vignetteWeight = 4; p.imageProcessing.vignetteColor = new Color4(0, 0, 0, 0); };
     this.pronto = true;
   }
@@ -199,7 +200,7 @@ class Ponte {
       const walk = (o: T3) => {
         if (o.visible === false) return;
         if (o.isLight) this.luz(o);
-        else if ((o.layers.mask & mask) !== 0 && (o.isMesh || o.isSprite || o.isPoints || o.isLine) && !pers.pular(o) && !this.mundo.esconder(o)) {
+        else if ((o.layers.mask & mask) !== 0 && (o.isMesh || o.isSprite || o.isPoints || o.isLine) && !pers.pular(o) && !this.mundo.esconder(o) && !this.clima.esconder(o)) {
           const m = o.matrixWorld.elements; const dx = m[12] - cx, dy = m[13] - cy, dz = m[14] - cz; const d2 = dx * dx + dy * dy + dz * dz;
           let longe = false;
           if (d2 > A * A && o.geometry) { let r = o.__r; if (r === undefined) { const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); r = o.__r = g.boundingSphere ? g.boundingSphere.radius : 0; }
@@ -213,7 +214,7 @@ class Ponte {
       const lim: Record<string, number> = { muitobaixo: 0, baixo: 12, medio: 30, alto: 50, ultra: 80 }; this.faiscas.quadro(tr.efeitos, lim[this.nivel || 'medio']);
       tr.fim();
       const dt = Math.min(0.1, this.tAnt ? (t0 - this.tAnt) / 1000 : 0.016); this.tAnt = t0; this.grim.atualizar(dt, this.nivel || 'medio');
-      this.chefes.atualizar(dt, this.nivel || 'medio', this.cam.position); this.mundo.atualizar(dt, this.nivel || 'medio', this.cam.position); this.ui.atualizar(dt, this.cam.position); this.vilas.atualizar(dt, this.nivel || 'medio', this.cam.position); this.castelos.atualizar(dt, this.nivel || 'medio', this.cam.position); this.interiores.atualizar(dt, this.nivel || 'medio'); this.nat.atualizar(dt, this.nivel || 'medio', this.scene.getMaterialByName('m_grama'));
+      this.chefes.atualizar(dt, this.nivel || 'medio', this.cam.position); this.mundo.atualizar(dt, this.nivel || 'medio', this.cam.position); this.ui.atualizar(dt, this.cam.position); this.vilas.atualizar(dt, this.nivel || 'medio', this.cam.position); this.castelos.atualizar(dt, this.nivel || 'medio', this.cam.position); this.interiores.atualizar(dt, this.nivel || 'medio'); this.clima.atualizar(dt, this.nivel || 'medio', this.cam.position); this.nat.atualizar(dt, this.nivel || 'medio', this.scene.getMaterialByName('m_grama'));
       if (t0 - this.q > 500) { this.q = t0; const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); }
       const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 110], alto: [48, 160], ultra: [64, 240] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]);
       this.msSync = this.msSync * 0.9 + (performance.now() - t0) * 0.1;
@@ -233,7 +234,7 @@ class Ponte {
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info }; }
+  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info }; }
 }
 
 (window as any).PONTE141 = new Ponte();

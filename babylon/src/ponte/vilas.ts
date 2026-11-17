@@ -17,6 +17,7 @@ import { CreateCylinder } from '@babylonjs/core/Meshes/Builders/cylinderBuilder'
 import { CreateIcoSphere } from '@babylonjs/core/Meshes/Builders/icoSphereBuilder';
 import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
 import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import { Clima } from './clima';
 
 type T3 = any;
 const jogo = (n: string): any => { try { return (0, eval)(`typeof ${n}!=='undefined'?${n}:undefined`); } catch { return undefined; } };
@@ -27,12 +28,15 @@ export class JanelaPlugin extends MaterialPluginBase {
   constructor(m: Material) { super(m, 'Janela', 210, { JANELA: false }); this._enable(true); }
   prepareDefines(d: any) { d.JANELA = true; }
   getClassName() { return 'JanelaPlugin'; }
-  getUniforms() { return { ubo: [{ name: 'janelaN', size: 1, type: 'float' }], fragment: 'uniform float janelaN;' }; }
-  bindForSubMesh(ubo: UniformBuffer) { ubo.updateFloat('janelaN', JanelaPlugin.noite); }
+  getUniforms() { return { ubo: [{ name: 'janelaN', size: 1, type: 'float' }, { name: 'chuvaK', size: 1, type: 'float' }], fragment: 'uniform float janelaN; uniform float chuvaK;' }; }
+  bindForSubMesh(ubo: UniformBuffer) { ubo.updateFloat('janelaN', JanelaPlugin.noite); ubo.updateFloat('chuvaK', Clima.chuva); }
   getCustomCode(tipo: string): any {
     if (tipo !== 'fragment') return null;
     return {
       CUSTOM_FRAGMENT_BEFORE_FOG: `
+#if defined(JANELA)
+  color.rgb *= 1.0 - 0.16 * chuvaK; // cenário molhado na chuva
+#endif
 #if defined(JANELA) && defined(VERTEXCOLOR)
   if (janelaN > 0.01) {
     vec3 jc = vColor.rgb;
