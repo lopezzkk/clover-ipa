@@ -15,7 +15,5 @@ function xpm104(){const v=v82S();v.xpm=v.xpm||{};return v.xpm}
 {const _b=window.v94Back;window.v94Back=function(){const r=_b.apply(this,arguments);setTimeout(()=>ap104Fix('back'),300);return r}}
 {const _lg=loadGame;loadGame=function(sv){const r=_lg.apply(this,arguments);setTimeout(()=>{try{ap104Fix('load')}catch(e){}},1200);return r}}
 let AP104T=0;{const _tu=tUpdate;tUpdate=function(dt,mv){const r=_tu.apply(this,arguments);AP104T-=dt;if(AP104T<=0){AP104T=3;try{if(P.g&&P.g.adm)ap104Fix('tick')}catch(e){}}return r}}
-// 3) interiores grandes (2 andares com interação) em todas as casas do mapa
-const IN104={cottage:'Casa do Vilarejo',two:'Sobrado',stone:'Casa de Pedra',merchant:'Casa do Comerciante',rich:'Casa Nobre'};
-for(const kind of Object.keys(IN104)){INTB[kind]=k=>{const v=+k.split('#')[1]||0;const R=tudorRoom('tudor:'+kind+'#'+v);R.title=IN104[kind];return R}}
+// 3) (removido) casas comuns não têm mais interior — só os lugares importantes
 

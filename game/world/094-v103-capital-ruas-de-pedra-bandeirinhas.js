@@ -46,41 +46,8 @@ let eat103=0;function eat103f(){const t=performance.now()/1000;if(t<eat103){toas
 function wardrobe103(){try{const ks=Object.keys(SK).filter(k=>P.own[k]);if(ks.length<2){toast('Você só tem um uniforme. Compre mais na Loja da Capital.');return}let i=ks.indexOf(P.eq);i=(i+1)%ks.length;skin(ks[i]);toast('👕 Uniforme: '+SK[ks[i]][0]);try{saveGame()}catch(e){}}catch(e){}}
 function fire103(g,x,z,ry){const F=G83();bp(F,BX(2.6,3,.9),0x8a847a,0,1.5,0,1);bp(F,BX(1.5,1.2,.4),0x1a1210,0,.7,.3);bp(F,BX(3,.24,1.1),0x6a645a,0,3,0);bp(F,BX(.9,2.6,.7),0x8a847a,0,4.3,-.1,1);
  const fl=G83();for(let k=0;k<4;k++)bp(fl,CN(.2,.6,5),[0xff6a1a,0xffb020,0xff8a2a,0xffd040][k],(k-1.5)*.24,.62,.32,0,1);F.add(fl);const L=new T.PointLight(0xff9a3a,1.2,9);L.position.set(0,1,.8);F.add(L);F.position.set(x,0,z);F.rotation.y=ry||0;g.add(F);return{fl,L}}
-function tudorRoom(k){const v=(+k.split('#')[1]||0)+(/cottage|stone/.test(k)?1:/rich/.test(k)?2:0);const W=22,Dd=18,H=7.6;const R=room86(k,W,Dd,H,0x8a6a48,[0xf2e6cc,0xeadcbc,0xf5ecd8,0xe6d6b4][v%4],{tiles:0x6a5038}),g=R.g,w2=W/2,d2=Dd/2;
- // vigas escuras no teto e nas paredes (enxaimel por dentro)
- for(let x=-w2+2;x<w2;x+=3)bp(g,BX(.3,.3,Dd),0x3a2416,x,H-.15,0);for(const s of[-1,1])for(let z=-d2+2;z<d2;z+=3)bp(g,BX(.18,H,.18),0x3a2416,s*(w2-.12),H/2,z);for(let x=-w2+2;x<w2;x+=3)bp(g,BX(.18,H,.18),0x3a2416,x,H/2,-d2+.12);
- // térreo: cozinha, mesa de jantar com comida, lareira grande
- IK.stove(g,w2-1.3,d2-3.4,-Math.PI/2);IK.counter(g,w2-.7,d2-6,3,-Math.PI/2,0x8a6a48);IK.table(g,1,3,3.4,1.6,0x7a4a2a);for(let i=0;i<3;i++){IK.chair(g,i*1.1,4.2,Math.PI);IK.chair(g,i*1.1,1.8,0)}
- for(let i=0;i<4;i++)bp(g,[SP(.18,7,5),CY(.2,.2,.12,10),CY(.1,.1,.3,7),SP(.15,7,5)][i],[0xd8a060,0xe8d8b0,0x8a2a2a,0xff6a3a][i],-.2+i*.7,1.02,3);
- const fp=fire103(g,-w2+.5,2.5,Math.PI/2);IK.rug(g,-w2+3.4,2.5,3,4,0x8a2a2a,0xa84a3a);IK.chair(g,-w2+3.2,1,Math.PI/2+.4,0x8a2a2a);IK.chair(g,-w2+3.2,4,Math.PI/2-.4,0x8a2a2a);
- IK.shelf(g,-2,d2-.35,Math.PI,3,1);IK.plant(g,3.6,d2-1);IK.barrel(g,w2-1,d2-1);IK.crate(g,w2-2.1,d2-.9);IK.window(g,-w2+.05,3,-1.5,Math.PI/2,1.3,1.4);IK.window(g,w2-.05,3,-1.5,-Math.PI/2,1.3,1.4);IK.lamp(g,4.5,d2-2.5,1.8);
- // mezanino (2º andar) no fundo, com escada e corrimão
- const MZ=6.6,MY=3.4,mzc=-d2+MZ/2;bp(g,BX(W-.4,.3,MZ),0x6a4a30,0,MY-.15,mzc,1);for(let x=-w2+1;x<w2-3;x+=2.4)bp(g,BX(.25,MY,.25),0x3a2416,x,MY/2,-d2+MZ);
- for(let x=-w2+.6;x<w2-3.4;x+=.5)bp(g,BX(.06,.9,.06),0x3a2416,x,MY+.45,-d2+MZ-.1);bp(g,BX(W-3.8,.1,.12),0x4a2e1c,-1.7,MY+.92,-d2+MZ-.1);
- platAdd84(R.ox,R.oz+mzc,w2-.2,MZ/2-.1,MY);
- const sx=w2-1.6,N=10;for(let i=0;i<N;i++){const zz=-d2+MZ+N*.55-(i+.5)*.55,yy=(i+1)*MY/N;bp(g,BX(2.4,.22,.56),0x7a5232,sx,yy-.11,zz,1);bp(g,BX(2.4,yy-.11,.56),0x5a3a22,sx,(yy-.11)/2,zz);platAdd84(R.ox+sx,R.oz+zz,1.2,.29,yy)}
- bp(g,BX(.1,1,N*.56),0x3a2416,sx-1.25,MY*.6,-d2+MZ+N*.28).rotation.x=Math.atan2(MY,N*.55);
- // quarto em cima: cama, baú, guarda-roupa, escrivaninha, estante
- IK.bed(g,-w2+2,-d2+1.7,0,[0x3e5f8a,0x8a2a2a,0x3a7a3a,0x6a3a8a][v%4],1);g.children[g.children.length-1].position.y=MY;
- const ch=G83();bp(ch,BX(1.2,.7,.7),0x6a4426,0,.35,0,1);bp(ch,BX(1.24,.14,.74),0xc8a040,0,.72,0);bp(ch,BX(.2,.24,.06),0xc8a040,0,.5,.36);ch.position.set(-w2+4,MY,-d2+.7);g.add(ch);
- const wr=G83();bp(wr,BX(1.6,2.6,.7),0x5a3a22,0,1.3,0,1);bp(wr,BX(.06,2.4,.02),0x2a1a10,0,1.3,.36);for(const s of[-1,1])bp(wr,SP(.05,5,4),0xc8a040,s*.15,1.3,.38);wr.position.set(0,MY,-d2+.5);g.add(wr);
- const dk=G83();bp(dk,BX(1.8,.1,.8),0x7a4a2a,0,.85,0,1);for(const [a,b] of[[-1,-1],[1,-1],[-1,1],[1,1]])bp(dk,BX(.08,.85,.08),0x4a2e1a,a*.8,.42,b*.32);bp(dk,BX(.5,.06,.36),0xf0e6cc,-.2,.92,0);bp(dk,CY(.05,.05,.25,6),0xfff0c0,.5,1.02,0,0,1);dk.position.set(3,MY,-d2+.6);g.add(dk);
- IK.shelf(g,6.4,-d2+.3,0,2.6,1);g.children[g.children.length-1].position.y=MY;IK.chand(g,0,H-.6,2,1.2);
- // interações (térreo y=0, mezanino y=MY)
- const o=(x,z)=>[R.ox+x,R.oz+z];
- ia103Add(R,{p:o(-w2+2,-d2+2.4),y:MY,r:1.9,t:'💤 Descansar na cama',f:rest103});
- ia103Add(R,{p:o(-w2+4,-d2+1.4),y:MY,r:1.5,t:'🎁 Abrir o baú',f:chest103(R,k)});
- ia103Add(R,{p:o(0,-d2+1.3),y:MY,r:1.5,t:'👕 Trocar de uniforme',f:wardrobe103});
- ia103Add(R,{p:o(6.4,-d2+1.1),y:MY,r:1.6,t:'📖 Ler um livro',f:()=>toast(LORE103[Math.floor(Math.random()*LORE103.length)])});
- ia103Add(R,{p:o(3,-d2+1.4),y:MY,r:1.4,t:'✍️ Escrever no diário',f:()=>{try{saveGame()}catch(e){}toast('✍️ Você escreveu no diário. (Jogo salvo)')}});
- ia103Add(R,{p:o(1,3),y:0,r:2.4,t:'🍞 Comer na mesa',f:eat103f});
- ia103Add(R,{p:o(-w2+2,2.5),y:0,r:2,t:'🔥 Acender/apagar a lareira',f:()=>{fp.fl.visible=!fp.fl.visible;fp.L.visible=fp.fl.visible;toast(fp.fl.visible?'🔥 Lareira acesa.':'Lareira apagada.')}});
- ia103Add(R,{p:o(-2,d2-1.2),y:0,r:1.6,t:'📖 Ler um livro',f:()=>toast(LORE103[Math.floor(Math.random()*LORE103.length)])});
- R.title=['Casa de Enxaimel','Casa do Comerciante','Casa da Família Real','Casa do Artesão'][v%4];return R}
-INTB.tudor=tudorRoom;
-// mais interação nas casas antigas (cama, mesa, lareira e estante)
-for(const kind of['cottage','two','stone','merchant','rich']){const f=INTB[kind];if(!f)continue;INTB[kind]=k=>{const R=f(k);try{const W=R.w/2,D=R.d/2,o=(x,z)=>[R.ox+x,R.oz+z];ia103Add(R,{p:o(-W+1.2,-D+1.6),y:0,r:1.8,t:'💤 Descansar na cama',f:rest103});ia103Add(R,{p:o(0,.5),y:0,r:2,t:'🍞 Comer na mesa',f:eat103f});
- ia103Add(R,{p:o(-W+.9,1.5),y:0,r:1.6,t:'📖 Ler um livro',f:()=>toast(LORE103[Math.floor(Math.random()*LORE103.length)])});ia103Add(R,{p:o(W-1.4,D-2.2),y:0,r:1.4,t:'🎁 Procurar moedas',f:chest103(R,k)})}catch(e){}return R}}
+// (interior das casas de enxaimel removido: casas comuns não têm interior)
+// (interações dentro das casas comuns removidas junto com os interiores)
 // botão de interação
 function ia103Tick(){let b=IA103.btn;if(!b){b=document.createElement('button');b.id='ia103';b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 150px);z-index:41;padding:10px 18px;border-radius:12px;border:2px solid #f0cf72;background:linear-gradient(180deg,#2a1e0e,#1a1208);color:#ffe9a0;font:700 15px system-ui;display:none;box-shadow:0 4px 14px rgba(0,0,0,.5)';
   b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const c=IA103.cur;if(c)try{c.f()}catch(er){}});document.body.appendChild(b);IA103.btn=b}
