@@ -166,10 +166,11 @@ export class Tradutor {
       if (tipo === 'pele') temCor = this.pele(o, mesh).temCor; else temCor = this.geometria(o.geometry, mesh).temCor;
       const m3 = Array.isArray(o.material) ? o.material[0] : o.material;
       const usaCor = temCor && !!(m3 && m3.vertexColors);
-      mesh.useVertexColors = usaCor; mesh.hasVertexAlpha = false;
-      if (m3) { const bm = this.material(m3, usaCor, o); if (mesh.material !== bm) mesh.material = bm; mesh.visibility = m3.visible === false ? 0 : 1; }
+      // otimização: só mexe quando muda (cada troca marca o material como 'sujo' e o Babylon recalcula tudo)
+      if (mesh.useVertexColors !== usaCor) mesh.useVertexColors = usaCor; if (mesh.hasVertexAlpha) mesh.hasVertexAlpha = false;
+      if (m3) { const bm = this.material(m3, usaCor, o); if (mesh.material !== bm) mesh.material = bm; const vv = m3.visible === false ? 0 : 1; if (mesh.visibility !== vv) mesh.visibility = vv; }
       const dr = o.geometry.drawRange; if (dr && (dr.start > 0 || dr.count !== Infinity) && mesh.subMeshes && mesh.subMeshes[0]) { const tot = mesh.getTotalIndices(); const cnt = Math.min(tot - dr.start, dr.count === Infinity ? tot : dr.count); mesh.subMeshes[0].indexStart = dr.start; mesh.subMeshes[0].indexCount = Math.max(0, cnt); }
-      if (o.renderOrder) mesh.alphaIndex = o.renderOrder;
+      if (o.renderOrder && mesh.alphaIndex !== o.renderOrder) mesh.alphaIndex = o.renderOrder;
       const bmat = mesh.material as StandardMaterial;
       if (bmat && bmat.alphaMode === Constants.ALPHA_ADD && bmat.alpha > 0.05) { const e = o.matrixWorld.elements; const sc = Math.hypot(e[0], e[1], e[2]); const gs = o.geometry.boundingSphere || (o.geometry.computeBoundingSphere(), o.geometry.boundingSphere);
         this.efeitos.push({ x: e[12], y: e[13], z: e[14], r: Math.min(6, (gs ? gs.radius : 0.5) * sc), c: (bmat.metadata && bmat.metadata.corBasica) || bmat.emissiveColor, novo: r.visto === this.quadro && r.geoV === -1 }); r.geoV = 0; }

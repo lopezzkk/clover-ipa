@@ -165,11 +165,12 @@ class Ponte {
       if (!b) return; this.luzes.set(l3, b); this.nivel = ''; // reaplica sombras
     }
     const c = l3.color; b.diffuse = new Color3(c.r, c.g, c.b); b.intensity = l3.intensity * (l3.isHemisphereLight ? 1.15 : l3.isDirectionalLight ? 1.45 : 1);
-    b.setEnabled(l3.visible !== false);
+    // otimização: ligar/desligar luz faz o Babylon recalcular as luzes de todas as malhas — só quando muda
+    { const on = l3.visible !== false; if (b.isEnabled(false) !== on) b.setEnabled(on); }
     const e = l3.matrixWorld.elements;
     if (b instanceof DirectionalLight) { const t = l3.target; t.updateMatrixWorld(); const te = t.matrixWorld.elements; const d = new Vector3(te[12] - e[12], te[13] - e[13], te[14] - e[14]); if (d.lengthSquared() > 1e-6) b.direction = d.normalize(); const PJ = (0, eval)("typeof P!=='undefined'?P:null"); const cx = PJ ? PJ.x : e[12], cz = PJ ? PJ.z : e[14]; b.position = new Vector3(cx, 0, cz).subtract(b.direction.scale(200)); b.specular = new Color3(0.35, 0.33, 0.3); this.sol(b); }
     else if (b instanceof HemisphericLight) { if (l3.groundColor) b.groundColor = new Color3(l3.groundColor.r, l3.groundColor.g, l3.groundColor.b); else b.groundColor = b.diffuse.scale(0.5); b.specular = Color3.Black(); }
-    else if (b instanceof PointLight) { b.position = new Vector3(e[12], e[13], e[14]); b.range = l3.distance || 30; b.specular = b.diffuse.scale(0.2); }
+    else if (b instanceof PointLight) { b.position.set(e[12], e[13], e[14]); const rg = l3.distance || 30; if (b.range !== rg) b.range = rg; b.specular = b.diffuse.scale(0.2); }
   }
   private sol(d: DirectionalLight) {
     const sm = this.ceu.material as SkyMaterial; const up = -d.direction.y;
