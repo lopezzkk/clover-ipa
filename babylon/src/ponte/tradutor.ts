@@ -23,16 +23,18 @@ type T3 = any; // objetos do three.js (o jogo usa o r128 global)
 
 interface Rep { b: AbstractMesh; visto: number; m: Float32Array; tipo: string; mat: T3; geo: T3; geoV: number; matV: number }
 
+const PRIMITIVAS = new Set(['SphereGeometry', 'BoxGeometry', 'CylinderGeometry', 'ConeGeometry', 'TorusGeometry', 'PlaneGeometry', 'CircleGeometry', 'RingGeometry', 'OctahedronGeometry', 'IcosahedronGeometry', 'DodecahedronGeometry', 'TetrahedronGeometry', 'TorusKnotGeometry', 'CapsuleGeometry']);
 export class Tradutor {
   quadro = 0;
   private reps = new Map<T3, Rep>();
-  private geos = new Map<T3, { g: Geometry; v: number; temCor: boolean; n: number }>();
+  private geos = new Map<T3, { g: Geometry; v: number; temCor: boolean; n: number; comp?: boolean }>();
+  private compart = new Map<string, { g: Geometry; v: number; temCor: boolean; n: number; comp?: boolean }>();
   private mats = new Map<string, { m: StandardMaterial; src: T3; v: string }>();
   private reservaMat: StandardMaterial[] = [];
   private texs = new Map<T3, { t: Texture; v: number }>();
   sombraAdd?: (m: AbstractMesh) => void; sombraRem?: (m: AbstractMesh) => void;
   melhorar?: (b: StandardMaterial, src: T3, obj: T3) => void;
-  stats = { objetos: 0, malhas: 0, novos: 0, liberados: 0, reusados: 0 };
+  stats = { objetos: 0, malhas: 0, novos: 0, liberados: 0, reusados: 0, formasNovas: 0, formasReusadas: 0 };
   efeitos: { x: number; y: number; z: number; r: number; c: Color3; novo: boolean }[] = [];
 
   constructor(private s: Scene) {}
@@ -127,6 +129,20 @@ export class Tradutor {
     const at = g3.attributes; const v = (at.position.version || 0) + (at.normal ? at.normal.version : 0) * 1e-3 + (at.color ? at.color.version : 0) * 1e-6 + (g3.index ? g3.index.version : 0) * 1e-9;
     let c = this.geos.get(g3);
     if (c && c.v === v) { if (mesh.geometry !== c.g) c.g.applyToMesh(mesh); return c; } // sem criar objeto novo a cada chamada (menos lixo na memória)
+    if (c && (c as any).comp) { this.geos.delete(g3); c = undefined; } // forma compartilhada que o jogo mexeu: ganha uma cópia só dela
+    // EFEITOS NATIVOS: as magias criam formas novas a cada uso (esfera, anel, cone, caixa...). Formas iguais (mesmo tipo e
+    // mesmas medidas) usam UMA forma já pronta no Babylon, em vez de converter tudo de novo a cada golpe.
+    if (!c && g3.parameters && PRIMITIVAS.has(g3.type) && !(at.position.version) && !at.color && !g3.index?.version) {
+      const key = g3.type + JSON.stringify(g3.parameters); let sh = this.compart.get(key);
+      if (!sh) { const r = this.geometriaNova(g3, mesh, v); this.geos.get(g3)!.comp = true; if (this.compart.size < 600) this.compart.set(key, this.geos.get(g3)!); this.stats.formasNovas++; return r; }
+      const e = { g: sh.g, v, temCor: false, n: sh.n, comp: true }; this.geos.set(g3, e);
+      if (g3.addEventListener) g3.addEventListener('dispose', () => { this.geos.delete(g3); });
+      if (mesh.geometry !== sh.g) sh.g.applyToMesh(mesh); this.stats.formasReusadas++; return e;
+    }
+    return this.geometriaNova(g3, mesh, v, c);
+  }
+  private geometriaNova(g3: T3, mesh: Mesh, v: number, c?: { g: Geometry; v: number; temCor: boolean; n: number; comp?: boolean }): { temCor: boolean } {
+    const at = g3.attributes;
     const vd = new VertexData();
     const pos = at.position; const n = pos.count;
     vd.positions = pos.isInterleavedBufferAttribute ? Array.from({ length: n * 3 }, (_, i) => pos.getComponent ? pos.getComponent(Math.floor(i / 3), i % 3) : [pos.getX, pos.getY, pos.getZ][i % 3].call(pos, Math.floor(i / 3))) : (pos.array.length === n * 3 ? pos.array : Array.from(pos.array).slice(0, n * 3));
@@ -151,7 +167,7 @@ export class Tradutor {
     }
     const g = new Geometry('g3', this.s, vd, true);
     this.geos.set(g3, { g, v, temCor, n });
-    if (g3.addEventListener) g3.addEventListener('dispose', () => { const x = this.geos.get(g3); if (x) { this.geos.delete(g3); setTimeout(() => { try { if (!x.g.meshes.length) x.g.dispose(); } catch { /* já liberada */ } }, 0); } });
+    if (g3.addEventListener) g3.addEventListener('dispose', () => { const x = this.geos.get(g3); if (x) { this.geos.delete(g3); if (x.comp) return; /* forma compartilhada fica guardada */ setTimeout(() => { try { if (!x.g.meshes.length) x.g.dispose(); } catch { /* já liberada */ } }, 0); } });
     g.applyToMesh(mesh);
     return { temCor };
   }

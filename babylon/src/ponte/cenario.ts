@@ -63,7 +63,7 @@ export class CenarioNativo {
       if (pers.has(o)) return;
       if (o.isMesh && !o.__nativo && !o.isSkinnedMesh && !o.isInstancedMesh && o.geometry && o.geometry.attributes && o.geometry.attributes.position) {
         const m3 = Array.isArray(o.material) ? o.material[0] : o.material; const dr = o.geometry.drawRange;
-        const ok = m3 && m3.blending !== 2 && !(dr && (dr.start > 0 || dr.count !== Infinity)) && !o.morphTargetInfluences;
+        const ok = m3 && m3.blending !== 2 && m3.visible !== false && (o.layers.mask & 1) !== 0 && !(dr && (dr.start > 0 || dr.count !== Infinity)) && !o.morphTargetInfluences;
         if (ok) {
           const e = o.matrixWorld.elements; let st = this.estab.get(o);
           if (!st) { st = { m: new Float32Array(e), n: 0 }; this.estab.set(o, st); }
@@ -93,6 +93,7 @@ export class CenarioNativo {
       const m3 = Array.isArray(o.material) ? o.material[0] : o.material;
       if (m3 !== f.m3 || o.geometry.drawRange.count !== Infinity) { this.tr.sombraRem?.(f.b); f.b.dispose(false, false); o.__nativo = null; this.estab.delete(o); continue; } // mudou de material: volta para a cópia normal
       if (vis) { const bs = f.b.getBoundingInfo().boundingSphere; const r = bs.radiusWorld; if (r < 25 && Math.hypot(bs.centerWorld.x - px, bs.centerWorld.z - pz) - r > A) vis = false; } // longe: igual ao corte por distância da cópia
+      if ((o.layers.mask & 1) === 0 || (m3 && m3.visible === false)) vis = false; // camada escondida do jogo ou material invisível
       if (f.b.isEnabled(false) !== vis) f.b.setEnabled(vis);
       if (completo && vis) {
         const e = o.matrixWorld.elements; let mudou = false; for (let i = 0; i < 16; i++) if (f.mw[i] !== e[i]) { mudou = true; f.mw[i] = e[i]; }

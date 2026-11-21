@@ -45,3 +45,11 @@ Medido com amostras sem média (`PONTE141.bruto = {}`), 35–40 quadros por roda
 - **Teste 2: tradução de materiais sem montar texto a cada objeto** e geometria sem criar objeto novo a cada chamada: em rodadas alternadas, 6,9 / 8,9 ms (antes) contra 7,3 / 7,8 ms (depois). **Sem diferença que dê para provar aqui** (o ruído desta máquina é de ±25%). Mantido porque gera menos lixo na memória, mas sem ganho medido.
 - Conclusão: neste computador de testes a cópia da cena custa ~7 ms por quadro e não cai com ajustes pequenos. O ganho grande só vem de **não precisar copiar**: as partes do jogo refeitas direto em Babylon (já feito: terreno, florestas, água, grama, céu, chuva, interface, vilas, castelos, interiores).
 - Medir em aparelho real continua pendente.
+
+## Rodada 3 — tirando trabalho do three.js (21/11/2026)
+
+- **Cenário fixo só no Babylon:** 1.565 peças juntadas do mapa (563 pedaços) saem da cena do three.js. Partes percorridas por quadro: 5.792 → 4.230; objetos traduzidos: 579 → 456.
+- **Congelamento geral:** peças sólidas paradas por ~2 s viram só Babylon (com correção automática de posição, visibilidade, material e remoção). Personagens ficam de fora. Corrigido depois: peças na camada escondida do jogo (originais já juntadas) e materiais invisíveis não entram.
+- **Formas das magias compartilhadas:** formas iguais (mesmo tipo e medidas) usam uma forma pronta no Babylon. Teste com 24 magias: 177 de 200 formas reaproveitadas, 23 novas.
+- **Ondas de choque (kShock) nativas:** 0 objetos criados em 33 ondas (antes 66).
+- **Materiais das magias:** reserva para reaproveitar quando o jogo libera o material (no teste o jogo não liberou nenhum, então sem efeito medido).
