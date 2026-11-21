@@ -49,7 +49,7 @@ class Ponte {
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
-  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; private tAnt = 0;
+  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; perfil: Record<string, number> = {}; sombrasAtivas = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; private tAnt = 0;
 
   private canvasPrincipal: HTMLCanvasElement | null = null; private pr = 1; private reserva: T3 = null;
   /** Motor Babylon como renderizador ÚNICO do jogo: o three.js não desenha mais nada (nem cria contexto WebGL).
@@ -137,7 +137,8 @@ class Ponte {
       const gl = new GlowLayer('brilho', s, { mainTextureRatio: n === 'baixo' ? 0.25 : 0.4, blurKernelSize: n === 'baixo' ? 16 : 32 }); gl.intensity = 0.55;
       gl.customEmissiveColorSelector = (mesh, _sub, mat, res) => { const m = mat as StandardMaterial; const cc = (m && (m.metadata?.corBasica || m.emissiveColor)); if (m && (m.alphaMode === Constants.ALPHA_ADD || m.metadata?.brilha)) res.set(cc.r * 0.45 * m.alpha, cc.g * 0.45 * m.alpha, cc.b * 0.45 * m.alpha, 1); else res.set(0, 0, 0, 0); void mesh; };
       // otimização: a camada de brilho só desenha o que brilha (antes desenhava a cena inteira de novo, em preto)
-      (gl as any)._shouldRenderMesh = (m: AbstractMesh) => { const mt = m.material as StandardMaterial; return !!mt && (mt.alphaMode === Constants.ALPHA_ADD || !!mt.metadata?.brilha); };
+      const so = (m: AbstractMesh) => { const mt = m.material as StandardMaterial; return !!mt && (mt.alphaMode === Constants.ALPHA_ADD || !!mt.metadata?.brilha); };
+      (gl as any)._shouldRenderMesh = so; const thin = (gl as any)._thinEffectLayer; if (thin) { const orig = thin._shouldRenderMesh.bind(thin); thin._shouldRenderMesh = (m: AbstractMesh) => so(m) && orig(m); }
       this.glow = gl;
     }
     // pós-processamento
@@ -197,7 +198,8 @@ class Ponte {
       // otimização: objetos pequenos muito longe da câmera não são enviados (cada nível tem seu alcance)
       const alc: Record<string, number> = { muitobaixo: 70, baixo: 95, medio: 130, alto: 170, ultra: 240 }; const A = alc[this.nivel || 'medio'];
       const cx = e[12], cy = e[13], cz = e[14]; let cortados = 0; const pers = this.pers;
-      pers.atualizar(s3, this.cam.position, A * 0.35);
+      let tm = performance.now(); const marca = (k: string) => { const n = performance.now(); this.perfil[k] = (this.perfil[k] || 0) * 0.9 + (n - tm) * 0.1; tm = n; };
+      pers.atualizar(s3, this.cam.position, A * 0.35); marca('personagens');
       const walk = (o: T3) => {
         if (o.visible === false) return;
         if (o.isLight) this.luz(o);
@@ -211,16 +213,16 @@ class Ponte {
         const ch = o.children; for (let i = 0; i < ch.length; i++) walk(ch[i]);
       };
       tr.efeitos.length = 0;
-      walk(s3); this.cortados = cortados;
+      walk(s3); this.cortados = cortados; marca('copiaCena');
       const lim: Record<string, number> = { muitobaixo: 0, baixo: 12, medio: 30, alto: 50, ultra: 80 }; this.faiscas.quadro(tr.efeitos, lim[this.nivel || 'medio']);
-      tr.fim();
-      const dt = Math.min(0.1, this.tAnt ? (t0 - this.tAnt) / 1000 : 0.016); this.tAnt = t0; this.grim.atualizar(dt, this.nivel || 'medio');
-      this.chefes.atualizar(dt, this.nivel || 'medio', this.cam.position); this.mundo.atualizar(dt, this.nivel || 'medio', this.cam.position); this.ui.atualizar(dt, this.cam.position); this.vilas.atualizar(dt, this.nivel || 'medio', this.cam.position); this.castelos.atualizar(dt, this.nivel || 'medio', this.cam.position); this.interiores.atualizar(dt, this.nivel || 'medio'); this.clima.atualizar(dt, this.nivel || 'medio', this.cam.position); this.nat.atualizar(dt, this.nivel || 'medio', this.scene.getMaterialByName('m_grama'));
-      if (t0 - this.q > 500) { this.q = t0; const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); }
-      const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 110], alto: [48, 160], ultra: [64, 240] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]);
+      tr.fim(); marca('efeitosLimpeza');
+      const dt = Math.min(0.1, this.tAnt ? (t0 - this.tAnt) / 1000 : 0.016); this.tAnt = t0; marca('_'); this.grim.atualizar(dt, this.nivel || 'medio'); marca('grimorios');
+      this.chefes.atualizar(dt, this.nivel || 'medio', this.cam.position); marca('chefes'); this.mundo.atualizar(dt, this.nivel || 'medio', this.cam.position); marca('mundo'); this.ui.atualizar(dt, this.cam.position); marca('interface'); this.vilas.atualizar(dt, this.nivel || 'medio', this.cam.position); marca('vilas'); this.castelos.atualizar(dt, this.nivel || 'medio', this.cam.position); marca('castelos'); this.interiores.atualizar(dt, this.nivel || 'medio'); marca('interiores'); this.clima.atualizar(dt, this.nivel || 'medio', this.cam.position); marca('clima'); this.nat.atualizar(dt, this.nivel || 'medio', this.scene.getMaterialByName('m_grama'));
+      if (t0 - this.q > 500) { this.q = t0; const n = this.lerNivel(); if (n !== this.nivel) this.aplicarNivel(n, R); this.filtrarSombras(); }
+      const gq: Record<string, [number, number]> = { muitobaixo: [0, 0], baixo: [0, 0], medio: [32, 110], alto: [48, 160], ultra: [64, 240] }; const g = gq[this.nivel || 'medio']; this.grama.atualizar(g[0], g[1]); marca('grama');
       this.msSync = this.msSync * 0.9 + (performance.now() - t0) * 0.1;
       const dc = (this.engine as any)._drawCalls; if (dc && dc.fetchNewFrame) dc.fetchNewFrame(); // contador de desenhos por quadro (não acumulado)
-      this.engine.beginFrame(); this.scene.render(); this.engine.endFrame();
+      tm = performance.now(); this.engine.beginFrame(); this.scene.render(); this.engine.endFrame(); marca('desenhoBabylon');
       if (dc) this.desenhos = dc.current;
     } catch (err) {
       // se algo der errado na ponte, o jogo volta a desenhar com o three.js (nada trava)
@@ -229,13 +231,20 @@ class Ponte {
     }
     this.ms = this.ms * 0.9 + (performance.now() - t0) * 0.1;
   }
+  /** otimização: só faz sombra quem está perto do jogador (a sombra cobre ~48 m em volta dele) */
+  private filtrarSombras() {
+    const sm = this.sombra?.getShadowMap(); if (!sm) return; let c = { x: this.cam.position.x, z: this.cam.position.z }; try { const P = (0, eval)('typeof P!=="undefined"?P:null'); if (P && typeof P.x === 'number') c = { x: P.x, z: P.z }; } catch { /* usa a câmera */ } const L: AbstractMesh[] = [];
+    for (const m of this.casters) { if (m.isDisposed() || !m.isEnabled()) continue; const b = m.getBoundingInfo().boundingSphere; const dx = b.centerWorld.x - c.x, dz = b.centerWorld.z - c.z;
+      if (Math.sqrt(dx * dx + dz * dz) - b.radiusWorld < 60) L.push(m); }
+    sm.renderList = L; this.sombrasAtivas = L.length;
+  }
   /** teste: esfera flutuando ao lado do jogador e um chão de teste, para conferir as sombras */
   sondaSombra(x: number, z: number) {
     const sp = CreateSphere('sonda', { diameter: 2 }, this.scene); sp.position.set(x + 3, 3, z); const m = new StandardMaterial('sondaM', this.scene); m.diffuseColor = new Color3(1, 0.2, 0.2); sp.material = m;
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info }; }
+  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info }; }
 }
 
 (window as any).PONTE141 = new Ponte();
