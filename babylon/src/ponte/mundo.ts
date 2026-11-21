@@ -70,7 +70,7 @@ export class Mundo {
     for (const o of SOL) { if (o.r) marcarC(o.x, o.z, o.r + 5); else marcarB(o.x, o.z, (o.hx || 1) + 5, (o.hz || 1) + 5); }
     for (const r of ROADS) { const [x1, z1, x2, z2] = r; const L = Math.hypot(x2 - x1, z2 - z1); const n = Math.max(1, Math.ceil(L / 3)); for (let k = 0; k <= n; k++) marcarC(x1 + (x2 - x1) * k / n, z1 + (z2 - z1) * k / n, 8); }
     for (const n of jogo('NPCS') || []) if (n && n.g) marcarC(n.g.position.x, n.g.position.z, 7);
-    for (const d of jogo('DOORS86') || []) marcarC(d.x, d.z, 6);
+    for (const d of jogo('TODAS86') || jogo('DOORS86') || []) marcarC(d.x, d.z, 6);
     for (const r of REG) if (r.r <= 160) marcarC(r.x, r.z, Math.min(70, r.r * (r.id === 'bruxas' ? 0.3 : 0.55)));
     marcarC(0, 0, 45);
     for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const x = this.X0 + i * C, z = this.Z0 + j * C; if (x >= WB.x0 - 4 && x <= WB.x1 + 4 && z >= WB.z0 - 4 && z <= WB.z1 + 4 && inW(x, z)) { AG[j * nx + i] = 1; OC[j * nx + i] = 1; } }

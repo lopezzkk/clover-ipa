@@ -1,7 +1,9 @@
 // ===================== V86 · base para portas (interiores) e cidades muradas =====================
 // Toda casa colocada com placeHouse registra a porta (na frente da casa). Prédios especiais chamam door86 direto.
-const DOORS86=[];function door86(x,z,kind,name,ry){DOORS86.push({x,z,kind,name:name||null,ry:ry||0,id:DOORS86.length});return DOORS86.length-1}
-placeHouse=(f=>function(type,x,z,ry,o,sc){const rr=f.apply(this,arguments);try{if(type!='ruin'){const d=(rr||3)+1.2;door86(x+Math.sin(ry)*d,z+Math.cos(ry)*d,type,null,ry)}}catch(e){}return rr})(placeHouse);
+const CASAS86=new Set(['cottage','two','stone','merchant','rich','tudor']),FRENTES86=[],TODAS86=[];
+const DOORS86=[];function door86(x,z,kind,name,ry){const e={x,z,kind,name:name||null,ry:ry||0,id:DOORS86.length};DOORS86.push(e);TODAS86.push(e);return DOORS86.length-1}
+// casas comuns NÃO têm porta de interior (pedido do dono do jogo): a frente delas fica só registrada para os enfeites da rua
+placeHouse=(f=>function(type,x,z,ry,o,sc){const rr=f.apply(this,arguments);try{if(type!='ruin'){const d=(rr||3)+1.2,px=x+Math.sin(ry)*d,pz=z+Math.cos(ry)*d;if(CASAS86.has(type)){const e={x:px,z:pz,kind:type,name:null,ry:ry||0,id:-1-FRENTES86.length};FRENTES86.push(e);TODAS86.push(e)}else door86(px,pz,type,null,ry)}}catch(e){}return rr})(placeHouse);
 // lugar livre para construir (fora de estrada, água e colisões)
 function free86(x,z,r,road){if(nearRoad(x,z,(road==null?4:road)+r))return false;for(let k=0;k<8;k++){const a=k/8*6.283;if(inWater83(x+Math.cos(a)*r,z+Math.sin(a)*r))return false}if(inWater83(x,z))return false;
  return !SOL.some(o=>o.r?Math.hypot(x-o.x,z-o.z)<o.r+r:Math.abs(x-o.x)<o.hx+r&&Math.abs(z-o.z)<o.hz+r)}

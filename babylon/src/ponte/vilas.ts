@@ -61,7 +61,7 @@ export class Vilas {
   constructor(private s: Scene) {}
 
   private montar() {
-    const D: T3[] = jogo('DOORS86'); const P = jogo('P'); const WB = jogo('WB83');
+    const D: T3[] = jogo('TODAS86') || jogo('DOORS86'); const P = jogo('P'); const WB = jogo('WB83');
     if (!D || D.length < 20 || !P || !P.on || !WB || WB.x1 - WB.x0 < 300) return false;
     const s = this.s;
     const ferro = new StandardMaterial('vilaFerro', s); ferro.diffuseColor = new Color3(0.13, 0.12, 0.12); ferro.specularColor = new Color3(0.3, 0.3, 0.3);
@@ -88,10 +88,10 @@ export class Vilas {
       const ry = d.ry || 0, fx = Math.sin(ry), fz = Math.cos(ry), lx = Math.cos(ry), lz = -Math.sin(ry);
       const parede = (x: number, z: number) => [x - fx * 1.12, z - fz * 1.12];
       const imp = !casas.has(d.kind);
-      const lados = imp ? [-1, 1] : [((d.id || 0) % 2) ? 1 : -1];
+      const lados = imp ? [-1, 1] : [(Math.abs(d.id || 0) % 2) ? 1 : -1];
       for (const s2 of lados) { const [wx, wz] = parede(d.x + lx * s2 * (imp ? 1.6 : 0.95), d.z + lz * s2 * (imp ? 1.6 : 0.95)); add('suporte', wx + fx * 0.22, 0, wz + fz * 0.22, ry); add('luz', wx + fx * 0.22, 0, wz + fz * 0.22, ry); }
       const [sx, sz] = parede(d.x, d.z); add('degrau', sx + fx * 0.45, 0, sz + fz * 0.45, ry, imp ? 1.4 : 1);
-      if (!imp && ((d.id || 0) % 3) !== 0) { const s2 = ((d.id || 0) % 2) ? -1 : 1; const [vx, vz] = parede(d.x + lx * s2 * 1.05, d.z + lz * s2 * 1.05); add('vaso', vx + fx * 0.3, 0, vz + fz * 0.3, ry * 3.1); }
+      if (!imp && (Math.abs(d.id || 0) % 3) !== 0) { const s2 = (Math.abs(d.id || 0) % 2) ? -1 : 1; const [vx, vz] = parede(d.x + lx * s2 * 1.05, d.z + lz * s2 * 1.05); add('vaso', vx + fx * 0.3, 0, vz + fz * 0.3, ry * 3.1); }
       this.total++;
     }
     for (const [k, o] of por) {
@@ -110,7 +110,7 @@ export class Vilas {
     const s = this.s; const t = this.texF = new DynamicTexture('fumacaVila', 64, s, true); const c = t.getContext() as unknown as CanvasRenderingContext2D;
     for (let i = 0; i < 6; i++) { const x = 18 + Math.random() * 28, y = 18 + Math.random() * 28, r = 12 + Math.random() * 10; const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(255,255,255,.5)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, 64, 64); }
     t.hasAlpha = true; t.update(true);
-    const casas = D.filter(d => ['cottage', 'two', 'stone', 'tudor'].includes(d.kind) && d.x < WB.x1 && d.x > WB.x0 && d.z < WB.z1 && d.z > WB.z0 && (d.id % 4) === 1);
+    const casas = D.filter(d => ['cottage', 'two', 'stone', 'tudor'].includes(d.kind) && d.x < WB.x1 && d.x > WB.x0 && d.z < WB.z1 && d.z > WB.z0 && (Math.abs(d.id) % 4) === 1);
     for (const d of casas) {
       const ry = d.ry || 0; const x = d.x - Math.sin(ry) * 4.2, z = d.z - Math.cos(ry) * 4.2; const k = Math.floor((z + 2000) / SET) * 1000 + Math.floor((x + 2000) / SET); const st = this.setores.get(k); if (!st) continue;
       const ps = new ParticleSystem('fumaca', 26, s); ps.particleTexture = t; ps.blendMode = ParticleSystem.BLENDMODE_STANDARD; ps.emitter = new Vector3(x + Math.cos(ry) * 1.2, 6.2, z - Math.sin(ry) * 1.2);
