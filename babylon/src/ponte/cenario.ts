@@ -11,9 +11,11 @@ import type { Tradutor } from './tradutor';
 type T3 = any;
 const jogo = (n: string): any => { try { return (0, eval)(`typeof ${n}!=='undefined'?${n}:undefined`); } catch { return undefined; } };
 interface Peca { g: T3; c: T3; b: Mesh; cl: 'o' | 'd' | 'b'; }
+interface Fixo { o: T3; b: Mesh; m3: T3; usaCor: boolean; mw: Float32Array; raiz: T3; }
 
 export class CenarioNativo {
   private pecas: Peca[] = []; private porChunk = new Map<T3, Peca[]>(); private q = 0; convertidas = 0; ligado = true;
+  private fixos: Fixo[] = []; private tCong = 0; private estab = new WeakMap<T3, { m: Float32Array; n: number }>(); fixados = 0;
   constructor(private s: Scene, private tr: Tradutor) {}
 
   /** converte as peças juntadas que ainda estão no three.js (o jogo pode juntar mais depois) */
@@ -43,12 +45,73 @@ export class CenarioNativo {
       for (const p of lista) { const v = vis && (p.cl === 'o' ? !L || d < L.o : p.cl === 'd' ? !L || d < L.d : true); if (p.b.isEnabled(false) !== v) p.b.setEnabled(v); }
     }
   }
-  atualizar() {
+  /** personagens (jogador, moradores, inimigos, outros jogadores) não entram no congelamento: eles se mexem */
+  private gruposDePersonagem() {
+    const set = new Set<T3>(); const PP = jogo('PP'); if (PP && PP.g) set.add(PP.g);
+    for (const n of jogo('NPCS') || []) if (n && n.g) set.add(n.g);
+    for (const e of jogo('enemies') || []) { if (e && e.m) set.add(e.m); if (e && e.L && e.L.g) set.add(e.L.g); }
+    const MP = jogo('MP'); if (MP && MP.others) for (const k in MP.others) { const o = MP.others[k]; if (o && o.g) set.add(o.g); if (o && o.p && o.p.g) set.add(o.p.g); }
+    return set;
+  }
+  /** CONGELAMENTO GERAL: qualquer peça sólida que ficou parada por ~3 conferências seguidas (cenário solto, interiores,
+   *  enfeites, móveis) passa a ser desenhada só pelo Babylon e deixa de ser copiada; se o jogo mexer nela depois,
+   *  a posição é corrigida na próxima conferência; se o jogo apagar a peça, ela some do Babylon também. */
+  private congelar(S3: T3) {
+    const pers = this.gruposDePersonagem(); const raizes: T3[] = [];
+    for (const c of S3.children) if (!c.isLight && !c.isCamera && !pers.has(c)) raizes.push(c);
+    const visita = (o: T3, raiz: T3) => {
+      if (pers.has(o)) return;
+      if (o.isMesh && !o.__nativo && !o.isSkinnedMesh && !o.isInstancedMesh && o.geometry && o.geometry.attributes && o.geometry.attributes.position) {
+        const m3 = Array.isArray(o.material) ? o.material[0] : o.material; const dr = o.geometry.drawRange;
+        const ok = m3 && m3.blending !== 2 && !(dr && (dr.start > 0 || dr.count !== Infinity)) && !o.morphTargetInfluences;
+        if (ok) {
+          const e = o.matrixWorld.elements; let st = this.estab.get(o);
+          if (!st) { st = { m: new Float32Array(e), n: 0 }; this.estab.set(o, st); }
+          else { let igual = true; for (let i = 0; i < 16; i++) if (st.m[i] !== e[i]) { igual = false; st.m[i] = e[i]; } st.n = igual ? st.n + 1 : 0;
+            if (st.n >= 3) this.fixar(o, m3, raiz); }
+        }
+      }
+      const ch = o.children; for (let i = 0; i < ch.length; i++) visita(ch[i], raiz);
+    };
+    for (const r of raizes) visita(r, r);
+  }
+  private fixar(o: T3, m3: T3, raiz: T3) {
+    const b = new Mesh('fixo', this.s); b.isPickable = false;
+    const info = this.tr.geometria(o.geometry, b); const usaCor = info.temCor && !!m3.vertexColors;
+    b.useVertexColors = usaCor; b.material = this.tr.material(m3, usaCor, o);
+    const mw = new Float32Array(o.matrixWorld.elements); b.freezeWorldMatrix(Matrix.FromArray(mw)); b.doNotSyncBoundingInfo = false;
+    b.receiveShadows = true; if (o.castShadow) this.tr.sombraAdd?.(b); if (o.renderOrder) b.alphaIndex = o.renderOrder;
+    o.__nativo = b; this.fixos.push({ o, b, m3, usaCor, mw, raiz }); this.fixados++;
+  }
+  /** confere as peças congeladas: visível/escondida, posição, material e se ainda existem */
+  alcance = 130;
+  private conferirFixos(S3: T3, completo: boolean) {
+    const vivos: Fixo[] = []; const vistos = new Set<T3>(); const P = jogo('P'); const px = P ? P.x : 0, pz = P ? P.z : 0, A = this.alcance;
+    for (const f of this.fixos) {
+      const o = f.o; let p = o; let vis = true; while (p && p !== S3) { if (p.visible === false) vis = false; p = p.parent; }
+      if (p !== S3) { this.tr.sombraRem?.(f.b); f.b.dispose(false, false); o.__nativo = null; continue; } // a peça saiu da cena
+      const m3 = Array.isArray(o.material) ? o.material[0] : o.material;
+      if (m3 !== f.m3 || o.geometry.drawRange.count !== Infinity) { this.tr.sombraRem?.(f.b); f.b.dispose(false, false); o.__nativo = null; this.estab.delete(o); continue; } // mudou de material: volta para a cópia normal
+      if (vis) { const bs = f.b.getBoundingInfo().boundingSphere; const r = bs.radiusWorld; if (r < 25 && Math.hypot(bs.centerWorld.x - px, bs.centerWorld.z - pz) - r > A) vis = false; } // longe: igual ao corte por distância da cópia
+      if (f.b.isEnabled(false) !== vis) f.b.setEnabled(vis);
+      if (completo && vis) {
+        const e = o.matrixWorld.elements; let mudou = false; for (let i = 0; i < 16; i++) if (f.mw[i] !== e[i]) { mudou = true; f.mw[i] = e[i]; }
+        if (mudou) f.b.freezeWorldMatrix(Matrix.FromArray(f.mw));
+        if (!vistos.has(m3)) { vistos.add(m3); this.tr.material(m3, f.usaCor, o); }
+        this.tr.geometria(o.geometry, f.b);
+      }
+      vivos.push(f);
+    }
+    this.fixos = vivos;
+  }
+  atualizar(S3?: T3) {
     if (!this.ligado) return; this.q++;
     if (this.q % 60 === 2) this.converter();
     if (this.q % 4 === 0) this.visibilidade();
+    if (S3) { const t = performance.now(); if (t - this.tCong > 700) { this.tCong = t; this.congelar(S3); } if (this.q % 3 === 0) this.conferirFixos(S3, this.q % 15 === 0); }
   }
   /** se a ponte desligar (erro), devolve as peças para o three.js, para o desenho de reserva mostrar o mapa inteiro */
-  restaurar() { for (const p of this.pecas) { if (!p.c.parent) p.g.add(p.c); p.c.__nativo = null; this.tr.sombraRem?.(p.b); p.b.dispose(false, false); } this.pecas = []; this.porChunk.clear(); this.ligado = false; }
-  get info() { return { convertidas: this.convertidas, pedacos: this.porChunk.size }; }
+  restaurar() { for (const f of this.fixos) { f.o.__nativo = null; this.tr.sombraRem?.(f.b); f.b.dispose(false, false); } this.fixos = [];
+    for (const p of this.pecas) { if (!p.c.parent) p.g.add(p.c); p.c.__nativo = null; this.tr.sombraRem?.(p.b); p.b.dispose(false, false); } this.pecas = []; this.porChunk.clear(); this.ligado = false; }
+  get info() { return { convertidas: this.convertidas, pedacos: this.porChunk.size, congeladas: this.fixos.length }; }
 }

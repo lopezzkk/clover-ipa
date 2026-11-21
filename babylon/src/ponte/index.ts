@@ -201,12 +201,12 @@ class Ponte {
       const alc: Record<string, number> = { muitobaixo: 70, baixo: 95, medio: 130, alto: 170, ultra: 240 }; const A = alc[this.nivel || 'medio'];
       const cx = e[12], cy = e[13], cz = e[14]; let cortados = 0; const pers = this.pers;
       let tm = performance.now(); const marca = (k: string) => { const n = performance.now(); this.perfil[k] = (this.perfil[k] || 0) * 0.9 + (n - tm) * 0.1; if (this.bruto) (this.bruto[k] ||= []).push(n - tm); tm = n; };
-      this.cenario.atualizar(); marca('cenarioNativo');
+      this.cenario.alcance = A; this.cenario.atualizar(s3); marca('cenarioNativo');
       pers.atualizar(s3, this.cam.position, A * 0.35); marca('personagens');
       const walk = (o: T3) => {
         if (o.visible === false) return;
         if (o.isLight) this.luz(o);
-        else if ((o.layers.mask & mask) !== 0 && (o.isMesh || o.isSprite || o.isPoints || o.isLine) && !pers.pular(o) && !this.mundo.esconder(o) && !this.clima.esconder(o)) {
+        else if ((o.layers.mask & mask) !== 0 && (o.isMesh || o.isSprite || o.isPoints || o.isLine) && !o.__nativo && !pers.pular(o) && !this.mundo.esconder(o) && !this.clima.esconder(o)) {
           const m = o.matrixWorld.elements; const dx = m[12] - cx, dy = m[13] - cy, dz = m[14] - cz; const d2 = dx * dx + dy * dy + dz * dz;
           let longe = false;
           if (d2 > A * A && o.geometry) { let r = o.__r; if (r === undefined) { const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); r = o.__r = g.boundingSphere ? g.boundingSphere.radius : 0; }
