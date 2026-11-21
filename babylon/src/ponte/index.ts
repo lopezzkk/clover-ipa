@@ -38,6 +38,7 @@ import { Interiores } from './interiores';
 import { Clima } from './clima';
 import { Efeitos } from './efeitos';
 import { CenarioNativo } from './cenario';
+import { Modelos } from './modelos';
 import { Personagens } from './personagens';
 import { Grimorios } from './grimorios';
 import { Chefes } from './chefes';
@@ -51,7 +52,7 @@ class Ponte {
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
-  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; perfil: Record<string, number> = {}; /** amostras sem média (para medir com precisão: PONTE141.bruto = {}) */ bruto: Record<string, number[]> | null = null; sombrasAtivas = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; efeitos!: Efeitos; cenario!: CenarioNativo; private tAnt = 0;
+  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; perfil: Record<string, number> = {}; /** amostras sem média (para medir com precisão: PONTE141.bruto = {}) */ bruto: Record<string, number[]> | null = null; sombrasAtivas = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; efeitos!: Efeitos; cenario!: CenarioNativo; modelos!: Modelos; private tAnt = 0;
 
   private canvasPrincipal: HTMLCanvasElement | null = null; private pr = 1; private reserva: T3 = null;
   /** Motor Babylon como renderizador ÚNICO do jogo: o three.js não desenha mais nada (nem cria contexto WebGL).
@@ -106,7 +107,7 @@ class Ponte {
     ajustarCena(s); this.grama = new Grama(s); this.faiscas = new Faiscas(s);
     this.pers = new Personagens(s, m => this.tr.sombraAdd?.(m)); this.grim = new Grimorios(s); this.chefes = new Chefes(s); this.nat = new Natureza(s);
     this.mundo = new Mundo(s, m => this.tr.sombraAdd?.(m), m => this.tr.sombraRem?.(m), () => texDetalhe(s));
-    this.ui = new Interface(s); this.vilas = new Vilas(s); this.castelos = new Castelos(s); this.interiores = new Interiores(s); this.clima = new Clima(s); this.efeitos = new Efeitos(s, () => this.ativo); this.cenario = new CenarioNativo(s, this.tr);
+    this.ui = new Interface(s); this.vilas = new Vilas(s); this.castelos = new Castelos(s); this.interiores = new Interiores(s); this.clima = new Clima(s); this.efeitos = new Efeitos(s, () => this.ativo); this.cenario = new CenarioNativo(s, this.tr); this.modelos = new Modelos(s);
     this.interiores.vinheta = on => { const p = this.pipe as any; if (!p || !p.imageProcessing) return; p.imageProcessing.vignetteEnabled = on; p.imageProcessing.vignetteWeight = 4; p.imageProcessing.vignetteColor = new Color4(0, 0, 0, 0); };
     this.pronto = true;
   }
@@ -247,7 +248,9 @@ class Ponte {
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info, ondas: this.efeitos?.info, cenario: this.cenario?.info }; }
+  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info, ondas: this.efeitos?.info, cenario: this.cenario?.info, modelos: this.modelos?.info }; }
+  /** carregamento dos modelos .glb pelo Babylon (chamado pelo glb100 do jogo) */
+  glb(k: string, cb: (sc: any) => void, antigo?: (k: string, cb: (sc: any) => void) => void) { if (!this.modelos) return antigo ? antigo(k, cb) : undefined; this.modelos.carregar(k, cb, antigo); }
 }
 
 (window as any).PONTE141 = new Ponte();

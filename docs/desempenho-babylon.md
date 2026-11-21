@@ -53,3 +53,12 @@ Medido com amostras sem média (`PONTE141.bruto = {}`), 35–40 quadros por roda
 - **Formas das magias compartilhadas:** formas iguais (mesmo tipo e medidas) usam uma forma pronta no Babylon. Teste com 24 magias: 177 de 200 formas reaproveitadas, 23 novas.
 - **Ondas de choque (kShock) nativas:** 0 objetos criados em 33 ondas (antes 66).
 - **Materiais das magias:** reserva para reaproveitar quando o jogo libera o material (no teste o jogo não liberou nenhum, então sem efeito medido).
+
+## Rodada 4 — carregamento dos modelos 3D (21/11/2026)
+
+- **Antes:** os 7 modelos .glb (Nero, Grimório do Asta, Espada Destruidora, Slotos, Plumede, Walgner, Belzebu) eram lidos pelo GLTFLoader do three.js (`vendor/089-gl100.js`).
+- **Testado e descartado:** o carregador oficial de glTF do Babylon. Ele soma ~970 KB à ponte (materiais PBR e shaders que o jogo não usa). Ficaria mais pesado, não mais leve.
+- **Feito:** leitor próprio de .glb na ponte (`modelos.ts`, ~5 KB): lê o arquivo, monta a mesma estrutura que o jogo esperava, e as texturas são carregadas pelo Babylon e usadas direto no desenho (sem converter de novo). O `vendor/089` não entra mais no build Babylon (só no Babylon; a versão publicada não muda).
+- **Conferência dado a dado** contra o leitor antigo, nos 7 modelos: nomes, matrizes, posições, normais, UV, cores dos vértices, índices, tipo e cor do material, transparência, lado e tamanho/repetição das texturas — **0 diferenças** (no Nero só a ordem de irmãos na árvore muda, porque o leitor antigo ordenava por quem terminava de carregar primeiro; comparando por nome, 0 diferenças). Caixas de tamanho idênticas.
+- **Tempo para ler os 7 modelos** (computador de testes): ~2.930 ms (three.js) → ~140 ms (novo).
+- **Tamanho:** −42 KB do leitor antigo, +~5 KB do novo.

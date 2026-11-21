@@ -21,7 +21,9 @@ const hash = b => crypto.createHash('sha256').update(b).digest('hex').slice(0, 1
 
 // ---------- 1 · jogo: junta os módulos na ordem do manifest ----------
 const manifest = JSON.parse(rd('game/manifest.json'));
-let game = manifest.map(f => rd(path.join('game', f))).join('');
+// CLOVER_SEM: arquivos do manifest que um build não usa (ex.: a versão Babylon não precisa do leitor de modelos do three.js)
+const SEM = new Set((process.env.CLOVER_SEM || '').split(',').map(s => s.trim()).filter(Boolean));
+let game = manifest.filter(f => !SEM.has(f)).map(f => rd(path.join('game', f))).join('');
 const assets = JSON.parse(rd('assets/models/assets.json'));
 
 // ---------- 2 · segurança: nada de e-mail de administrador ou código secreto no que vai para o jogador ----------

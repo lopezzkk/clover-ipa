@@ -41,6 +41,7 @@ export class Tradutor {
 
   // ---------- texturas ----------
   textura(t3: T3): Texture | null {
+    if (t3 && t3.__bjs) return t3.__bjs; // textura carregada pelo Babylon (modelos .glb): usa direto
     if (!t3 || !t3.image) return null;
     const c = this.texs.get(t3);
     if (c && c.v === t3.version) return c.t;

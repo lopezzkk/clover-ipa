@@ -1,7 +1,9 @@
 // ================= V100 · Modelos GLB: Grimório do Asta, Nero, Destruidora, Gimodelo, Espírito de Zéfiro, asa da União =================
 // Modelos do Sketchfab (licença CC-BY-4.0): créditos em MD100 / Novidades. Nada antigo foi apagado.
 const L100={glb:{},wait:{}};
-function glb100(k,cb){if(L100.glb[k]){cb(L100.glb[k].clone(true));return}(L100.wait[k]=L100.wait[k]||[]).push(cb);if(L100.wait[k].length>1)return;
+// os modelos agora são lidos pelo Babylon (ponte); o leitor antigo do three.js só é usado se o Babylon não estiver ligado
+function glb100(k,cb){if(window.PONTE141&&PONTE141.glb)return PONTE141.glb(k,cb,glb100three);return glb100three(k,cb)}
+function glb100three(k,cb){if(!THREE.GLTFLoader){console.warn('glb100: sem leitor three.js',k);return}if(L100.glb[k]){cb(L100.glb[k].clone(true));return}(L100.wait[k]=L100.wait[k]||[]).push(cb);if(L100.wait[k].length>1)return;
  try{const s=atob(MD100[k].glb),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);
   new THREE.GLTFLoader().parse(u.buffer,'',g=>{const sc=g.scene;sc.traverse(o=>{if(o.isMesh){o.castShadow=true;if(o.material){const om=o.material;if(om.map){om.map.encoding=T.LinearEncoding;om.map.anisotropy=2;om.map.needsUpdate=true}if(!om.isMeshBasicMaterial){const nm=new T.MeshLambertMaterial({map:om.map||null,color:om.color?om.color.clone():0xffffff,transparent:om.transparent,opacity:om.opacity,alphaTest:om.alphaTest||0,side:om.side});o.material=nm}o.material._keep=1}if(o.geometry)o.geometry._keep=1}});L100.glb[k]=sc;(L100.wait[k]||[]).forEach(f=>{try{f(sc.clone(true))}catch(e){}});L100.wait[k]=[]},e=>{console.warn('glb100',k,e)})}catch(e){console.warn('glb100',k,e)}}
 MD96.gimo100=MD100.gimo;MD96.zeph100=MD100.zeph;MD96.wing100=MD100.wing;
