@@ -62,3 +62,9 @@ Medido com amostras sem média (`PONTE141.bruto = {}`), 35–40 quadros por roda
 - **Conferência dado a dado** contra o leitor antigo, nos 7 modelos: nomes, matrizes, posições, normais, UV, cores dos vértices, índices, tipo e cor do material, transparência, lado e tamanho/repetição das texturas — **0 diferenças** (no Nero só a ordem de irmãos na árvore muda, porque o leitor antigo ordenava por quem terminava de carregar primeiro; comparando por nome, 0 diferenças). Caixas de tamanho idênticas.
 - **Tempo para ler os 7 modelos** (computador de testes): ~2.930 ms (three.js) → ~140 ms (novo).
 - **Tamanho:** −42 KB do leitor antigo, +~5 KB do novo.
+
+## Camada própria — fase 1: matemática (21/11/2026)
+
+- `babylon/src/compat/matematica.ts`: Vector2/3/4, Quaternion, Euler, Matrix3, Matrix4, Color, Box3, Sphere, Plane, Ray e MathUtils com os mesmos nomes e comportamento do three.js r128.
+- Teste `babylon/testes/matematica.mjs`: 174 métodos × 1.000 contas aleatórias cada = **185.000 contas iguais ao three.js, 0 diferenças**. Teste de sabotagem (erros colocados de propósito) confirma que o teste pega erros.
+- Ainda não ligada no jogo: entra junto com a fase 2 (objetos 3D próprios em cima do Babylon), porque as posições/giros dos objetos usam essa matemática.
