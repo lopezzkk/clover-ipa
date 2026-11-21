@@ -35,3 +35,13 @@ Sem mudança visual: as fotos de antes e depois são iguais.
 
 - Quadros por segundo nos 5 níveis gráficos (celular Android e iPhone).
 - Memória depois de 30 minutos jogando.
+
+## Rodada 2 — cópia da cena (21/11/2026)
+
+Medido com amostras sem média (`PONTE141.bruto = {}`), 35–40 quadros por rodada, Vila Hage, gráfico alto:
+
+- A cópia percorre **~5.800 nós** da cena do three.js e traduz **~580 malhas** por quadro; a tradução das malhas é ~2/3 do tempo.
+- **Teste 1: "cenário parado"** (conferir cada pedaço do mapa só a cada 8 quadros): 4,5 ms contra 4,8 ms sem ele — ganho de ~6%, dentro do ruído, com risco de atraso visual. **Desfeito.**
+- **Teste 2: tradução de materiais sem montar texto a cada objeto** e geometria sem criar objeto novo a cada chamada: em rodadas alternadas, 6,9 / 8,9 ms (antes) contra 7,3 / 7,8 ms (depois). **Sem diferença que dê para provar aqui** (o ruído desta máquina é de ±25%). Mantido porque gera menos lixo na memória, mas sem ganho medido.
+- Conclusão: neste computador de testes a cópia da cena custa ~7 ms por quadro e não cai com ajustes pequenos. O ganho grande só vem de **não precisar copiar**: as partes do jogo refeitas direto em Babylon (já feito: terreno, florestas, água, grama, céu, chuva, interface, vilas, castelos, interiores).
+- Medir em aparelho real continua pendente.

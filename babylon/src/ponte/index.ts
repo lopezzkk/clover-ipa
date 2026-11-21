@@ -49,7 +49,7 @@ class Ponte {
   engine!: Engine; scene!: Scene; cam!: TargetCamera; tr!: Tradutor;
   private luzes = new Map<T3, Light>(); private sombra: ShadowGenerator | null = null; private pipe: DefaultRenderingPipeline | null = null; private ssao: SSAO2RenderingPipeline | null = null; private glow: GlowLayer | null = null;
   private raioSombra = 40; private ceu!: AbstractMesh; private nivel: Nivel | '' = ''; private q = 0; private w = 0; private h = 0; private casters = new Set<AbstractMesh>();
-  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; perfil: Record<string, number> = {}; sombrasAtivas = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; private tAnt = 0;
+  ms = 0; msSync = 0; erros = 0; grama!: Grama; faiscas!: Faiscas; pers!: Personagens; cortados = 0; desenhos = 0; perfil: Record<string, number> = {}; /** amostras sem média (para medir com precisão: PONTE141.bruto = {}) */ bruto: Record<string, number[]> | null = null; sombrasAtivas = 0; grim!: Grimorios; chefes!: Chefes; nat!: Natureza; mundo!: Mundo; ui!: Interface; vilas!: Vilas; castelos!: Castelos; interiores!: Interiores; clima!: Clima; private tAnt = 0;
 
   private canvasPrincipal: HTMLCanvasElement | null = null; private pr = 1; private reserva: T3 = null;
   /** Motor Babylon como renderizador ÚNICO do jogo: o three.js não desenha mais nada (nem cria contexto WebGL).
@@ -198,7 +198,7 @@ class Ponte {
       // otimização: objetos pequenos muito longe da câmera não são enviados (cada nível tem seu alcance)
       const alc: Record<string, number> = { muitobaixo: 70, baixo: 95, medio: 130, alto: 170, ultra: 240 }; const A = alc[this.nivel || 'medio'];
       const cx = e[12], cy = e[13], cz = e[14]; let cortados = 0; const pers = this.pers;
-      let tm = performance.now(); const marca = (k: string) => { const n = performance.now(); this.perfil[k] = (this.perfil[k] || 0) * 0.9 + (n - tm) * 0.1; tm = n; };
+      let tm = performance.now(); const marca = (k: string) => { const n = performance.now(); this.perfil[k] = (this.perfil[k] || 0) * 0.9 + (n - tm) * 0.1; if (this.bruto) (this.bruto[k] ||= []).push(n - tm); tm = n; };
       pers.atualizar(s3, this.cam.position, A * 0.35); marca('personagens');
       const walk = (o: T3) => {
         if (o.visible === false) return;

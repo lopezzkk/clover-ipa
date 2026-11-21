@@ -62,22 +62,33 @@ export class Tradutor {
   // ---------- materiais ----------
   // a chave inclui o que muda a forma de desenhar (cores do vértice); propriedades simples são copiadas todo quadro
   material(m3: T3, temCor: boolean, obj: T3): StandardMaterial {
-    const k = m3.uuid + (temCor ? 'c' : '');
-    let c = this.mats.get(k);
+    // otimização: o material traduzido fica guardado no próprio material do jogo (sem montar texto de chave a cada objeto)
+    // e é conferido só uma vez por quadro, mesmo quando centenas de objetos usam o mesmo material
+    const slot = temCor ? '__bmC' : '__bm';
+    let c = m3[slot] as { m: StandardMaterial; src: T3; v: string; q?: number; a?: any[] } | undefined;
     if (!c) {
-      const m = new StandardMaterial('m3_' + (m3.name || m3.type), this.s);
-      m.specularColor = new Color3(0.06, 0.06, 0.06);
-      c = { m, src: m3, v: '' }; this.mats.set(k, c);
-      if (m3.addEventListener) m3.addEventListener('dispose', () => { const x = this.mats.get(k); if (x) { x.m.dispose(); this.mats.delete(k); } });
-      this.copiarMaterial(c, temCor);
-      this.melhorar?.(m, m3, obj);
-    } else this.copiarMaterial(c, temCor);
+      const k = m3.uuid + (temCor ? 'c' : '');
+      c = this.mats.get(k);
+      if (!c) {
+        const m = new StandardMaterial('m3_' + (m3.name || m3.type), this.s);
+        m.specularColor = new Color3(0.06, 0.06, 0.06);
+        c = { m, src: m3, v: '' }; this.mats.set(k, c);
+        if (m3.addEventListener) m3.addEventListener('dispose', () => { const x = this.mats.get(k); if (x) { x.m.dispose(); this.mats.delete(k); } m3[slot] = undefined; });
+        this.copiarMaterial(c, temCor); c.q = this.quadro;
+        this.melhorar?.(m, m3, obj);
+      }
+      m3[slot] = c;
+    }
+    if (c.q !== this.quadro) { c.q = this.quadro; this.copiarMaterial(c, temCor); }
     return c.m;
   }
   private copiarMaterial(c: { m: StandardMaterial; src: T3; v: string }, temCor: boolean) {
     const s = c.src, m = c.m;
-    const assin = [s.version, s.opacity, s.color && s.color.getHex(), s.emissive && s.emissive.getHex(), s.emissiveIntensity, s.transparent, s.blending, s.depthWrite, s.side, s.visible, s.map && s.map.version].join('|');
-    if (assin === c.v) return; c.v = assin;
+    // assinatura sem montar texto: compara os valores um por um com os do último quadro
+    const a = (c as any).a || ((c as any).a = new Array(16).fill(NaN)); const cc = s.color, ee = s.emissive, mp = s.map;
+    const v0 = s.version, v1 = s.opacity, v2 = cc ? cc.r : -1, v3 = cc ? cc.g : -1, v4 = cc ? cc.b : -1, v5 = ee ? ee.r : -1, v6 = ee ? ee.g : -1, v7 = ee ? ee.b : -1, v8 = s.emissiveIntensity, v9 = s.transparent, v10 = s.blending, v11 = s.depthWrite, v12 = s.side, v13 = s.visible, v14 = mp ? mp.version : -1, v15 = mp;
+    if (a[0] === v0 && a[1] === v1 && a[2] === v2 && a[3] === v3 && a[4] === v4 && a[5] === v5 && a[6] === v6 && a[7] === v7 && a[8] === v8 && a[9] === v9 && a[10] === v10 && a[11] === v11 && a[12] === v12 && a[13] === v13 && a[14] === v14 && a[15] === v15) return;
+    a[0] = v0; a[1] = v1; a[2] = v2; a[3] = v3; a[4] = v4; a[5] = v5; a[6] = v6; a[7] = v7; a[8] = v8; a[9] = v9; a[10] = v10; a[11] = v11; a[12] = v12; a[13] = v13; a[14] = v14; a[15] = v15;
     const basico = s.type === 'MeshBasicMaterial' || s.type === 'SpriteMaterial' || s.type === 'PointsMaterial' || s.type === 'LineBasicMaterial';
     const cor = s.color ? new Color3(s.color.r, s.color.g, s.color.b) : new Color3(1, 1, 1);
     const tx = this.textura(s.map);
@@ -110,7 +121,7 @@ export class Tradutor {
   geometria(g3: T3, mesh: Mesh): { temCor: boolean } {
     const at = g3.attributes; const v = (at.position.version || 0) + (at.normal ? at.normal.version : 0) * 1e-3 + (at.color ? at.color.version : 0) * 1e-6 + (g3.index ? g3.index.version : 0) * 1e-9;
     let c = this.geos.get(g3);
-    if (c && c.v === v) { if (mesh.geometry !== c.g) c.g.applyToMesh(mesh); return { temCor: c.temCor }; }
+    if (c && c.v === v) { if (mesh.geometry !== c.g) c.g.applyToMesh(mesh); return c; } // sem criar objeto novo a cada chamada (menos lixo na memória)
     const vd = new VertexData();
     const pos = at.position; const n = pos.count;
     vd.positions = pos.isInterleavedBufferAttribute ? Array.from({ length: n * 3 }, (_, i) => pos.getComponent ? pos.getComponent(Math.floor(i / 3), i % 3) : [pos.getX, pos.getY, pos.getZ][i % 3].call(pos, Math.floor(i / 3))) : (pos.array.length === n * 3 ? pos.array : Array.from(pos.array).slice(0, n * 3));
