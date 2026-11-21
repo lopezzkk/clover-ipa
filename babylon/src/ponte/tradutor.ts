@@ -28,10 +28,11 @@ export class Tradutor {
   private reps = new Map<T3, Rep>();
   private geos = new Map<T3, { g: Geometry; v: number; temCor: boolean; n: number }>();
   private mats = new Map<string, { m: StandardMaterial; src: T3; v: string }>();
+  private reservaMat: StandardMaterial[] = [];
   private texs = new Map<T3, { t: Texture; v: number }>();
   sombraAdd?: (m: AbstractMesh) => void; sombraRem?: (m: AbstractMesh) => void;
   melhorar?: (b: StandardMaterial, src: T3, obj: T3) => void;
-  stats = { objetos: 0, malhas: 0, novos: 0, liberados: 0 };
+  stats = { objetos: 0, malhas: 0, novos: 0, liberados: 0, reusados: 0 };
   efeitos: { x: number; y: number; z: number; r: number; c: Color3; novo: boolean }[] = [];
 
   constructor(private s: Scene) {}
@@ -70,10 +71,14 @@ export class Tradutor {
       const k = m3.uuid + (temCor ? 'c' : '');
       c = this.mats.get(k);
       if (!c) {
-        const m = new StandardMaterial('m3_' + (m3.name || m3.type), this.s);
+        // efeitos de magia criam um material brilhante novo a cada uso: os do Babylon são reaproveitados de uma reserva
+        const efeito = m3.type === 'MeshBasicMaterial' && !m3.map && m3.blending === 2;
+        let m = efeito ? this.reservaMat.pop() : undefined;
+        if (m) { m.metadata = {}; m.alpha = 1; this.stats.reusados++; }
+        else { m = new StandardMaterial('m3_' + (m3.name || m3.type), this.s); }
         m.specularColor = new Color3(0.06, 0.06, 0.06);
         c = { m, src: m3, v: '' }; this.mats.set(k, c);
-        if (m3.addEventListener) m3.addEventListener('dispose', () => { const x = this.mats.get(k); if (x) { x.m.dispose(); this.mats.delete(k); } m3[slot] = undefined; });
+        if (m3.addEventListener) m3.addEventListener('dispose', () => { const x = this.mats.get(k); if (x) { if (efeito && this.reservaMat.length < 300) this.reservaMat.push(x.m); else x.m.dispose(); this.mats.delete(k); } m3[slot] = undefined; });
         this.copiarMaterial(c, temCor); c.q = this.quadro;
         this.melhorar?.(m, m3, obj);
       }
