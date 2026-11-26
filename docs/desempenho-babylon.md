@@ -68,3 +68,10 @@ Medido com amostras sem média (`PONTE141.bruto = {}`), 35–40 quadros por roda
 - `babylon/src/compat/matematica.ts`: Vector2/3/4, Quaternion, Euler, Matrix3, Matrix4, Color, Box3, Sphere, Plane, Ray e MathUtils com os mesmos nomes e comportamento do three.js r128.
 - Teste `babylon/testes/matematica.mjs`: 174 métodos × 1.000 contas aleatórias cada = **185.000 contas iguais ao three.js, 0 diferenças**. Teste de sabotagem (erros colocados de propósito) confirma que o teste pega erros.
 - Ainda não ligada no jogo: entra junto com a fase 2 (objetos 3D próprios em cima do Babylon), porque as posições/giros dos objetos usam essa matemática.
+
+## Camada própria — fase 2: sem a biblioteca three.js (26/11/2026)
+
+- O build Babylon **não baixa mais o three.js r128** (603 KB, vindo do cdnjs/jsdelivr/unpkg). No lugar entra a camada própria (`montar-compat.mjs`): só as partes de dados (objetos, formas, materiais, luzes, câmera, texturas, curvas) — **200 KB**, dentro do arquivo do jogo — com a **matemática própria ligada** (as 12 classes de matemática do three.js não entram mais).
+- Ficaram de fora: renderizador WebGL, carregadores, áudio, ajudantes. O desenho é só do Babylon. O desenho de reserva (three.js) deixou de existir: se a ponte der erro, o Babylon continua desenhando e o erro fica registrado.
+- Teste `testes/camada.mjs` contra o three.js original: todas as 13 geometrias com medidas aleatórias (40 cada), torno, tubo, forma, extrusão, operações de forma, árvore de objetos (giros, mira, posição no mundo, `attach`, clone), câmera e projeção, clique (Raycaster), caixa de tamanho, valores padrão de 24 classes e as constantes — **562 conferências iguais, 0 diferenças**. Teste de sabotagem confirma que ele pega erros.
+- Medido no computador de testes (2 rodadas, sem contar o download, que no teste vem do disco): página pronta 2,02–2,12 s → 1,85–1,96 s; memória JS 215–229 MB → 209–215 MB. Diferença pequena, perto do ruído; o ganho real é não baixar 603 KB de fora e não depender desses servidores.

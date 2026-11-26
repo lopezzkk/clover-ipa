@@ -231,7 +231,8 @@ class Ponte {
     } catch (err) {
       // se algo der errado na ponte, o jogo volta a desenhar com o three.js (nada trava)
       this.erros++; console.error('[Ponte Babylon]', err);
-      if (this.erros > 5) { this.ativo = false; try { this.cenario?.restaurar(); } catch { /* segue */ } const cv = document.getElementById('c-babylon'); if (cv) cv.style.display = 'none'; }
+      // sem o three.js não existe mais desenho de reserva: o Babylon continua desenhando (o erro fica registrado)
+      if (this.erros > 5 && (window as any).THREE && (window as any).THREE.WebGLRenderer) { this.ativo = false; try { this.cenario?.restaurar(); } catch { /* segue */ } const cv = document.getElementById('c-babylon'); if (cv) cv.style.display = 'none'; }
     }
     this.ms = this.ms * 0.9 + (performance.now() - t0) * 0.1;
   }
