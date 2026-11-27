@@ -191,7 +191,9 @@ class Ponte {
     d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(8,10,24,.92);padding:24px;font-family:system-ui,sans-serif;color:#f3e6c4;text-align:center';
     d.innerHTML = '<div style="max-width:520px;border:2px solid #e8b84a;border-radius:16px;padding:22px;background:#121a33"><div style="font-size:22px;font-weight:700;color:#e8b84a;margin-bottom:10px">O 3D não abriu aqui</div>'
       + '<div style="font-size:16px;line-height:1.45">Este visualizador não libera os gráficos 3D (WebGL), então só a interface aparece.' + (ios ? ' No iPhone isso acontece quando o arquivo é aberto pela pré-visualização do WhatsApp ou do app Arquivos.' : '') + '<br><br><b>Abra o jogo pelo link no ' + (ios ? 'Safari' : 'navegador (Chrome, Safari ou Firefox)') + '</b>' + (ios ? ', ou pelo atalho na Tela de Início' : '') + '.</div>'
-      + '<button style="margin-top:16px;padding:10px 22px;border-radius:10px;border:0;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:16px">Fechar aviso</button></div>';
+      + '<a href="https://lopezzkk.github.io/clover-ipa/" target="_blank" rel="noopener" style="display:block;margin-top:16px;padding:12px 22px;border-radius:10px;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:17px;text-decoration:none">Abrir o jogo no ' + (ios ? 'Safari' : 'navegador') + '</a>'
+      + '<div style="font-size:13px;opacity:.75;margin-top:6px">Abre a versão publicada do jogo (com 3D).</div>'
+      + '<button style="margin-top:12px;padding:8px 18px;border-radius:10px;border:1px solid #e8b84a;background:transparent;color:#f3e6c4;font-size:14px">Fechar aviso</button></div>';
     d.querySelector('button')!.addEventListener('click', () => d.remove()); document.body.appendChild(d);
   }
   render(s3: T3, c3: T3, R: T3) {
