@@ -75,3 +75,11 @@ Medido com amostras sem média (`PONTE141.bruto = {}`), 35–40 quadros por roda
 - Ficaram de fora: renderizador WebGL, carregadores, áudio, ajudantes. O desenho é só do Babylon. O desenho de reserva (three.js) deixou de existir: se a ponte der erro, o Babylon continua desenhando e o erro fica registrado.
 - Teste `testes/camada.mjs` contra o three.js original: todas as 13 geometrias com medidas aleatórias (40 cada), torno, tubo, forma, extrusão, operações de forma, árvore de objetos (giros, mira, posição no mundo, `attach`, clone), câmera e projeção, clique (Raycaster), caixa de tamanho, valores padrão de 24 classes e as constantes — **562 conferências iguais, 0 diferenças**. Teste de sabotagem confirma que ele pega erros.
 - Medido no computador de testes (2 rodadas, sem contar o download, que no teste vem do disco): página pronta 2,02–2,12 s → 1,85–1,96 s; memória JS 215–229 MB → 209–215 MB. Diferença pequena, perto do ruído; o ganho real é não baixar 603 KB de fora e não depender desses servidores.
+
+## Rodada 5 — menos objetos copiados por quadro (26/11/2026)
+
+- Medido quem é copiado a cada quadro (Vila Hage, alto): ~425 objetos, quase todos se mexendo. Os maiores grupos: roupas extras de moradores a 120–160 m (o corpo novo já some depois de ~132 m, mas as roupas continuavam soltas no ar e sendo copiadas) e enfeites pequenos que se mexem a 80–180 m (bandeiras, folhas, placas).
+- **Correção 1:** morador longe some por inteiro (corpo + roupas extras) — também corrige as roupas "flutuando".
+- **Correção 2:** alcance por tamanho: peças com raio < 1 m somem a 55% do alcance do nível, < 3 m a 80%, as grandes vão até o alcance (vale também para as peças congeladas).
+- Resultado: **~425 → ~268 objetos por quadro (−37%)**. O tempo em ms ficou dentro do ruído desta máquina (renderização por software, ~1 quadro/s). Desenhos por quadro iguais (~362). Fotos perto e longe iguais.
+- Desenhos no passo principal (~227): 92 de malhas copiadas, 40 de cenário juntado, 23 do terreno, 31 de florestas, 158 instâncias em lote (personagens etc.).

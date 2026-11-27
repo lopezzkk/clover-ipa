@@ -45,6 +45,7 @@ import { Chefes } from './chefes';
 import { Natureza } from './natureza';
 
 type T3 = any;
+import { alcanceDe } from './alcance';
 type Nivel = 'muitobaixo' | 'baixo' | 'medio' | 'alto' | 'ultra';
 
 class Ponte {
@@ -186,7 +187,8 @@ class Ponte {
     try {
       if (!this.pronto) this.iniciar(R);
       const tr = this.tr; tr.quadro++;
-      s3.updateMatrixWorld(); if (c3.parent === null) c3.updateMatrixWorld();
+      let tm = performance.now(); const marca = (k: string) => { const n = performance.now(); this.perfil[k] = (this.perfil[k] || 0) * 0.9 + (n - tm) * 0.1; if (this.bruto) (this.bruto[k] ||= []).push(n - tm); tm = n; };
+      s3.updateMatrixWorld(); if (c3.parent === null) c3.updateMatrixWorld(); marca('matrizes');
       // tamanho da tela
       const cv = this.engine.getRenderingCanvas()!; if (cv.clientWidth !== this.w || cv.clientHeight !== this.h) { this.w = cv.clientWidth; this.h = cv.clientHeight; this.engine.resize(); }
       // câmera do jogo
@@ -201,17 +203,17 @@ class Ponte {
       // otimização: objetos pequenos muito longe da câmera não são enviados (cada nível tem seu alcance)
       const alc: Record<string, number> = { muitobaixo: 70, baixo: 95, medio: 130, alto: 170, ultra: 240 }; const A = alc[this.nivel || 'medio'];
       const cx = e[12], cy = e[13], cz = e[14]; let cortados = 0; const pers = this.pers;
-      let tm = performance.now(); const marca = (k: string) => { const n = performance.now(); this.perfil[k] = (this.perfil[k] || 0) * 0.9 + (n - tm) * 0.1; if (this.bruto) (this.bruto[k] ||= []).push(n - tm); tm = n; };
+      marca('cameraNevoa');
       this.cenario.alcance = A; this.cenario.atualizar(s3); marca('cenarioNativo');
       pers.atualizar(s3, this.cam.position, A * 0.35); marca('personagens');
       const walk = (o: T3) => {
-        if (o.visible === false) return;
+        if (o.visible === false || pers.longe(o)) return;
         if (o.isLight) this.luz(o);
         else if ((o.layers.mask & mask) !== 0 && (o.isMesh || o.isSprite || o.isPoints || o.isLine) && !o.__nativo && !pers.pular(o) && !this.mundo.esconder(o) && !this.clima.esconder(o)) {
           const m = o.matrixWorld.elements; const dx = m[12] - cx, dy = m[13] - cy, dz = m[14] - cz; const d2 = dx * dx + dy * dy + dz * dz;
           let longe = false;
-          if (d2 > A * A && o.geometry) { let r = o.__r; if (r === undefined) { const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); r = o.__r = g.boundingSphere ? g.boundingSphere.radius : 0; }
-            const rr = r * Math.hypot(m[0], m[1], m[2]); if (rr < 25 && Math.sqrt(d2) - rr > A) longe = true; }
+          if (d2 > A * A * 0.3 && o.geometry) { let r = o.__r; if (r === undefined) { const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); r = o.__r = g.boundingSphere ? g.boundingSphere.radius : 0; }
+            const rr = r * Math.hypot(m[0], m[1], m[2]); if (rr < 25 && Math.sqrt(d2) - rr > alcanceDe(rr, A)) longe = true; }
           if (longe) cortados++; else tr.objeto(o, m);
         }
         const ch = o.children; for (let i = 0; i < ch.length; i++) walk(ch[i]);

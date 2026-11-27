@@ -110,7 +110,7 @@ export class Personagens {
       if (!rig.g || !this.visivel(rig.g, S3)) continue;
       let b = this.bonecos.get(rig); if (!b) { b = { rig, inst: {}, visto: 0, cores: '', lod: 0 }; this.bonecos.set(rig, b); this.marcar(rig); }
       const e = rig.g.matrixWorld.elements; const d = Math.hypot(e[12] - cam.x, e[14] - cam.z);
-      if (d > raioLod * 2.2) continue; // longe demais: o jogo já esconde detalhes
+      if (d > raioLod * 2.2) { rig.g.__longeQ = this.quadro; continue; } // longe demais: o corpo some e as roupas extras dele também (antes ficavam soltas no ar e eram copiadas à toa)
       b.lod = d > raioLod ? 2 : 1;
       if (b.lod === 2 && (this.quadro + (b.visto & 3)) % 3 !== 0 && b.visto > 0) { b.visto = this.quadro; this.manter(b); ativos++; continue; } // longe: atualiza 1 a cada 3 quadros
       b.visto = this.quadro; this.montar(b); ativos++;
@@ -184,6 +184,8 @@ export class Personagens {
     }
   }
   /** a ponte não desenha as peças antigas do corpo (o corpo novo as substitui); acessórios e roupas extras continuam */
+  /** o personagem inteiro (roupas extras inclusive) está longe demais neste quadro */
+  longe(o: T3): boolean { return o.__longeQ === this.quadro; }
   pular(o: T3): boolean {
     if (this.corpo.has(o)) return true;
     const m = Array.isArray(o.material) ? o.material[0] : o.material; if (m && this.corpo.has(m)) return true;

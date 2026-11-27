@@ -7,6 +7,7 @@ import { Scene } from '@babylonjs/core/scene';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { Matrix } from '@babylonjs/core/Maths/math.vector';
 import type { Tradutor } from './tradutor';
+import { alcanceDe } from './alcance';
 
 type T3 = any;
 const jogo = (n: string): any => { try { return (0, eval)(`typeof ${n}!=='undefined'?${n}:undefined`); } catch { return undefined; } };
@@ -92,7 +93,7 @@ export class CenarioNativo {
       if (p !== S3) { this.tr.sombraRem?.(f.b); f.b.dispose(false, false); o.__nativo = null; continue; } // a peça saiu da cena
       const m3 = Array.isArray(o.material) ? o.material[0] : o.material;
       if (m3 !== f.m3 || o.geometry.drawRange.count !== Infinity) { this.tr.sombraRem?.(f.b); f.b.dispose(false, false); o.__nativo = null; this.estab.delete(o); continue; } // mudou de material: volta para a cópia normal
-      if (vis) { const bs = f.b.getBoundingInfo().boundingSphere; const r = bs.radiusWorld; if (r < 25 && Math.hypot(bs.centerWorld.x - px, bs.centerWorld.z - pz) - r > A) vis = false; } // longe: igual ao corte por distância da cópia
+      if (vis) { const bs = f.b.getBoundingInfo().boundingSphere; const r = bs.radiusWorld; if (r < 25 && Math.hypot(bs.centerWorld.x - px, bs.centerWorld.z - pz) - r > alcanceDe(r, A)) vis = false; } // longe: igual ao corte por distância da cópia
       if ((o.layers.mask & 1) === 0 || (m3 && m3.visible === false)) vis = false; // camada escondida do jogo ou material invisível
       if (f.b.isEnabled(false) !== vis) f.b.setEnabled(vis);
       if (completo && vis) {
