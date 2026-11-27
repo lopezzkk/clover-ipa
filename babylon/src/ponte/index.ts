@@ -182,9 +182,9 @@ class Ponte {
     sm.sunPosition = d.direction.scale(-300); sm.luminance = Math.max(0.15, Math.min(1.1, 0.2 + up * 1.2)); sm.turbidity = up < 0.25 ? 8 : 5;
   }
 
-  semWebGL = false;
+  semWebGL = false; pixelTeste: number[] = []; private falhasInicio = 0; private quadrosVazios = 0; private quadrosCheios = 0;
   /** o aparelho/visualizador não liberou o 3D (WebGL): avisa na tela como abrir o jogo do jeito certo */
-  private avisoSemWebGL() {
+  private avisoSemWebGL(detalhe = '') {
     if (document.getElementById('aviso-sem-3d')) return;
     const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
     const d = document.createElement('div'); d.id = 'aviso-sem-3d';
@@ -193,6 +193,7 @@ class Ponte {
       + '<div style="font-size:16px;line-height:1.45">Este visualizador não libera os gráficos 3D (WebGL), então só a interface aparece.' + (ios ? ' No iPhone isso acontece quando o arquivo é aberto pela pré-visualização do WhatsApp ou do app Arquivos.' : '') + '<br><br><b>Abra o jogo pelo link no ' + (ios ? 'Safari' : 'navegador (Chrome, Safari ou Firefox)') + '</b>' + (ios ? ', ou pelo atalho na Tela de Início' : '') + '.</div>'
       + '<a href="https://lopezzkk.github.io/clover-ipa/" target="_blank" rel="noopener" style="display:block;margin-top:16px;padding:12px 22px;border-radius:10px;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:17px;text-decoration:none">Abrir o jogo no ' + (ios ? 'Safari' : 'navegador') + '</a>'
       + '<div style="font-size:13px;opacity:.75;margin-top:6px">Abre a versão publicada do jogo (com 3D).</div>'
+      + (detalhe ? '<div style="font-size:11px;opacity:.6;margin-top:10px;word-break:break-all">Detalhe técnico: ' + detalhe.replace(/[<>&]/g, '').slice(0, 160) + '</div>' : '')
       + '<button style="margin-top:12px;padding:8px 18px;border-radius:10px;border:1px solid #e8b84a;background:transparent;color:#f3e6c4;font-size:14px">Fechar aviso</button></div>';
     d.querySelector('button')!.addEventListener('click', () => d.remove()); document.body.appendChild(d);
   }
@@ -245,10 +246,18 @@ class Ponte {
       const dc = (this.engine as any)._drawCalls; if (dc && dc.fetchNewFrame) dc.fetchNewFrame(); // contador de desenhos por quadro (não acumulado)
       tm = performance.now(); this.engine.beginFrame(); this.scene.render(); this.engine.endFrame(); marca('desenhoBabylon');
       if (dc) this.desenhos = dc.current;
+      // vigia: o 3D começou mas nada é desenhado (contexto perdido ou bloqueado pelo visualizador) → avisa uma vez, sem parar o jogo
+      const gl: any = (this.engine as any)._gl; const perdido = !!(gl && gl.isContextLost && gl.isContextLost());
+      this.quadrosVazios = (this.desenhos === 0 || perdido) ? this.quadrosVazios + 1 : 0;
+      if (this.quadrosVazios === 180) this.avisoSemWebGL(perdido ? 'contexto 3D perdido' : 'nada desenhado em 180 quadros');
+      // uma vez: confere se a imagem desenhada não saiu toda preta/vazia (alguns visualizadores dão o 3D mas não deixam desenhar)
+      if (this.desenhos > 0 && ++this.quadrosCheios === 20 && gl && !perdido) { try { const px = new Uint8Array(4); gl.readPixels(gl.drawingBufferWidth >> 1, gl.drawingBufferHeight >> 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); this.pixelTeste = Array.from(px); if (px[0] + px[1] + px[2] + px[3] === 0) this.avisoSemWebGL('imagem 3D vazia'); } catch { /* segue */ } }
     } catch (err) {
       // se algo der errado na ponte, o erro fica registrado e o jogo segue
       this.erros++; console.error('[Ponte Babylon]', err);
-      if (!this.pronto && /WebGL/i.test(String(err && (err as any).message || err))) { this.semWebGL = true; this.avisoSemWebGL(); return; }
+      const msg = String(err && (err as any).message || err);
+      // não conseguiu começar o 3D (sem WebGL ou outro erro na partida): para de tentar e avisa na tela com o detalhe
+      if (!this.pronto && (/WebGL/i.test(msg) || ++this.falhasInicio >= 3)) { this.semWebGL = true; this.avisoSemWebGL(msg); return; }
       // sem o three.js não existe mais desenho de reserva: o Babylon continua desenhando (o erro fica registrado)
       if (this.erros > 5 && (window as any).THREE && (window as any).THREE.WebGLRenderer) { this.ativo = false; try { this.cenario?.restaurar(); } catch { /* segue */ } const cv = document.getElementById('c-babylon'); if (cv) cv.style.display = 'none'; }
     }
@@ -267,7 +276,7 @@ class Ponte {
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, semWebGL: this.semWebGL, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info, ondas: this.efeitos?.info, cenario: this.cenario?.info, modelos: this.modelos?.info }; }
+  info() { return { ativo: this.ativo, semWebGL: this.semWebGL, pixelTeste: this.pixelTeste, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info, ondas: this.efeitos?.info, cenario: this.cenario?.info, modelos: this.modelos?.info }; }
   /** carregamento dos modelos .glb pelo Babylon (chamado pelo glb100 do jogo) */
   glb(k: string, cb: (sc: any) => void, antigo?: (k: string, cb: (sc: any) => void) => void) { if (!this.modelos) return antigo ? antigo(k, cb) : undefined; this.modelos.carregar(k, cb, antigo); }
 }
