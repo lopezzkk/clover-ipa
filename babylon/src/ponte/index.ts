@@ -182,7 +182,20 @@ class Ponte {
     sm.sunPosition = d.direction.scale(-300); sm.luminance = Math.max(0.15, Math.min(1.1, 0.2 + up * 1.2)); sm.turbidity = up < 0.25 ? 8 : 5;
   }
 
+  semWebGL = false;
+  /** o aparelho/visualizador não liberou o 3D (WebGL): avisa na tela como abrir o jogo do jeito certo */
+  private avisoSemWebGL() {
+    if (document.getElementById('aviso-sem-3d')) return;
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+    const d = document.createElement('div'); d.id = 'aviso-sem-3d';
+    d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(8,10,24,.92);padding:24px;font-family:system-ui,sans-serif;color:#f3e6c4;text-align:center';
+    d.innerHTML = '<div style="max-width:520px;border:2px solid #e8b84a;border-radius:16px;padding:22px;background:#121a33"><div style="font-size:22px;font-weight:700;color:#e8b84a;margin-bottom:10px">O 3D não abriu aqui</div>'
+      + '<div style="font-size:16px;line-height:1.45">Este visualizador não libera os gráficos 3D (WebGL), então só a interface aparece.' + (ios ? ' No iPhone isso acontece quando o arquivo é aberto pela pré-visualização do WhatsApp ou do app Arquivos.' : '') + '<br><br><b>Abra o jogo pelo link no ' + (ios ? 'Safari' : 'navegador (Chrome, Safari ou Firefox)') + '</b>' + (ios ? ', ou pelo atalho na Tela de Início' : '') + '.</div>'
+      + '<button style="margin-top:16px;padding:10px 22px;border-radius:10px;border:0;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:16px">Fechar aviso</button></div>';
+    d.querySelector('button')!.addEventListener('click', () => d.remove()); document.body.appendChild(d);
+  }
   render(s3: T3, c3: T3, R: T3) {
+    if (this.semWebGL) return; // sem 3D neste aparelho: não fica tentando (e falhando) a cada quadro
     const t0 = performance.now();
     try {
       if (!this.pronto) this.iniciar(R);
@@ -231,8 +244,9 @@ class Ponte {
       tm = performance.now(); this.engine.beginFrame(); this.scene.render(); this.engine.endFrame(); marca('desenhoBabylon');
       if (dc) this.desenhos = dc.current;
     } catch (err) {
-      // se algo der errado na ponte, o jogo volta a desenhar com o three.js (nada trava)
+      // se algo der errado na ponte, o erro fica registrado e o jogo segue
       this.erros++; console.error('[Ponte Babylon]', err);
+      if (!this.pronto && /WebGL/i.test(String(err && (err as any).message || err))) { this.semWebGL = true; this.avisoSemWebGL(); return; }
       // sem o three.js não existe mais desenho de reserva: o Babylon continua desenhando (o erro fica registrado)
       if (this.erros > 5 && (window as any).THREE && (window as any).THREE.WebGLRenderer) { this.ativo = false; try { this.cenario?.restaurar(); } catch { /* segue */ } const cv = document.getElementById('c-babylon'); if (cv) cv.style.display = 'none'; }
     }
@@ -251,7 +265,7 @@ class Ponte {
     const gr = CreateGround('sondaChao', { width: 12, height: 12 }, this.scene); gr.position.set(x + 3, 0.3, z); const mg = new StandardMaterial('sondaG', this.scene); mg.diffuseColor = new Color3(0.9, 0.9, 0.9); gr.material = mg; gr.receiveShadows = true;
     this.sombra?.addShadowCaster(sp); return { sombra: !!this.sombra, lista: this.sombra?.getShadowMap()?.renderList?.length, luz: this.sombra?.getLight().name };
   }
-  info() { return { ativo: this.ativo, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info, ondas: this.efeitos?.info, cenario: this.cenario?.info, modelos: this.modelos?.info }; }
+  info() { return { ativo: this.ativo, semWebGL: this.semWebGL, nivel: this.nivel, ms: +this.ms.toFixed(2), desenhos: this.desenhos, ...this.tr?.stats, texturas: this.tr?.totalTexturas, grama: this.grama?.total, faiscas: this.faiscas?.ativos, efeitos: this.tr?.efeitos.length, sombra: this.sombra ? this.sombra.getShadowMap()!.renderList!.length : -1, geometrias: this.tr?.totalGeometrias, erros: this.erros, msSync: +this.msSync.toFixed(2), cortados: this.cortados, personagens: this.pers?.ativos, chefes: this.chefes?.ativos, agua: this.nat?.aguaVertices, elementos: this.faiscas?.elementos, mundo: this.mundo?.info, sombras: this.sombrasAtivas, perfil: Object.fromEntries(Object.entries(this.perfil).map(([k, v]) => [k, +v.toFixed(2)])), interface: this.ui?.info, vilas: this.vilas?.info, castelos: this.castelos?.info, clima: this.clima?.info, ondas: this.efeitos?.info, cenario: this.cenario?.info, modelos: this.modelos?.info }; }
   /** carregamento dos modelos .glb pelo Babylon (chamado pelo glb100 do jogo) */
   glb(k: string, cb: (sc: any) => void, antigo?: (k: string, cb: (sc: any) => void) => void) { if (!this.modelos) return antigo ? antigo(k, cb) : undefined; this.modelos.carregar(k, cb, antigo); }
 }
