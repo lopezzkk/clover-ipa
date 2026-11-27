@@ -188,14 +188,25 @@ class Ponte {
     if (document.getElementById('aviso-sem-3d')) return;
     const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
     const d = document.createElement('div'); d.id = 'aviso-sem-3d';
-    d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(8,10,24,.92);padding:24px;font-family:system-ui,sans-serif;color:#f3e6c4;text-align:center';
-    d.innerHTML = '<div style="max-width:520px;border:2px solid #e8b84a;border-radius:16px;padding:22px;background:#121a33"><div style="font-size:22px;font-weight:700;color:#e8b84a;margin-bottom:10px">O 3D não abriu aqui</div>'
-      + '<div style="font-size:16px;line-height:1.45">Este visualizador não libera os gráficos 3D (WebGL), então só a interface aparece.' + (ios ? ' No iPhone isso acontece quando o arquivo é aberto pela pré-visualização do WhatsApp ou do app Arquivos.' : '') + '<br><br><b>Abra o jogo pelo link no ' + (ios ? 'Safari' : 'navegador (Chrome, Safari ou Firefox)') + '</b>' + (ios ? ', ou pelo atalho na Tela de Início' : '') + '.</div>'
-      + '<a href="https://lopezzkk.github.io/clover-ipa/" target="_blank" rel="noopener" style="display:block;margin-top:16px;padding:12px 22px;border-radius:10px;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:17px;text-decoration:none">Abrir o jogo no ' + (ios ? 'Safari' : 'navegador') + '</a>'
-      + '<div style="font-size:13px;opacity:.75;margin-top:6px">Abre a versão publicada do jogo (com 3D).</div>'
-      + (detalhe ? '<div style="font-size:11px;opacity:.6;margin-top:10px;word-break:break-all">Detalhe técnico: ' + detalhe.replace(/[<>&]/g, '').slice(0, 160) + '</div>' : '')
-      + '<button style="margin-top:12px;padding:8px 18px;border-radius:10px;border:1px solid #e8b84a;background:transparent;color:#f3e6c4;font-size:14px">Fechar aviso</button></div>';
-    d.querySelector('button')!.addEventListener('click', () => d.remove()); document.body.appendChild(d);
+    d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;background:rgba(8,10,24,.92);padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:system-ui,sans-serif;color:#f3e6c4;text-align:center';
+    d.innerHTML = '<div style="margin:auto;max-width:560px;border:2px solid #e8b84a;border-radius:16px;padding:14px 18px;background:#121a33"><div style="font-size:19px;font-weight:700;color:#e8b84a;margin-bottom:6px">O 3D não abriu aqui</div>'
+      + '<div style="font-size:14px;line-height:1.4">Este visualizador não libera os gráficos 3D (WebGL)' + (ios ? ' — acontece na pré-visualização do WhatsApp e do app Arquivos' : '') + '. <b>Abra o jogo pelo link no ' + (ios ? 'Safari' : 'navegador') + '</b>.</div>'
+      + '<a id="aviso-abrir" href="https://lopezzkk.github.io/clover-ipa/" style="display:block;margin-top:10px;padding:10px 18px;border-radius:10px;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:16px;text-decoration:none">Abrir o jogo no ' + (ios ? 'Safari' : 'navegador') + '</a>'
+      + '<div style="font-size:13px;opacity:.8;margin-top:8px">Se o botão não abrir, copie o link e cole no ' + (ios ? 'Safari' : 'navegador') + ':</div>'
+      + '<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;align-items:center;flex-wrap:wrap"><input id="aviso-link" readonly value="https://lopezzkk.github.io/clover-ipa/" style="flex:1;min-width:200px;padding:9px;border-radius:8px;border:1px solid #e8b84a;background:#0b1024;color:#f3e6c4;font-size:15px;text-align:center;-webkit-user-select:text;user-select:text">'
+      + '<button id="aviso-copiar" style="padding:9px 16px;border-radius:8px;border:0;background:#e8b84a;color:#1a1a1a;font-weight:700;font-size:15px">Copiar link</button></div>'
+      + (detalhe ? '<div style="font-size:11px;opacity:.6;margin-top:6px;word-break:break-all">Detalhe técnico: ' + detalhe.replace(/[<>&]/g, '').slice(0, 160) + '</div>' : '')
+      + '<button style="margin-top:8px;padding:6px 16px;border-radius:10px;border:1px solid #e8b84a;background:transparent;color:#f3e6c4;font-size:14px">Fechar aviso</button></div>';
+    const fechar = [...d.querySelectorAll('button')].find(x => /Fechar/.test(x.textContent || '')); fechar?.addEventListener('click', () => d.remove());
+    const url = 'https://lopezzkk.github.io/clover-ipa/'; const ab = d.querySelector('#aviso-abrir') as HTMLAnchorElement;
+    // tenta abrir de três jeitos (alguns visualizadores bloqueiam um ou outro)
+    ab.addEventListener('click', ev => { ev.preventDefault(); let w: Window | null = null; try { w = window.open(url, '_blank'); } catch { /* bloqueado */ } if (!w) try { window.location.href = url; } catch { /* bloqueado */ } });
+    const inp = d.querySelector('#aviso-link') as HTMLInputElement; const cp = d.querySelector('#aviso-copiar') as HTMLButtonElement;
+    cp.addEventListener('click', () => { let ok = false; inp.focus(); inp.select(); inp.setSelectionRange(0, 999);
+      try { ok = document.execCommand('copy'); } catch { /* sem cópia */ }
+      if (!ok && navigator.clipboard) navigator.clipboard.writeText(url).then(() => { cp.textContent = 'Copiado!'; }).catch(() => { cp.textContent = 'Segure no link e copie'; });
+      cp.textContent = ok ? 'Copiado!' : 'Segure no link e copie'; });
+    document.body.appendChild(d);
   }
   render(s3: T3, c3: T3, R: T3) {
     if (this.semWebGL) return; // sem 3D neste aparelho: não fica tentando (e falhando) a cada quadro
